@@ -71,14 +71,50 @@
     
     <input type="hidden" name="opis" id="opisField">
 
-    <label>Slika:</label>
-    <input type="file" name="slika" accept="image/*" required>
+    <div class="form-field">
+        <label>Slika:</label>
+        <div id="pasteArea" class="paste-area">
+            <input type="file" id="fileInput" name="slika" accept="image/*" class="file-input">
+            <p class="paste-hint">📎 Odaberi sliku ili pritisni CTRL+V</p>
+        </div>
+        <img id="preview" class="image-preview" alt="Preview slike" style="display: none;">
+    </div>
 
     <button type="submit">Dodaj porudžbinu</button>
 </form>
 </div>
 
 <script>
+
+const pasteArea = document.getElementById("pasteArea");
+const preview = document.getElementById("preview");
+const fileInput = document.getElementById("fileInput");
+
+pasteArea.addEventListener("paste", function (e) {
+  const items = e.clipboardData.items;
+
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf("image") !== -1) {
+
+      const file = items[i].getAsFile();
+
+      // Preview
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        preview.src = event.target.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+
+      // Ubaci u input file da se pošalje formom
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      fileInput.files = dataTransfer.files;
+
+      break;
+    }
+  }
+});
 // Dark Mode Toggle
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
