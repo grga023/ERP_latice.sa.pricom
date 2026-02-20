@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 from flask import Flask, request, jsonify, send_from_directory
 import json, os, time
+import logging
+
+# Disable Flask default logging
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 app = Flask(__name__)
+app.logger.disabled = True
 
 ERP_DIR = '/opt/appl/scripts/ERP'
 ORDERS_FILE = os.path.join(ERP_DIR,'orders.json')
@@ -10,14 +16,17 @@ IMAGES_DIR = os.path.join(ERP_DIR,'images')
 
 # Ensure files exist
 if not os.path.exists(ORDERS_FILE):
-    with open(ORDERS_FILE,'w') as f: json.dump([],f)
+    with open(ORDERS_FILE,'w') as f: 
+        json.dump([], f)
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
 def load_orders():
-    with open(ORDERS_FILE) as f: return json.load(f)
+    with open(ORDERS_FILE) as f:
+        return json.load(f)
 
 def save_orders(orders):
-    with open(ORDERS_FILE,'w') as f: json.dump(orders, f, indent=2)
+    with open(ORDERS_FILE,'w') as f:
+        json.dump(orders, f, indent=2)
 
 @app.route('/')
 def index():
@@ -64,4 +73,6 @@ def update_status():
 def images(filename):
     return send_from_directory(IMAGES_DIR, filename)
 
-app.run(host='0.0.0.0', port=8000)
+if __name__ == '__main__':
+    # Run Flask in background-safe mode
+    app.run(host='0.0.0.0', port=8000, debug=False)
