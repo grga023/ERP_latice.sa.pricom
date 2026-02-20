@@ -2,12 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Latice sa pricom - To be Shipped</title>
+<title>Latice sa pricom - Realizovane porudžbine</title>
 <link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
 </head>
 <body>
 
-<h1>Latice sa pricom - To be Shipped</h1>
+<!-- Navigation bar -->
+<nav class="topnav">
+  <button class="hamburger" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <div class="nav-menu">
+    <a href="index.html">Dodaj porudžbinu</a>
+    <a href="porudzbenice.html">Nove porudžbine</a>
+    <a href="realizovano.html">Realizovane porudžbine</a>
+    <a href="za_daostavu.html">Za dostavu</a>
+  </div>
+  <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+</nav>
+
+<div class="container">
+<h1>Realizovane porudžbine</h1>
 
 <table id="shippingTable">
 <thead>
@@ -15,16 +33,19 @@
     <th>ID</th>
     <th>Naziv</th>
     <th>Cena</th>
-    <th>Placeno</th>
+    <th>Plaćeno</th>
     <th>Kupac</th>
+    <th>Datum</th>
     <th>Opis</th>
     <th>Slika</th>
     <th>Status</th>
-    <th>Action</th>
+    <th>Akcija</th>
+</tr>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
+</div>
 
 <script>
 async function loadToBeShipped() {
@@ -42,33 +63,23 @@ async function loadToBeShipped() {
                 <td>${order.cena}</td>
                 <td>${order.placeno ? '✅' : '❌'}</td>
                 <td>${order.kupac}</td>
-                <td>${order.opis}</td>
+                <td>${order.datum || '-'}</td>
+                <td>${order.opis || '-'}</td>
                 <td><img src="/images/${order.slika}" /></td>
                 <td>${order.status}</td>
-                <td><button onclick="delivered(${order.id})">Delivered</button></td>
+                <td><button onclick="editOrder(${order.id})">Izmeni</button></td>
             `;
             tbody.appendChild(tr);
         }
     });
 }
 
-async function delivered(id) {
-    try {
-        const res = await fetch('/update_status', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({id: id, status:'executed'})
-        });
-        if(res.ok) loadToBeShipped();
-        else alert('Failed to update status.');
-    } catch(err) {
-        console.error(err);
-        alert('Error connecting to server.');
-    }
-}
-
 // initial load
 loadToBeShipped();
+
+function editOrder(id) {
+    window.location.href = `edit.html?id=${id}`;
+}
 </script>
 
 </body>

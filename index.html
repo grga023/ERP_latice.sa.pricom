@@ -3,55 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Latice sa pricom - Add Order</title>
+<title>Latice sa pricom - Dodaj porudžbinu</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
 
 <!-- Navigation bar -->
 <nav class="topnav">
-  <a href="index.html">Add Order</a>
-  <a href="porudzbenice.html">New Orders</a>
-  <a href="realizovano.html">Realized Orders</a>
-  <a href="za_daostavu.html">To Be Shipped</a>
+  <button class="hamburger" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <div class="nav-menu">
+    <a href="index.html">Dodaj porudžbinu</a>
+    <a href="porudzbenice.html">Nove porudžbine</a>
+    <a href="realizovano.html">Realizovane porudžbine</a>
+    <a href="za_daostavu.html">Za dostavu</a>
+  </div>
+  <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
 </nav>
 
-<div class="container">
-<h1>Latice sa pricom - Add Order</h1>
+<div class="container" id="form-container">
+<h1>Dodaj porudžbinu</h1>
 
 <form id="orderForm" enctype="multipart/form-data">
-    <label>Naziv (Product Name):</label>
-    <input type="text" name="naziv" required>
+    <div class="form-field">
+        <label>Naziv proizvoda:</label>
+        <input type="text" name="naziv" required>
+    </div>
 
-    <label>Cena (Price):</label>
-    <input type="number" name="cena" step="0.01" required>
+    <div class="form-field">
+        <label>Cena:</label>
+        <input type="number" name="cena" step="0.01" required>
+    </div>
 
-    <label>Placeno (Paid):</label>
-    <select name="placeno">
-        <option value="false">No</option>
-        <option value="true">Yes</option>
-    </select>
+    <div class="form-field">
+        <label>Plaćeno:</label>
+        <select name="placeno">
+            <option value="false">Ne</option>
+            <option value="true">Da</option>
+        </select>
+    </div>
 
-    <label>Kupac (Customer):</label>
-    <input type="text" name="kupac" required>
+    <div class="form-field">
+        <label>Kupac:</label>
+        <input type="text" name="kupac" required>
+    </div>
 
-    <label>Opis (Description):</label>
-    <textarea name="opis"></textarea>
+    <label>Datum:</label>
+    <input type="date" id="datepicker" name="datum" required>
 
-    <label>Slika (Image):</label>
+    <label>Količina i boja:</label>
+    <div id="kombinacije-container">
+        <div class="kombinacija-row">
+            <input type="number" class="kolicina" min="1" placeholder="Količina" required>
+            <input type="text" class="boja" placeholder="Boja (npr. žuto, plavo)" required>
+            <button type="button" class="btn-remove" onclick="removeCombination(this)">×</button>
+            <button type="button" class="btn-add" onclick="addCombination()">+ Dodaj boju</button>
+        </div>
+    </div>
+
+    <label>Dodatna poruka:</label>
+    <textarea id="customMessage" name="customMessage" placeholder="Dodatne napomene..."></textarea>
+    
+    <input type="hidden" name="opis" id="opisField">
+
+    <label>Slika:</label>
     <input type="file" name="slika" accept="image/*" required>
 
-    <button type="submit">Add Order</button>
+    <button type="submit">Dodaj porudžbinu</button>
 </form>
 </div>
 
 <script>
+// Dark Mode Toggle
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    updateToggleText();
+}
+
+function initDarkMode() {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+    updateToggleText();
+}
+
+function updateToggleText() {
+    const toggle = document.querySelector('.theme-toggle');
+    if (toggle) {
+        toggle.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+}
+
+initDarkMode();
+
+// Add new combination row
+function addCombination() {
+    const container = document.getElementById('kombinacije-container');
+    const newRow = document.createElement('div');
+    newRow.className = 'kombinacija-row';
+    newRow.innerHTML = `
+        <input type="number" class="kolicina" min="1" placeholder="Količina" required>
+        <input type="text" class="boja" placeholder="Boja (npr. žuto, plavo)" required>
+        <button type="button" class="btn-remove" onclick="removeCombination(this)">×</button>
+    `;
+    container.appendChild(newRow);
+}
+
+// Remove combination row
+function removeCombination(btn) {
+    btn.parentElement.remove();
+}
+
+// Format combinations into the opis field
+function formatCombinations() {
+    const rows = document.querySelectorAll('.kombinacija-row');
+    let formatted = '';
+    
+    rows.forEach(row => {
+        const kolicina = row.querySelector('.kolicina').value;
+        const boja = row.querySelector('.boja').value;
+        if (kolicina && boja) {
+            formatted += kolicina + ' ' + boja + '\n';
+        }
+    });
+    
+    const customMessage = document.getElementById('customMessage').value;
+    if (customMessage) {
+        formatted += customMessage;
+    }
+    
+    document.querySelector('#opisField').value = formatted;
+}
+
 const form = document.getElementById('orderForm');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Format combinations before submitting
+    formatCombinations();
 
     const formData = new FormData(form);
+    
+    // Convert date from YYYY-MM-DD to DD.MM.YYYY format
+    let datumValue = document.querySelector('#datepicker').value;
+    if (datumValue) {
+        const [year, month, day] = datumValue.split('-');
+        datumValue = `${day}.${month}.${year}`;
+    }
+    formData.set('datum', datumValue);
 
     try {
         const response = await fetch('/orders', {
@@ -60,14 +166,22 @@ form.addEventListener('submit', async (e) => {
         });
 
         if (response.ok) {
-            alert('Order added successfully!');
+            alert('Porudžbina je uspešno dodana!');
             form.reset();
+            // Reset kombinacije
+            document.getElementById('kombinacije-container').innerHTML = `
+                <div class="kombinacija-row">
+                    <input type="number" class="kolicina" min="1" placeholder="Količina" required>
+                    <input type="text" class="boja" placeholder="Boja (npr. žuto, plavo)" required>
+                    <button type="button" class="btn-remove" onclick="removeCombination(this)">×</button>
+                </div>
+            `;
         } else {
-            alert('Failed to add order.');
+            alert('Greška pri dodavanju porudžbine.');
         }
     } catch (err) {
         console.error(err);
-        alert('Error connecting to server.');
+        alert('Greška pri konektovanju na server.');
     }
 });
 </script>

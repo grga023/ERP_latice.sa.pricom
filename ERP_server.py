@@ -10,7 +10,8 @@ log.disabled = True
 app = Flask(__name__)
 app.logger.disabled = True
 
-ERP_DIR = '/opt/appl/scripts/ERP'
+# Use the directory where this script is located
+ERP_DIR = os.path.dirname(os.path.abspath(__file__))
 ORDERS_FILE = os.path.join(ERP_DIR,'orders.json')
 IMAGES_DIR = os.path.join(ERP_DIR,'images')
 
@@ -52,6 +53,9 @@ def orders():
             'cena': float(o['cena']),
             'placeno': o['placeno'] == 'true',
             'kupac': o['kupac'],
+            'datum': o.get('datum',''),
+            'kolicina': int(o.get('kolicina', 1)),
+            'boja': o.get('boja',''),
             'opis': o.get('opis',''),
             'slika': filename,
             'status': 'new'
@@ -66,6 +70,36 @@ def update_status():
     for o in orders:
         if o['id'] == data['id']:
             o['status'] = data['status']
+    save_orders(orders)
+    return jsonify({'ok': True})
+
+@app.route('/order/<int:order_id>', methods=['GET'])
+def get_order(order_id):
+    orders = load_orders()
+    for o in orders:
+        if o['id'] == order_id:
+            return jsonify(o)
+    return jsonify({'error': 'Not found'}), 404
+
+@app.route('/update_order/<int:order_id>', methods=['POST'])
+def update_order(order_id):
+    o = request.form
+    orders = load_orders()
+    for order in orders:
+        if order['id'] == order_id:
+            order['naziv'] = o.get('naziv', order['naziv'])
+            order['cena'] = float(o.get('cena', order['cena']))
+            order['placeno'] = o.get('placeno') == 'true'
+            order['kupac'] = o.get('kupac', order['kupac'])
+            order['datum'] = o.get('datum', order['datum'])
+            order['opis'] = o.get('opis', order['opis'])
+            # Handle file upload if provided
+            if 'slika' in request.files and request.files['slika'].filename:
+                file = request.files['slika']
+                filename = f"{int(time.time())}_{file.filename}"
+                file.save(os.path.join(IMAGES_DIR, filename))
+                order['slika'] = filename
+            break
     save_orders(orders)
     return jsonify({'ok': True})
 
