@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Latice sa pricom - To be Shipped</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Latice sa pricom - To be Shipped</h1>
+
+<table id="shippingTable">
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Naziv</th>
+    <th>Cena</th>
+    <th>Placeno</th>
+    <th>Kupac</th>
+    <th>Opis</th>
+    <th>Slika</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+async function loadToBeShipped() {
+    const res = await fetch('/orders');
+    const orders = await res.json();
+    const tbody = document.querySelector('#shippingTable tbody');
+    tbody.innerHTML = '';
+
+    orders.forEach(order => {
+        if(order.status === 'realized') {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${order.id}</td>
+                <td>${order.naziv}</td>
+                <td>${order.cena}</td>
+                <td>${order.placeno ? '✅' : '❌'}</td>
+                <td>${order.kupac}</td>
+                <td>${order.opis}</td>
+                <td><img src="/images/${order.slika}" /></td>
+                <td>${order.status}</td>
+                <td><button onclick="delivered(${order.id})">Delivered</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    });
+}
+
+async function delivered(id) {
+    try {
+        const res = await fetch('/update_status', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({id: id, status:'executed'})
+        });
+        if(res.ok) loadToBeShipped();
+        else alert('Failed to update status.');
+    } catch(err) {
+        console.error(err);
+        alert('Error connecting to server.');
+    }
+}
+
+// initial load
+loadToBeShipped();
+</script>
+
+</body>
+</html>

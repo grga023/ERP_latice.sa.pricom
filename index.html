@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latice sa pricom - Add Order</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Navigation bar -->
+<nav class="topnav">
+  <a href="index.html">Add Order</a>
+  <a href="porudzbenice.html">New Orders</a>
+  <a href="realizovano.html">Realized Orders</a>
+  <a href="za_daostavu.html">To Be Shipped</a>
+</nav>
+
+<div class="container">
+<h1>Latice sa pricom - Add Order</h1>
+
+<form id="orderForm" enctype="multipart/form-data">
+    <label>Naziv (Product Name):</label>
+    <input type="text" name="naziv" required>
+
+    <label>Cena (Price):</label>
+    <input type="number" name="cena" step="0.01" required>
+
+    <label>Placeno (Paid):</label>
+    <select name="placeno">
+        <option value="false">No</option>
+        <option value="true">Yes</option>
+    </select>
+
+    <label>Kupac (Customer):</label>
+    <input type="text" name="kupac" required>
+
+    <label>Opis (Description):</label>
+    <textarea name="opis"></textarea>
+
+    <label>Slika (Image):</label>
+    <input type="file" name="slika" accept="image/*" required>
+
+    <button type="submit">Add Order</button>
+</form>
+</div>
+
+<script>
+const form = document.getElementById('orderForm');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/orders', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            alert('Order added successfully!');
+            form.reset();
+        } else {
+            alert('Failed to add order.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Error connecting to server.');
+    }
+});
+</script>
+
+</body>
+</html>
