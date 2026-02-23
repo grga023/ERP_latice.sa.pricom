@@ -149,7 +149,7 @@ def update_order(order_id):
 def order_from_lager(lager_id):
     o = request.get_json()
     order_qty = int(o.get('kolicina', 1))
-    lager_id = o.get('lager_id')
+    lager_id = int(o.get('lager_id', 0))
 
     # Subtract quantity from lager (minimum 0)
     if lager_id:
