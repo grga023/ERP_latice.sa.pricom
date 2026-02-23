@@ -66,7 +66,8 @@ def migrate_orders():
                 boja=o.get('boja', ''),
                 opis=o.get('opis', ''),
                 slika=o.get('slika', ''),
-                status=status
+                status=status,
+                lager_id=o.get('lager_id')
             )
             db.session.add(order)
             count += 1

@@ -17,6 +17,7 @@ class Order(db.Model):
     opis = db.Column(db.Text, default='')
     slika = db.Column(db.String(300), default='')
     status = db.Column(db.String(20), nullable=False, default='new')
+    lager_id = db.Column(db.Integer, db.ForeignKey('lager.id'), nullable=True)
 
     def to_dict(self):
         return {
@@ -30,7 +31,8 @@ class Order(db.Model):
             'boja': self.boja,
             'opis': self.opis,
             'slika': self.slika,
-            'status': self.status
+            'status': self.status,
+            'lager_id': self.lager_id
         }
 
 

@@ -168,7 +168,7 @@ def order_from_lager(lager_id):
         opis=o.get('opis', ''),
         slika=o.get('slika', ''),
         status='new',
-        lager_id=lager_id
+        lager_id=lager_id if lager_id else None
     )
     db.session.add(order)
     db.session.commit()
@@ -179,13 +179,12 @@ def order_from_lager(lager_id):
 def return_to_lager(order_id):
     o = request.get_json()
     order_qty = int(o.get('kolicina', 1))
-    lager_id = o.get(order_id, {}).get('lager_id')
-
-    # Add quantity back to lager
-    if lager_id:
-        item = db.session.get(LagerItem, int(lager_id))
-        if item:
-            item.kolicina += order_qty
-            db.session.commit()
-            return jsonify({'ok': True})
+    order = db.session.get(Order, order_id)
+    if not order or not order.lager_id:
+        return jsonify({'error': 'Order or lager_id not found'}), 404
+    item = db.session.get(LagerItem, int(order.lager_id))
+    if item:
+        item.kolicina += order_qty
+        db.session.commit()
+        return jsonify({'ok': True})
     return jsonify({'error': 'Lager item not found'}), 404
