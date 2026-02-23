@@ -68,9 +68,10 @@ def save_notified(notified):
 
 def send_email(subject, body, config):
     try:
+        recipients = [e.strip() for e in config['receiver_email'].split(',') if e.strip()]
         msg = MIMEMultipart()
         msg['From'] = config['sender_email']
-        msg['To'] = config['receiver_email']
+        msg['To'] = ', '.join(recipients)
         msg['Subject'] = subject
         msg.attach(MIMEText(body, 'html'))
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
