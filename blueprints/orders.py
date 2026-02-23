@@ -146,10 +146,10 @@ def update_order(order_id):
 
 
 @orders_bp.route('/api/order_from_lager', methods=['POST'])
-def order_from_lager(lager_id):
+def order_from_lager():
     o = request.get_json()
     order_qty = int(o.get('kolicina', 1))
-    lager_id = int(o.get('lager_id', 0))
+    lager_id = int(o.get('lager_id', 0)) if o.get('lager_id') else None
 
     # Subtract quantity from lager (minimum 0)
     if lager_id:
