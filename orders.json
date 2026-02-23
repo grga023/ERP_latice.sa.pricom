@@ -1,5 +1,44 @@
 [
   {
+    "id": 1771620259,
+    "naziv": "Buket",
+    "cena": 1100.0,
+    "placeno": true,
+    "kupac": "Boberic - Novi Sad",
+    "datum": "06.03.2026",
+    "kolicina": 1,
+    "boja": "",
+    "opis": "1 Crveno\r\n2 Zuto\r\n",
+    "slika": "1771620259_Screenshot 2026-02-20 214108.png",
+    "status": "for_delivery"
+  },
+  {
+    "id": 1771666322,
+    "naziv": "Medenjaci",
+    "cena": 250.0,
+    "placeno": false,
+    "kupac": "Jelena Obucina",
+    "datum": "07.03.2026",
+    "kolicina": 1,
+    "boja": "",
+    "opis": "9 Crvena\r\n",
+    "slika": "1771666322_IMG-649fdcd4e282d6d2b77993b476cc78c6-V.jpg",
+    "status": "new"
+  },
+  {
+    "id": 1771791330,
+    "naziv": "Buket",
+    "cena": 2000.0,
+    "placeno": false,
+    "kupac": "Teodora",
+    "datum": "08.03.2026",
+    "kolicina": 1,
+    "boja": "",
+    "opis": "10 Razno\r\nDato Teodori \r\n7 predato 3 kod mene",
+    "slika": "1771791330_IMG_1343.jpeg",
+    "status": "new"
+  },
+  {
     "id": 1771792203,
     "naziv": "Aranzman",
     "cena": 1800.0,
@@ -101,19 +140,6 @@
     "boja": "",
     "opis": "1 Razno\r\n",
     "slika": "1771793111_image.png",
-    "status": "realized"
-  },
-  {
-    "id": 1771620259,
-    "naziv": "Buket",
-    "cena": 1100.0,
-    "placeno": true,
-    "kupac": "Boberic - Novi Sad",
-    "datum": "06.03.2026",
-    "kolicina": 1,
-    "boja": "",
-    "opis": "1 Crveno\r\n2 Zuto\r\n",
-    "slika": "1771620259_Screenshot 2026-02-20 214108.png",
     "status": "realized"
   }
 ]
