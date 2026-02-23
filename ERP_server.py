@@ -140,7 +140,7 @@ def notification_scheduler():
             check_and_notify()
         except Exception as e:
             print(f'[SCHEDULER ERROR] {e}')
-        time.sleep(3600)  # Check every hour
+        time.sleep(3600*23)  # Check every hour
 
 # --- Migrate old orders.json if it exists ---
 OLD_ORDERS_FILE = os.path.join(ERP_DIR, 'orders.json')
