@@ -190,5 +190,9 @@ def return_to_lager(order_id):
     
     # Return the order quantity back to lager
     item.kolicina += order.kolicina
+    
+    # Delete the order after returning to lager
+    db.session.delete(order)
+    
     db.session.commit()
     return jsonify({'ok': True})
