@@ -146,7 +146,7 @@ def update_order(order_id):
 
 
 @orders_bp.route('/api/order_from_lager', methods=['POST'])
-def order_from_lager():
+def order_from_lager(lager_id):
     o = request.get_json()
     order_qty = int(o.get('kolicina', 1))
     lager_id = o.get('lager_id')
@@ -167,8 +167,25 @@ def order_from_lager():
         boja=o.get('boja', ''),
         opis=o.get('opis', ''),
         slika=o.get('slika', ''),
-        status='new'
+        status='new',
+        lager_id=lager_id
     )
     db.session.add(order)
     db.session.commit()
     return jsonify({'ok': True})
+
+# return_to_lager
+@orders_bp.route('/api/return_to_lager/<int:order_id>', methods=['POST'])
+def return_to_lager(order_id):
+    o = request.get_json()
+    order_qty = int(o.get('kolicina', 1))
+    lager_id = o.get(order_id, {}).get('lager_id')
+
+    # Add quantity back to lager
+    if lager_id:
+        item = db.session.get(LagerItem, int(lager_id))
+        if item:
+            item.kolicina += order_qty
+            db.session.commit()
+            return jsonify({'ok': True})
+    return jsonify({'error': 'Lager item not found'}), 404
