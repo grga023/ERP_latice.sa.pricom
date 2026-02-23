@@ -177,14 +177,18 @@ def order_from_lager():
 # return_to_lager
 @orders_bp.route('/api/return_to_lager/<int:order_id>', methods=['POST'])
 def return_to_lager(order_id):
-    o = request.get_json()
-    order_qty = int(o.get('kolicina', 1))
     order = db.session.get(Order, order_id)
-    if not order or not order.lager_id:
-        return jsonify({'error': 'Order or lager_id not found'}), 404
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    
+    if not order.lager_id:
+        return jsonify({'error': 'Order has no lager_id'}), 404
+    
     item = db.session.get(LagerItem, int(order.lager_id))
-    if item:
-        item.kolicina += order_qty
-        db.session.commit()
-        return jsonify({'ok': True})
-    return jsonify({'error': 'Lager item not found'}), 404
+    if not item:
+        return jsonify({'error': 'Lager item not found'}), 404
+    
+    # Return the order quantity back to lager
+    item.kolicina += order.kolicina
+    db.session.commit()
+    return jsonify({'ok': True})
