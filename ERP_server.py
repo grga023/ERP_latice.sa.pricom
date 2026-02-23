@@ -191,6 +191,18 @@ def update_order(order_id):
 @app.route('/order_from_lager', methods=['POST'])
 def order_from_lager():
     o = request.get_json()
+    order_qty = int(o.get('kolicina', 1))
+    lager_id = o.get('lager_id')
+
+    # Subtract quantity from lager (minimum 0)
+    if lager_id:
+        items = load_lager()
+        for item in items:
+            if item['id'] == int(lager_id):
+                item['kolicina'] = max(0, item.get('kolicina', 0) - order_qty)
+                break
+        save_lager(items)
+
     new_orders = load_orders_by_status('new')
     new_orders.append({
         'id': int(time.time()),
@@ -199,7 +211,7 @@ def order_from_lager():
         'placeno': o.get('placeno', 'false') == 'true',
         'kupac': o.get('kupac', ''),
         'datum': o.get('datum', ''),
-        'kolicina': int(o.get('kolicina', 1)),
+        'kolicina': order_qty,
         'boja': o.get('boja', ''),
         'opis': o.get('opis', ''),
         'slika': o.get('slika', ''),
@@ -238,6 +250,8 @@ def lager():
             'naziv': o.get('naziv',''),
             'cena': float(o.get('cena', 0)),
             'boja': o.get('boja',''),
+            'kolicina': int(o.get('kolicina', 0)),
+            'lokacija': o.get('lokacija', 'Kuća'),
             'slika': filename
         })
         save_lager(items)

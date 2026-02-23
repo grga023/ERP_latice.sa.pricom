@@ -48,6 +48,19 @@
     </div>
 
     <div class="form-field">
+        <label>Količina:</label>
+        <input type="number" name="kolicina" min="0" value="1" required>
+    </div>
+
+    <div class="form-field">
+        <label>Lokacija:</label>
+        <select name="lokacija">
+            <option value="Kuća">Kuća</option>
+            <option value="Teodora">Teodora</option>
+        </select>
+    </div>
+
+    <div class="form-field">
         <label>Slika:</label>
         <div id="pasteArea" class="paste-area">
             <input type="file" id="fileInput" name="slika" accept="image/*" class="file-input">
@@ -69,6 +82,8 @@
     <th>Naziv</th>
     <th>Cena</th>
     <th>Boja</th>
+    <th>Količina</th>
+    <th>Lokacija</th>
     <th>Akcija</th>
 </tr>
 </thead>
@@ -94,6 +109,8 @@
             <input type="hidden" id="modalLagerCena">
             <input type="hidden" id="modalLagerBoja">
             <input type="hidden" id="modalLagerSlika">
+            <input type="hidden" id="modalLagerId">
+            <input type="hidden" id="modalLagerStock">
 
             <label>Kupac:</label>
             <input type="text" id="modalKupac" required>
@@ -162,14 +179,18 @@ async function loadLager() {
     tbody.innerHTML = '';
 
     items.forEach(item => {
+        const outOfStock = (item.kolicina || 0) <= 0;
         const tr = document.createElement('tr');
+        if (outOfStock) tr.classList.add('out-of-stock');
         tr.innerHTML = `
             <td data-label="Slika">${item.slika ? '<img src="/images/' + item.slika + '" />' : '-'}</td>
             <td data-label="Naziv">${item.naziv}</td>
             <td data-label="Cena">${item.cena}</td>
             <td data-label="Boja">${item.boja}</td>
+            <td data-label="Koli\u010dina">${outOfStock ? '<span class="badge-unavailable">Nedostupno</span>' : item.kolicina}</td>
+            <td data-label="Lokacija">${item.lokacija || '-'}</td>
             <td data-label="Akcija">
-                <button onclick="openOrderModal('${item.naziv}', ${item.cena}, '${item.boja}', '${item.slika}')">Kreiraj porudžbinu</button>
+                <button onclick="openOrderModal(${item.id}, '${item.naziv}', ${item.cena}, '${item.boja}', '${item.slika}', ${item.kolicina || 0})">Kreiraj porud\u017ebinu</button>
                 <button onclick="deleteLager(${item.id})">Obriši</button>
             </td>
         `;
@@ -219,7 +240,7 @@ form.addEventListener('submit', async (e) => {
 loadLager();
 
 // --- Order from Lager Modal ---
-function openOrderModal(naziv, cena, boja, slika) {
+function openOrderModal(lagerId, naziv, cena, boja, slika, stock) {
     document.getElementById('modalImg').src = slika ? '/images/' + slika : '';
     document.getElementById('modalNaziv').textContent = naziv;
     document.getElementById('modalCena').textContent = 'Cena: ' + cena;
@@ -228,11 +249,29 @@ function openOrderModal(naziv, cena, boja, slika) {
     document.getElementById('modalLagerCena').value = cena;
     document.getElementById('modalLagerBoja').value = boja;
     document.getElementById('modalLagerSlika').value = slika;
+    document.getElementById('modalLagerId').value = lagerId;
+    document.getElementById('modalLagerStock').value = stock;
     document.getElementById('modalKupac').value = '';
     document.getElementById('modalKolicina').value = 1;
     document.getElementById('modalDatum').value = '';
     document.getElementById('modalPlaceno').value = 'false';
     document.getElementById('modalOpis').value = '';
+    // Show stock warning if out of stock
+    let warn = document.getElementById('stockWarning');
+    if (!warn) {
+        warn = document.createElement('div');
+        warn.id = 'stockWarning';
+        warn.className = 'stock-warning';
+        document.querySelector('.modal-preview').after(warn);
+    }
+    if (stock <= 0) {
+        warn.textContent = '\u26A0\uFE0F Proizvod nedostupan na lageru! Mo\u017eete kreirati porud\u017ebinu ali se koli\u010dina ne\u0107e oduzeti.';
+        warn.style.display = 'block';
+    } else {
+        warn.textContent = 'Na lageru: ' + stock;
+        warn.style.display = 'block';
+        warn.classList.remove('stock-warning-red');
+    }
     document.getElementById('orderModal').classList.add('active');
 }
 
@@ -263,17 +302,26 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
     const baseCena = parseFloat(document.getElementById('modalLagerCena').value);
     const kolicina = parseInt(document.getElementById('modalKolicina').value) || 1;
     const totalCena = (baseCena * kolicina).toFixed(2);
+    const boja = document.getElementById('modalLagerBoja').value;
+    const opisText = document.getElementById('modalOpis').value.trim();
+
+    // Build formatted opis: "količina boja\nDetalji: opis"
+    let formattedOpis = kolicina + ' ' + (boja || 'Razno') + '\r\n';
+    if (opisText) {
+        formattedOpis += 'Detalji: ' + opisText + '\r\n';
+    }
 
     const data = {
         naziv: document.getElementById('modalLagerNaziv').value,
         cena: totalCena,
-        boja: document.getElementById('modalLagerBoja').value,
+        boja: boja,
         slika: document.getElementById('modalLagerSlika').value,
         kupac: document.getElementById('modalKupac').value,
         kolicina: document.getElementById('modalKolicina').value,
         datum: datumValue,
         placeno: document.getElementById('modalPlaceno').value,
-        opis: document.getElementById('modalOpis').value
+        opis: formattedOpis,
+        lager_id: document.getElementById('modalLagerId').value
     };
 
     try {
@@ -284,8 +332,7 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
         });
         if (res.ok) {
             alert('Porudžbina je uspešno kreirana!');
-            closeOrderModal();
-        } else {
+            closeOrderModal();            loadLager();        } else {
             alert('Greška pri kreiranju porudžbine.');
         }
     } catch (err) {

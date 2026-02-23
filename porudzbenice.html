@@ -73,7 +73,7 @@ async function loadOrders() {
                 <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
                 <td data-label="Kupac">${order.kupac}</td>
                 <td data-label="Datum">${order.datum || '-'}</td>
-                <td data-label="Opis">${order.opis || '-'}</td>
+                <td data-label="Opis">${(order.opis || '-').replace(/\r\n|\n/g, '<br>')}</td>
                 <td data-label="Slika"><img src="/images/${order.slika}" /></td>
                 <td data-label="Akcija">
                     <button onclick="editOrder(${order.id})">Izmeni</button>
