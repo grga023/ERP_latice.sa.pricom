@@ -126,13 +126,14 @@ function cancelEdit() {
 
 function deleteOrder() {
     if (confirm('Da li ste sigurni da želite da obrišete ovu porudžbinu?')) {
-        fetch(`/delete_order/${orderId}`, { method: 'DELETE' })
-            .then(res => {
-                if (res.ok) {
+        fetch(`/api/delete_order/${orderId}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
                     alert('Porudžbina je obrisana!');
-                    window.location.href = 'porudzbenice.html';
+                    window.location.href = '/porudzbenice';
                 } else {
-                    alert('Greška pri brisanju porudžbine.');
+                    alert(data.error || 'Greška pri brisanju porudžbine.');
                 }
             })
             .catch(err => {
