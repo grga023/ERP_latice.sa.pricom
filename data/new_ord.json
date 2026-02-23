@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1771834145,
+    "naziv": "Buket",
+    "cena": 1000.0,
+    "placeno": false,
+    "kupac": "123",
+    "datum": "10.10.2001",
+    "kolicina": 1,
+    "boja": "Zuta",
+    "opis": "",
+    "slika": "1771833250_image.png",
+    "status": "new"
+  }
+]

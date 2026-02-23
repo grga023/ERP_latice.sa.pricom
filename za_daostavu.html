@@ -20,6 +20,7 @@
     <a href="porudzbenice.html">Nove porudžbine</a>
     <a href="realizovano.html">Realizovane porudžbine</a>
     <a href="za_daostavu.html">Za dostavu</a>
+    <a href="lager.html">Lager</a>
   </div>
   <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
 </nav>
@@ -30,7 +31,6 @@
 <table id="shippingTable">
 <thead>
 <tr>
-    <th>ID</th>
     <th>Naziv</th>
     <th>Cena</th>
     <th>Plaćeno</th>
@@ -38,7 +38,6 @@
     <th>Datum</th>
     <th>Opis</th>
     <th>Slika</th>
-    <th>Status</th>
     <th>Akcija</th>
 </tr>
 </thead>
@@ -48,31 +47,27 @@
 
 <script>
 async function loadToBeShipped() {
-    const res = await fetch('/orders');
+    const res = await fetch('/orders/for_delivery');
     const orders = await res.json();
     const tbody = document.querySelector('#shippingTable tbody');
     tbody.innerHTML = '';
 
     orders.forEach(order => {
-        if(order.status === 'for_delivery') {
-            const tr = document.createElement('tr');
+        const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${order.id}</td>
-                <td>${order.naziv}</td>
-                <td>${order.cena}</td>
-                <td>${order.placeno ? '✅' : '❌'}</td>
-                <td>${order.kupac}</td>
-                <td>${order.datum || '-'}</td>
-                <td>${order.opis || '-'}</td>
-                <td><img src="/images/${order.slika}" /></td>
-                <td>${order.status}</td>
-                <td>
+                <td data-label="Naziv">${order.naziv}</td>
+                <td data-label="Cena">${order.cena}</td>
+                <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
+                <td data-label="Kupac">${order.kupac}</td>
+                <td data-label="Datum">${order.datum || '-'}</td>
+                <td data-label="Opis">${order.opis || '-'}</td>
+                <td data-label="Slika"><img src="/images/${order.slika}" /></td>
+                <td data-label="Akcija">
                     <button onclick="editOrder(${order.id})">Izmeni</button>
                     <button onclick="realized(${order.id})">Realizovano</button>
                 </td>
             `;
             tbody.appendChild(tr);
-        }
     });
 }
 

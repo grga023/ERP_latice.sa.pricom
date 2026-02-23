@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="script.js"></script>
 </head>
 <body>
 
@@ -22,6 +23,7 @@
     <a href="porudzbenice.html">Nove porudžbine</a>
     <a href="realizovano.html">Realizovane porudžbine</a>
     <a href="za_daostavu.html">Za dostavu</a>
+    <a href="lager.html">Lager</a>
   </div>
   <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
 </nav>
@@ -59,8 +61,8 @@
     <label>Količina i boja:</label>
     <div id="kombinacije-container">
         <div class="kombinacija-row">
-            <input type="number" class="kolicina" min="1" placeholder="Količina" required>
-            <input type="text" class="boja" placeholder="Boja (npr. žuto, plavo)" required>
+            <input type="number" class="kolicina" min="1" value="1" placeholder="Količina" required>
+            <input type="text" class="boja" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
             <button type="button" class="btn-remove" onclick="removeCombination(this)">×</button>
             <button type="button" class="btn-add" onclick="addCombination()">+ Dodaj boju</button>
         </div>
@@ -144,8 +146,8 @@ function addCombination() {
     const newRow = document.createElement('div');
     newRow.className = 'kombinacija-row';
     newRow.innerHTML = `
-        <input type="number" class="kolicina" min="1" placeholder="Količina" required>
-        <input type="text" class="boja" placeholder="Boja (npr. žuto, plavo)" required>
+        <input type="number" class="kolicina" min="1" value="1" placeholder="Količina" required>
+        <input type="text" class="boja" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
         <button type="button" class="btn-remove" onclick="removeCombination(this)">×</button>
     `;
     container.appendChild(newRow);
@@ -186,7 +188,18 @@ form.addEventListener('submit', async (e) => {
     formatCombinations();
 
     const formData = new FormData(form);
-    
+
+    // Multiply price by total quantity
+    const rows = document.querySelectorAll('.kombinacija-row');
+    let totalKolicina = 0;
+    rows.forEach(row => {
+        const k = parseInt(row.querySelector('.kolicina').value) || 0;
+        totalKolicina += k;
+    });
+    if (totalKolicina < 1) totalKolicina = 1;
+    const baseCena = parseFloat(formData.get('cena'));
+    formData.set('cena', (baseCena * totalKolicina).toFixed(2));
+
     // Convert date from YYYY-MM-DD to DD.MM.YYYY format
     let datumValue = document.querySelector('#datepicker').value;
     if (datumValue) {
@@ -207,8 +220,8 @@ form.addEventListener('submit', async (e) => {
             // Reset kombinacije
             document.getElementById('kombinacije-container').innerHTML = `
                 <div class="kombinacija-row">
-                    <input type="number" class="kolicina" min="1" placeholder="Količina" required>
-                    <input type="text" class="boja" placeholder="Boja (npr. žuto, plavo)" required>
+                    <input type="number" class="kolicina" min="1" value="1" placeholder="Količina" required>
+                    <input type="text" class="boja" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
                     <button type="button" class="btn-remove" onclick="removeCombination(this)">×</button>
                 </div>
             `;

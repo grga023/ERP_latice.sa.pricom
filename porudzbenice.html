@@ -20,6 +20,7 @@
     <a href="porudzbenice.html">Nove porudžbine</a>
     <a href="realizovano.html">Realizovane porudžbine</a>
     <a href="za_daostavu.html">Za dostavu</a>
+    <a href="lager.html">Lager</a>
   </div>
   <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
 </nav>
@@ -30,7 +31,6 @@
 <table id="ordersTable">
 <thead>
 <tr>
-    <th>ID</th>
     <th>Naziv</th>
     <th>Cena</th>
     <th>Plaćeno</th>
@@ -38,7 +38,6 @@
     <th>Datum</th>
     <th>Opis</th>
     <th>Slika</th>
-    <th>Status</th>
     <th>Akcija</th>
 </tr>
 </thead>
@@ -46,42 +45,87 @@
 </table>
 </div>
 
+<!-- Popup za potvrdu plaćanja -->
+<div id="paymentModal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closePaymentModal()">&times;</span>
+        <h2>Porudžbina nije plaćena</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">Ova porudžbina još nije plaćena. Da li je kupac platio?</p>
+        <div style="display: flex; gap: 12px;">
+            <button id="btnPlaceno" style="flex:1; padding: 12px; background-color: #28a745; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600;">Da, plaćeno ✅</button>
+            <button id="btnNijePlaceno" style="flex:1; padding: 12px; background-color: #dc3545; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600;">Ne, nije plaćeno ❌</button>
+        </div>
+    </div>
+</div>
+
 <script>
 async function loadOrders() {
-    const res = await fetch('/orders');
+    const res = await fetch('/orders/new');
     const orders = await res.json();
     const tbody = document.querySelector('#ordersTable tbody');
     tbody.innerHTML = '';
 
     orders.forEach(order => {
-        if(order.status === 'new') {
-            const tr = document.createElement('tr');
+        const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${order.id}</td>
-                <td>${order.naziv}</td>
-                <td>${order.cena}</td>
-                <td>${order.placeno ? '✅' : '❌'}</td>
-                <td>${order.kupac}</td>
-                <td>${order.datum || '-'}</td>
-                <td>${order.opis || '-'}</td>
-                <td><img src="/images/${order.slika}" /></td>
-                <td>${order.status}</td>
-                <td>
+                <td data-label="Naziv">${order.naziv}</td>
+                <td data-label="Cena">${order.cena}</td>
+                <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
+                <td data-label="Kupac">${order.kupac}</td>
+                <td data-label="Datum">${order.datum || '-'}</td>
+                <td data-label="Opis">${order.opis || '-'}</td>
+                <td data-label="Slika"><img src="/images/${order.slika}" /></td>
+                <td data-label="Akcija">
                     <button onclick="editOrder(${order.id})">Izmeni</button>
-                    <button onclick="forDelivery(${order.id})">Za dostavu</button>
+                    <button onclick="forDelivery(${order.id}, ${order.placeno})">Za dostavu</button>
                 </td>
             `;
             tbody.appendChild(tr);
-        }
     });
 }
 
-async function forDelivery(id) {
+async function forDelivery(id, placeno) {
+    if (!placeno) {
+        // Show payment popup
+        const modal = document.getElementById('paymentModal');
+        modal.classList.add('active');
+
+        // Remove old listeners by cloning buttons
+        const btnDa = document.getElementById('btnPlaceno');
+        const btnNe = document.getElementById('btnNijePlaceno');
+        const newBtnDa = btnDa.cloneNode(true);
+        const newBtnNe = btnNe.cloneNode(true);
+        btnDa.parentNode.replaceChild(newBtnDa, btnDa);
+        btnNe.parentNode.replaceChild(newBtnNe, btnNe);
+
+        newBtnDa.addEventListener('click', async () => {
+            modal.classList.remove('active');
+            await sendDelivery(id, true);
+        });
+        newBtnNe.addEventListener('click', async () => {
+            modal.classList.remove('active');
+            await sendDelivery(id, false);
+        });
+
+        // Close on overlay click
+        modal.onclick = function(e) {
+            if (e.target === modal) modal.classList.remove('active');
+        };
+        return;
+    }
+    await sendDelivery(id, placeno);
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('active');
+}
+
+async function sendDelivery(id, placeno) {
     try {
         const res = await fetch('/update_status', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({id: id, status:'for_delivery'})
+            body: JSON.stringify({id: id, status:'for_delivery', placeno: placeno})
         });
         if(res.ok) loadOrders();
         else alert('Greška pri ažuriranju statusa.');
