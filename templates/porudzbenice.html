@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Nove porudžbine{% endblock %}
+
+{% block content %}
+<div class="container">
+<h1>Nove porudžbine</h1>
+
+<table id="ordersTable">
+<thead>
+<tr>
+    <th>Naziv</th>
+    <th>Cena</th>
+    <th>Plaćeno</th>
+    <th>Kupac</th>
+    <th>Datum</th>
+    <th>Opis</th>
+    <th>Slika</th>
+    <th>Akcija</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- Popup za potvrdu plaćanja -->
+<div id="paymentModal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closePaymentModal()">&times;</span>
+        <h2>Porudžbina nije plaćena</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">Ova porudžbina još nije plaćena. Da li je kupac platio?</p>
+        <div style="display: flex; gap: 12px;">
+            <button id="btnPlaceno" style="flex:1; padding: 12px; background-color: #28a745; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600;">Da, plaćeno ✅</button>
+            <button id="btnNijePlaceno" style="flex:1; padding: 12px; background-color: #dc3545; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600;">Ne, nije plaćeno ❌</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function formatOpis(opis) {
+    if (!opis || opis === '-') return '-';
+    const lines = opis.split(/\r\n|\n/).filter(l => l.trim());
+    let kolLines = [];
+    let detalji = [];
+    let inDetalji = false;
+    for (const line of lines) {
+        if (line.startsWith('Detalji:')) {
+            inDetalji = true;
+            detalji.push(line.replace('Detalji:', '').trim());
+        } else if (inDetalji) {
+            detalji.push(line);
+        } else {
+            // Format "3 Crvena" → "3 x Crvena"
+            const m = line.match(/^(\d+)\s+(.+)/);
+            kolLines.push(m ? m[1] + ' x ' + m[2] : line);
+        }
+    }
+    let html = '';
+    if (kolLines.length) html += '<strong>Količina:</strong><br>' + kolLines.join('<br>');
+    if (detalji.length) html += (html ? '<br>' : '') + '<strong>Detalji:</strong><br>' + detalji.join('<br>');
+    return html || '-';
+}
+async function loadOrders() {
+    const res = await fetch('/api/orders/new');
+    const orders = await res.json();
+    const tbody = document.querySelector('#ordersTable tbody');
+    tbody.innerHTML = '';
+
+    orders.forEach(order => {
+        const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td data-label="Naziv">${order.naziv}</td>
+                <td data-label="Cena">${order.cena}</td>
+                <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
+                <td data-label="Kupac">${order.kupac}</td>
+                <td data-label="Datum">${order.datum || '-'}</td>
+                <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
+                <td data-label="Slika"><img src="/images/${order.slika}" /></td>
+                <td data-label="Akcija">
+                    <button onclick="editOrder(${order.id})">Izmeni</button>
+                    <button onclick="forDelivery(${order.id}, ${order.placeno})">Za dostavu</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+    });
+}
+
+async function forDelivery(id, placeno) {
+    if (!placeno) {
+        // Show payment popup
+        const modal = document.getElementById('paymentModal');
+        modal.classList.add('active');
+
+        // Remove old listeners by cloning buttons
+        const btnDa = document.getElementById('btnPlaceno');
+        const btnNe = document.getElementById('btnNijePlaceno');
+        const newBtnDa = btnDa.cloneNode(true);
+        const newBtnNe = btnNe.cloneNode(true);
+        btnDa.parentNode.replaceChild(newBtnDa, btnDa);
+        btnNe.parentNode.replaceChild(newBtnNe, btnNe);
+
+        newBtnDa.addEventListener('click', async () => {
+            modal.classList.remove('active');
+            await sendDelivery(id, true);
+        });
+        newBtnNe.addEventListener('click', async () => {
+            modal.classList.remove('active');
+            await sendDelivery(id, false);
+        });
+
+        // Close on overlay click
+        modal.onclick = function(e) {
+            if (e.target === modal) modal.classList.remove('active');
+        };
+        return;
+    }
+    await sendDelivery(id, placeno);
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('active');
+}
+
+async function sendDelivery(id, placeno) {
+    try {
+        const res = await fetch('/api/update_status', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({id: id, status:'for_delivery', placeno: placeno})
+        });
+        if(res.ok) loadOrders();
+        else alert('Greška pri ažuriranju statusa.');
+    } catch (err) {
+        console.error(err);
+        alert('Greška pri konektovanju na server.');
+    }
+}
+
+function editOrder(id) {
+    window.location.href = `/edit?id=${id}`;
+}
+
+// initial load
+loadOrders();
+</script>
+{% endblock %}

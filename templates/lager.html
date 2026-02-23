@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+
+{% block title %}Lager{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<!-- Add Lager Item Form -->
+<h1>Dodaj u lager</h1>
+
+<form id="lagerForm" enctype="multipart/form-data" class="lager-form">
+    <div class="form-field">
+        <label>Naziv:</label>
+        <input type="text" name="naziv" required>
+    </div>
+
+    <div class="form-field">
+        <label>Cena:</label>
+        <input type="number" name="cena" step="0.01" required>
+    </div>
+
+    <div class="form-field">
+        <label>Boja:</label>
+        <input type="text" name="boja" placeholder="npr. crvena, plava" required>
+    </div>
+
+    <div class="form-field">
+        <label>Količina:</label>
+        <input type="number" name="kolicina" min="0" value="1" required>
+    </div>
+
+    <div class="form-field">
+        <label>Lokacija:</label>
+        <select name="lokacija">
+            <option value="Kuća">Kuća</option>
+            <option value="Teodora">Teodora</option>
+        </select>
+    </div>
+
+    <div class="form-field">
+        <label>Slika:</label>
+        <div id="pasteArea" class="paste-area">
+            <input type="file" id="fileInput" name="slika" accept="image/*" class="file-input">
+            <p class="paste-hint">📎 Odaberi sliku ili pritisni CTRL+V</p>
+        </div>
+        <img id="preview" class="image-preview" alt="Preview slike" style="display: none;">
+    </div>
+
+    <button type="submit">Dodaj u lager</button>
+</form>
+
+<!-- Lager Table -->
+<h1 style="margin-top: 40px;">Lager - Pregled</h1>
+
+<table id="lagerTable">
+<thead>
+<tr>
+    <th>Slika</th>
+    <th>Naziv</th>
+    <th>Cena</th>
+    <th>Boja</th>
+    <th>Količina</th>
+    <th>Lokacija</th>
+    <th>Akcija</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<!-- Popup modal za kreiranje porudžbine iz lagera -->
+<div id="orderModal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeOrderModal()">&times;</span>
+        <h2>Kreiraj porudžbinu</h2>
+        <div class="modal-preview">
+            <img id="modalImg" src="" alt="Slika artikla">
+            <div class="modal-item-info">
+                <strong id="modalNaziv"></strong>
+                <span id="modalCena"></span>
+                <span id="modalBoja"></span>
+            </div>
+        </div>
+        <form id="orderFromLagerForm">
+            <input type="hidden" id="modalLagerNaziv">
+            <input type="hidden" id="modalLagerCena">
+            <input type="hidden" id="modalLagerBoja">
+            <input type="hidden" id="modalLagerSlika">
+            <input type="hidden" id="modalLagerId">
+            <input type="hidden" id="modalLagerStock">
+
+            <label>Kupac:</label>
+            <input type="text" id="modalKupac" required>
+
+            <label>Količina:</label>
+            <input type="number" id="modalKolicina" min="1" value="1" required>
+
+            <label>Datum:</label>
+            <input type="date" id="modalDatum" required>
+
+            <label>Plaćeno:</label>
+            <select id="modalPlaceno">
+                <option value="false">Ne</option>
+                <option value="true">Da</option>
+            </select>
+
+            <label>Dodatna poruka:</label>
+            <textarea id="modalOpis" placeholder="Dodatne napomene..."></textarea>
+
+            <button type="submit">Kreiraj porudžbinu</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Paste image support
+const pasteArea = document.getElementById("pasteArea");
+const preview = document.getElementById("preview");
+const fileInput = document.getElementById("fileInput");
+
+pasteArea.addEventListener("paste", function (e) {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+            const file = items[i].getAsFile();
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                preview.src = event.target.result;
+                preview.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            break;
+        }
+    }
+});
+
+fileInput.addEventListener("change", function () {
+    if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            preview.src = event.target.result;
+            preview.style.display = "block";
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    }
+});
+
+// Load lager items
+async function loadLager() {
+    const res = await fetch('/api/lager');
+    const items = await res.json();
+    const tbody = document.querySelector('#lagerTable tbody');
+    tbody.innerHTML = '';
+
+    items.forEach(item => {
+        const outOfStock = (item.kolicina || 0) <= 0;
+        const tr = document.createElement('tr');
+        if (outOfStock) tr.classList.add('out-of-stock');
+        tr.innerHTML = `
+            <td data-label="Slika">${item.slika ? '<img src="/images/' + item.slika + '" />' : '-'}</td>
+            <td data-label="Naziv">${item.naziv}</td>
+            <td data-label="Cena">${item.cena}</td>
+            <td data-label="Boja">${item.boja}</td>
+            <td data-label="Količina">${outOfStock ? '<span class="badge-unavailable">Nedostupno</span>' : item.kolicina}</td>
+            <td data-label="Lokacija">${item.lokacija || '-'}</td>
+            <td data-label="Akcija">
+                <button onclick="openOrderModal(${item.id}, '${item.naziv}', ${item.cena}, '${item.boja}', '${item.slika}', ${item.kolicina || 0})">Kreiraj porudžbinu</button>
+                <button onclick="deleteLager(${item.id})">Obriši</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Delete lager item
+async function deleteLager(id) {
+    if (!confirm('Da li ste sigurni da želite da obrišete ovaj artikal?')) return;
+    try {
+        const res = await fetch('/api/lager/' + id, { method: 'DELETE' });
+        if (res.ok) loadLager();
+        else alert('Greška pri brisanju.');
+    } catch (err) {
+        console.error(err);
+        alert('Greška pri konektovanju na server.');
+    }
+}
+
+// Submit form
+const form = document.getElementById('lagerForm');
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/api/lager', {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok) {
+            alert('Artikal je uspešno dodat u lager!');
+            form.reset();
+            preview.style.display = 'none';
+            loadLager();
+        } else {
+            alert('Greška pri dodavanju u lager.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Greška pri konektovanju na server.');
+    }
+});
+
+// Initial load
+loadLager();
+
+// --- Order from Lager Modal ---
+function openOrderModal(lagerId, naziv, cena, boja, slika, stock) {
+    document.getElementById('modalImg').src = slika ? '/images/' + slika : '';
+    document.getElementById('modalNaziv').textContent = naziv;
+    document.getElementById('modalCena').textContent = 'Cena: ' + cena;
+    document.getElementById('modalBoja').textContent = 'Boja: ' + boja;
+    document.getElementById('modalLagerNaziv').value = naziv;
+    document.getElementById('modalLagerCena').value = cena;
+    document.getElementById('modalLagerBoja').value = boja;
+    document.getElementById('modalLagerSlika').value = slika;
+    document.getElementById('modalLagerId').value = lagerId;
+    document.getElementById('modalLagerStock').value = stock;
+    document.getElementById('modalKupac').value = '';
+    document.getElementById('modalKolicina').value = 1;
+    document.getElementById('modalDatum').value = '';
+    document.getElementById('modalPlaceno').value = 'false';
+    document.getElementById('modalOpis').value = '';
+    // Show stock warning if out of stock
+    let warn = document.getElementById('stockWarning');
+    if (!warn) {
+        warn = document.createElement('div');
+        warn.id = 'stockWarning';
+        warn.className = 'stock-warning';
+        document.querySelector('.modal-preview').after(warn);
+    }
+    if (stock <= 0) {
+        warn.textContent = '\u26A0\uFE0F Proizvod nedostupan na lageru! Možete kreirati porudžbinu ali se količina neće oduzeti.';
+        warn.style.display = 'block';
+    } else {
+        warn.textContent = 'Na lageru: ' + stock;
+        warn.style.display = 'block';
+        warn.classList.remove('stock-warning-red');
+    }
+    document.getElementById('orderModal').classList.add('active');
+}
+
+function closeOrderModal() {
+    document.getElementById('orderModal').classList.remove('active');
+}
+
+// Close modal on overlay click
+document.getElementById('orderModal').addEventListener('click', function(e) {
+    if (e.target === this) closeOrderModal();
+});
+
+// Close modal on Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeOrderModal();
+});
+
+// Submit order from lager
+document.getElementById('orderFromLagerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    let datumValue = document.getElementById('modalDatum').value;
+    if (datumValue) {
+        const [year, month, day] = datumValue.split('-');
+        datumValue = day + '.' + month + '.' + year;
+    }
+
+    const baseCena = parseFloat(document.getElementById('modalLagerCena').value);
+    const kolicina = parseInt(document.getElementById('modalKolicina').value) || 1;
+    const totalCena = (baseCena * kolicina).toFixed(2);
+    const boja = document.getElementById('modalLagerBoja').value;
+    const opisText = document.getElementById('modalOpis').value.trim();
+
+    // Build formatted opis: "količina boja\nDetalji: opis"
+    let formattedOpis = kolicina + ' ' + (boja || 'Razno') + '\r\n';
+    if (opisText) {
+        formattedOpis += 'Detalji: ' + opisText + '\r\n';
+    }
+
+    const data = {
+        naziv: document.getElementById('modalLagerNaziv').value,
+        cena: totalCena,
+        boja: boja,
+        slika: document.getElementById('modalLagerSlika').value,
+        kupac: document.getElementById('modalKupac').value,
+        kolicina: document.getElementById('modalKolicina').value,
+        datum: datumValue,
+        placeno: document.getElementById('modalPlaceno').value,
+        opis: formattedOpis,
+        lager_id: document.getElementById('modalLagerId').value
+    };
+
+    try {
+        const res = await fetch('/api/order_from_lager', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (res.ok) {
+            alert('Porudžbina je uspešno kreirana!');
+            closeOrderModal();
+            loadLager();
+        } else {
+            alert('Greška pri kreiranju porudžbine.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Greška pri konektovanju na server.');
+    }
+});
+</script>
+{% endblock %}

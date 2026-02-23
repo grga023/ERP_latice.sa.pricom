@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latice sa pricom - {% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block head_extra %}{% endblock %}
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+
+<!-- Navigation bar -->
+<nav class="topnav">
+  <button class="hamburger" onclick="toggleMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <div class="nav-menu">
+    <a href="/">Dodaj porudžbinu</a>
+    <a href="/porudzbenice">Nove porudžbine</a>
+    <a href="/realizovano">Realizovane porudžbine</a>
+    <a href="/za-dostavu">Za dostavu</a>
+    <a href="/lager">Lager</a>
+    <a href="/podesavanja">⚙ Podešavanja</a>
+  </div>
+  <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+</nav>
+
+{% block content %}{% endblock %}
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

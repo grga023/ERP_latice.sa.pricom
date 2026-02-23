@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Realizovane porudžbine{% endblock %}
+
+{% block content %}
+<div class="container">
+<h1>Realizovane porudžbine</h1>
+
+<div class="summary-box">
+  <div class="summary-item">
+    <span class="summary-label">Ukupno realizovano:</span>
+    <span class="summary-value" id="totalSum">0.00 RSD</span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-label">Broj porudžbina:</span>
+    <span class="summary-value" id="totalCount">0</span>
+  </div>
+</div>
+
+<table id="shippingTable">
+<thead>
+<tr>
+    <th>Naziv</th>
+    <th>Cena</th>
+    <th>Plaćeno</th>
+    <th>Kupac</th>
+    <th>Datum</th>
+    <th>Opis</th>
+    <th>Slika</th>
+    <th>Akcija</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function formatOpis(opis) {
+    if (!opis || opis === '-') return '-';
+    const lines = opis.split(/\r\n|\n/).filter(l => l.trim());
+    let kolLines = [];
+    let detalji = [];
+    let inDetalji = false;
+    for (const line of lines) {
+        if (line.startsWith('Detalji:')) {
+            inDetalji = true;
+            detalji.push(line.replace('Detalji:', '').trim());
+        } else if (inDetalji) {
+            detalji.push(line);
+        } else {
+            const m = line.match(/^(\d+)\s+(.+)/);
+            kolLines.push(m ? m[1] + ' x ' + m[2] : line);
+        }
+    }
+    let html = '';
+    if (kolLines.length) html += '<strong>Količina:</strong><br>' + kolLines.join('<br>');
+    if (detalji.length) html += (html ? '<br>' : '') + '<strong>Detalji:</strong><br>' + detalji.join('<br>');
+    return html || '-';
+}
+async function loadToBeShipped() {
+    const res = await fetch('/api/orders/realized');
+    const orders = await res.json();
+    const tbody = document.querySelector('#shippingTable tbody');
+    tbody.innerHTML = '';
+
+    // Calculate totals
+    const totalSum = orders.reduce((sum, o) => sum + (parseFloat(o.cena) || 0), 0);
+    document.getElementById('totalSum').textContent = totalSum.toLocaleString('sr-RS', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' RSD';
+    document.getElementById('totalCount').textContent = orders.length;
+
+    orders.forEach(order => {
+        const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td data-label="Naziv">${order.naziv}</td>
+                <td data-label="Cena">${order.cena}</td>
+                <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
+                <td data-label="Kupac">${order.kupac}</td>
+                <td data-label="Datum">${order.datum || '-'}</td>
+                <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
+                <td data-label="Slika"><img src="/images/${order.slika}" /></td>
+                <td data-label="Akcija"><button onclick="editOrder(${order.id})">Izmeni</button></td>
+            `;
+            tbody.appendChild(tr);
+    });
+}
+
+// initial load
+loadToBeShipped();
+
+function editOrder(id) {
+    window.location.href = `/edit?id=${id}`;
+}
+</script>
+{% endblock %}
