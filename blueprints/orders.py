@@ -112,7 +112,7 @@ def get_order(order_id):
     return jsonify(order.to_dict())
 
 
-@orders_bp.route('/api/delete_order/<int:order_id>', methods=['POST'])
+@orders_bp.route('/api/delete_order/<int:order_id>', methods=['DELETE'])
 def delete_order(order_id):
     order = db.session.get(Order, order_id)
     if not order:
