@@ -46,6 +46,28 @@
 </div>
 
 <script>
+function formatOpis(opis) {
+    if (!opis || opis === '-') return '-';
+    const lines = opis.split(/\r\n|\n/).filter(l => l.trim());
+    let kolLines = [];
+    let detalji = [];
+    let inDetalji = false;
+    for (const line of lines) {
+        if (line.startsWith('Detalji:')) {
+            inDetalji = true;
+            detalji.push(line.replace('Detalji:', '').trim());
+        } else if (inDetalji) {
+            detalji.push(line);
+        } else {
+            const m = line.match(/^(\d+)\s+(.+)/);
+            kolLines.push(m ? m[1] + ' x ' + m[2] : line);
+        }
+    }
+    let html = '';
+    if (kolLines.length) html += '<strong>Količina:</strong><br>' + kolLines.join('<br>');
+    if (detalji.length) html += (html ? '<br>' : '') + '<strong>Detalji:</strong><br>' + detalji.join('<br>');
+    return html || '-';
+}
 async function loadToBeShipped() {
     const res = await fetch('/orders/for_delivery');
     const orders = await res.json();
@@ -60,7 +82,7 @@ async function loadToBeShipped() {
                 <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
                 <td data-label="Kupac">${order.kupac}</td>
                 <td data-label="Datum">${order.datum || '-'}</td>
-                <td data-label="Opis">${(order.opis || '-').replace(/\r\n|\n/g, '<br>')}</td>
+                <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
                 <td data-label="Slika"><img src="/images/${order.slika}" /></td>
                 <td data-label="Akcija">
                     <button onclick="editOrder(${order.id})">Izmeni</button>

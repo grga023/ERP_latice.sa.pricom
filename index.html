@@ -167,13 +167,13 @@ function formatCombinations() {
         const kolicina = row.querySelector('.kolicina').value;
         const boja = row.querySelector('.boja').value;
         if (kolicina && boja) {
-            formatted += kolicina + ' ' + boja + '\n';
+            formatted += kolicina + ' ' + boja + '\r\n';
         }
     });
     
-    const customMessage = document.getElementById('customMessage').value;
+    const customMessage = document.getElementById('customMessage').value.trim();
     if (customMessage) {
-        formatted += customMessage;
+        formatted += 'Detalji: ' + customMessage + '\r\n';
     }
     
     document.querySelector('#opisField').value = formatted;

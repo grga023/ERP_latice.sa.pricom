@@ -114,6 +114,13 @@ body {
     text-align: center;
 }
 
+/* Opis column left-aligned */
+.td-opis {
+    text-align: left !important;
+    white-space: normal;
+    line-height: 1.6;
+}
+
 #form-container {
     flex: none;
     max-width: 480px;
