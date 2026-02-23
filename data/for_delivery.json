@@ -1,28 +1,15 @@
-[
+﻿[
   {
-    "id": 1771833938,
+    "id": 1771620259,
     "naziv": "Buket",
-    "cena": 1000.0,
+    "cena": 1100.0,
     "placeno": true,
-    "kupac": "Ja",
-    "datum": "10.10.2001",
+    "kupac": "Boberic - Novi Sad",
+    "datum": "06.03.2026",
     "kolicina": 1,
-    "boja": "Zuta",
-    "opis": "nema",
-    "slika": "1771833250_image.png",
-    "status": "for_delivery"
-  },
-  {
-    "id": 1771834067,
-    "naziv": "Buket",
-    "cena": 1000.0,
-    "placeno": true,
-    "kupac": "s",
-    "datum": "10.10.2001",
-    "kolicina": 1,
-    "boja": "Zuta",
-    "opis": "",
-    "slika": "1771833250_image.png",
+    "boja": "",
+    "opis": "1 Crveno\r\n2 Zuto\r\n",
+    "slika": "1771620259_Screenshot 2026-02-20 214108.png",
     "status": "for_delivery"
   }
 ]

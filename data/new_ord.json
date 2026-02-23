@@ -1,15 +1,28 @@
-[
+﻿[
   {
-    "id": 1771834145,
-    "naziv": "Buket",
-    "cena": 1000.0,
+    "id": 1771666322,
+    "naziv": "Medenjaci",
+    "cena": 250.0,
     "placeno": false,
-    "kupac": "123",
-    "datum": "10.10.2001",
+    "kupac": "Jelena Obucina",
+    "datum": "07.03.2026",
     "kolicina": 1,
-    "boja": "Zuta",
-    "opis": "",
-    "slika": "1771833250_image.png",
+    "boja": "",
+    "opis": "9 Crvena\r\n",
+    "slika": "1771666322_IMG-649fdcd4e282d6d2b77993b476cc78c6-V.jpg",
+    "status": "new"
+  },
+  {
+    "id": 1771791330,
+    "naziv": "Buket",
+    "cena": 2000.0,
+    "placeno": false,
+    "kupac": "Teodora",
+    "datum": "08.03.2026",
+    "kolicina": 1,
+    "boja": "",
+    "opis": "10 Razno\r\nDato Teodori \r\n7 predato 3 kod mene",
+    "slika": "1771791330_IMG_1343.jpeg",
     "status": "new"
   }
 ]
