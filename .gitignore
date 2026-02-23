@@ -3,6 +3,8 @@
 /.github/*
 /data/*
 *.pyc
+__pycache__/*
 *.db
 /data
 /images
+/venv

@@ -66,6 +66,7 @@
 
     <button type="submit">Spremi izmene</button>
     <button type="button" onclick="cancelEdit()">Otkaži</button>
+    <button type="button" onclick="deleteOrder()">Obrisi</button>
 </form>
 </div>
 
@@ -140,6 +141,24 @@ form.addEventListener('submit', async (e) => {
 
 function cancelEdit() {
     window.location.href = 'porudzbenice.html';
+}
+
+function deleteOrder() {
+    if (confirm('Da li ste sigurni da želite da obrišete ovu porudžbinu?')) {
+        fetch(`/delete_order/${orderId}`, { method: 'DELETE' })
+            .then(res => {
+                if (res.ok) {
+                    alert('Porudžbina je obrisana!');
+                    window.location.href = 'porudzbenice.html';
+                } else {
+                    alert('Greška pri brisanju porudžbine.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Greška pri konektovanju na server.');
+            });
+    }
 }
 
 loadOrder();

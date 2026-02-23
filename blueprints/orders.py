@@ -112,6 +112,15 @@ def get_order(order_id):
     return jsonify(order.to_dict())
 
 
+@orders_bp.route('/api/delete_order/<int:order_id>', methods=['POST'])
+def delete_order(order_id):
+    order = db.session.get(Order, order_id)
+    if not order:
+        return jsonify({'error': 'Porudžbina nije pronađena'}), 404
+    db.session.delete(order)
+    db.session.commit()
+    return jsonify({'ok': True})
+
 @orders_bp.route('/api/update_order/<int:order_id>', methods=['POST'])
 def update_order(order_id):
     order = db.session.get(Order, order_id)
