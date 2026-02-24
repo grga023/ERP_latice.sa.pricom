@@ -99,6 +99,11 @@ def main():
     app = create_app()
 
     with app.app_context():
+        try:
+            db.session.execute(db.text("PRAGMA wal_checkpoint(TRUNCATE)"))
+        except Exception as e:
+            print(f"  WAL checkpoint warning (nije kritično): {e}")
+
         # Ensure data directory exists
         os.makedirs(DATA_DIR, exist_ok=True)
 
