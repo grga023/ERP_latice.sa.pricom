@@ -1,5 +1,0 @@
-1. Lager - on click ceate order
-2. Quantity x Price = Total price
-3. UI for phone
-4. Notifications
-5. Picture should open on click

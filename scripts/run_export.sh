@@ -1,7 +1,7 @@
 #!/bin/bash
-cd /opt/appl/scripts/ERP_T/ERP_latice.sa.pricom
+cd /opt/appl/scripts/ERP
 
-venv/bin/python export_to_json.py >> logs/export_backup.log 2>&1
+venv/bin/python scripts/export_to_json.py >> logs/export_backup.log 2>&1
 
 sleep 10
 

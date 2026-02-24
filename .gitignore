@@ -1,10 +1,19 @@
-/images/*
-/.vscode/*
-/.github/*
-/data/*
+# Runtime & cache
+__pycache__/
 *.pyc
-__pycache__/*
+*.pyo
+
+# Data & uploads
+/data/
+/images/
+
+# IDE & config
+/.vscode/
+/.github/
+
+# Database
 *.db
-/data
-/images
-/venv
+
+# Virtual environment
+/venv/
+/.venv/
