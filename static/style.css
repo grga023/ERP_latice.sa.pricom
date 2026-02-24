@@ -553,6 +553,14 @@ table button:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
+table .btn-increase {
+    background-color: #28a745;
+}
+
+table .btn-increase:hover {
+    background-color: #218838;
+}
+
 /* Lager form layout */
 .lager-form {
     max-width: 480px;
@@ -677,6 +685,11 @@ table img:hover {
     overflow-y: auto;
     position: relative;
     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.modal-content.modal-small {
+    max-width: 320px;
+    padding: 25px;
 }
 
 .modal-close {

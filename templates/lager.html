@@ -68,6 +68,26 @@
 </table>
 </div>
 
+<!-- Popup modal za povećanje količine -->
+<div id="increaseModal" class="modal-overlay">
+    <div class="modal-content modal-small">
+        <span class="modal-close" onclick="closeIncreaseModal()">&times;</span>
+        <h2>Dodaj količinu</h2>
+        <div class="modal-item-info">
+            <strong id="increaseNaziv"></strong>
+            <span id="increaseCurrentQty"></span>
+        </div>
+        <form id="increaseQuantityForm">
+            <input type="hidden" id="increaseItemId">
+            
+            <label>Količina za dodavanje:</label>
+            <input type="number" id="increaseAmount" min="1" value="1" required autofocus>
+            
+            <button type="submit">Potvrdi</button>
+        </form>
+    </div>
+</div>
+
 <!-- Popup modal za kreiranje porudžbine iz lagera -->
 <div id="orderModal" class="modal-overlay">
     <div class="modal-content">
@@ -170,6 +190,7 @@ async function loadLager() {
             <td data-label="Lokacija">${item.lokacija || '-'}</td>
             <td data-label="Akcija">
                 <button onclick="openOrderModal(${item.id}, '${item.naziv}', ${item.cena}, '${item.boja}', '${item.slika}', ${item.kolicina || 0})">Kreiraj porudžbinu</button>
+                <button onclick="openIncreaseModal(${item.id}, '${item.naziv}', ${item.kolicina || 0})" class="btn-increase">+ Dodaj količinu</button>
                 <button onclick="deleteLager(${item.id})">Obriši</button>
             </td>
         `;
@@ -218,6 +239,56 @@ form.addEventListener('submit', async (e) => {
 // Initial load
 loadLager();
 
+// --- Increase Quantity Modal ---
+function openIncreaseModal(itemId, naziv, currentQty) {
+    document.getElementById('increaseItemId').value = itemId;
+    document.getElementById('increaseNaziv').textContent = naziv;
+    document.getElementById('increaseCurrentQty').textContent = 'Trenutna količina: ' + currentQty;
+    document.getElementById('increaseAmount').value = 1;
+    document.getElementById('increaseModal').classList.add('active');
+    setTimeout(() => document.getElementById('increaseAmount').focus(), 100);
+}
+
+function closeIncreaseModal() {
+    document.getElementById('increaseModal').classList.remove('active');
+}
+
+// Close modal on overlay click
+document.getElementById('increaseModal').addEventListener('click', function(e) {
+    if (e.target === this) closeIncreaseModal();
+});
+
+// Submit increase quantity
+document.getElementById('increaseQuantityForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const itemId = document.getElementById('increaseItemId').value;
+    const quantity = parseInt(document.getElementById('increaseAmount').value);
+    
+    if (quantity <= 0) {
+        alert('Količina mora biti veća od 0!');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/lager/' + itemId + '/increase_quantity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: quantity })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert('Količina je uspešno ažurirana! Nova količina: ' + data.new_quantity);
+            closeIncreaseModal();
+            loadLager();
+        } else {
+            alert('Greška pri ažuriranju količine.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Greška pri konektovanju na server.');
+    }
+});
+
 // --- Order from Lager Modal ---
 function openOrderModal(lagerId, naziv, cena, boja, slika, stock) {
     document.getElementById('modalImg').src = slika ? '/images/' + slika : '';
@@ -265,7 +336,10 @@ document.getElementById('orderModal').addEventListener('click', function(e) {
 
 // Close modal on Escape
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeOrderModal();
+    if (e.key === 'Escape') {
+        closeOrderModal();
+        closeIncreaseModal();
+    }
 });
 
 // Submit order from lager

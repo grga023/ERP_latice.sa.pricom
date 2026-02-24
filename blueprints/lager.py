@@ -52,3 +52,20 @@ def delete_lager(item_id):
     db.session.delete(item)
     db.session.commit()
     return jsonify({'ok': True})
+
+
+@lager_bp.route('/api/lager/<int:item_id>/increase_quantity', methods=['POST'])
+def increase_quantity(item_id):
+    item = db.session.get(LagerItem, item_id)
+    if not item:
+        return jsonify({'error': 'Artikal nije pronađen'}), 404
+    
+    data = request.get_json()
+    increase_by = int(data.get('quantity', 0))
+    
+    if increase_by <= 0:
+        return jsonify({'error': 'Količina mora biti veća od 0'}), 400
+    
+    item.kolicina += increase_by
+    db.session.commit()
+    return jsonify({'ok': True, 'new_quantity': item.kolicina})
