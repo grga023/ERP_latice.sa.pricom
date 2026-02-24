@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
 """
 Latice sa pričom ERP - Flask Application
-=========================================
-Refactored with:
-  - Flask-SQLAlchemy (SQLite) instead of JSON files
-  - Blueprints for route organization (orders, lager, email)
-  - Jinja2 templates with base.html inheritance
-  - Central error handling
 """
 
 import os
 import logging
 import threading
+import sqlite3
 from flask import Flask, jsonify, send_from_directory
-from sqlalchemy import event
 from models import db
 from blueprints.orders import orders_bp
 from blueprints.lager import lager_bp
@@ -26,7 +20,6 @@ def create_app():
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     IMAGES_DIR = os.path.join(BASE_DIR, 'images')
 
-    # Ensure directories exist
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(IMAGES_DIR, exist_ok=True)
 
@@ -37,7 +30,20 @@ def create_app():
     )
 
     # ─── Configuration ─────────────────────────────────────────
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(DATA_DIR, 'erp.db')}"
+    db_file = os.path.join(DATA_DIR, 'erp.db')
+    
+    def get_sqlite_connection():
+        conn = sqlite3.connect(db_file, check_same_thread=False)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=OFF")
+        conn.execute("PRAGMA temp_store=MEMORY")
+        conn.execute("PRAGMA cache_size=-32000")
+        return conn
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_file}"
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'creator': get_sqlite_connection
+    }
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['IMAGES_DIR'] = IMAGES_DIR
     app.config['SECRET_KEY'] = 'latice-sa-pricom-erp-secret'
@@ -50,17 +56,7 @@ def create_app():
     # ─── Initialize Extensions ─────────────────────────────────
     db.init_app(app)
 
-    # SQLite PRAGMA optimizacije za brži USB storage
-    def set_sqlite_pragma(dbapi_conn, connection_record):
-        cursor = dbapi_conn.cursor()
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=OFF")
-        cursor.execute("PRAGMA temp_store=MEMORY")
-        cursor.execute("PRAGMA cache_size=-32000")
-        cursor.close()
-
     with app.app_context():
-        event.listen(db.engine, "connect", set_sqlite_pragma)
         db.create_all()
 
     # ─── Register Blueprints ───────────────────────────────────
@@ -96,9 +92,7 @@ def create_app():
 if __name__ == '__main__':
     app = create_app()
 
-    # Start notification scheduler in background
     t = threading.Thread(target=notification_scheduler, args=(app,), daemon=True)
     t.start()
 
-    # Run Flask
     app.run(host='0.0.0.0', port=8000, debug=False)
