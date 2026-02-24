@@ -48,10 +48,9 @@ def create_app():
     app.config['IMAGES_DIR'] = IMAGES_DIR
     app.config['SECRET_KEY'] = 'latice-sa-pricom-erp-secret'
 
-    # Disable Flask default logging
-    log = logging.getLogger('werkzeug')
-    log.disabled = True
-    app.logger.disabled = True
+    # Enable console output for debugging
+    logging.basicConfig(level=logging.INFO)
+    app.logger.setLevel(logging.INFO)
 
     # ─── Initialize Extensions ─────────────────────────────────
     db.init_app(app)

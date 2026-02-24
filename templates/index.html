@@ -171,14 +171,24 @@ form.addEventListener('submit', async (e) => {
 
     const formData = new FormData(form);
 
-    // Multiply price by total quantity
+    // Calculate total quantity and first color
     const rows = document.querySelectorAll('.kombinacija-row');
     let totalKolicina = 0;
-    rows.forEach(row => {
+    let firstBoja = '';
+    rows.forEach((row, index) => {
         const k = parseInt(row.querySelector('.kolicina').value) || 0;
         totalKolicina += k;
+        if (index === 0) {
+            firstBoja = row.querySelector('.boja').value || '';
+        }
     });
     if (totalKolicina < 1) totalKolicina = 1;
+    
+    // Add kolicina and boja fields for backend
+    formData.set('kolicina', totalKolicina);
+    formData.set('boja', firstBoja);
+    
+    // Multiply price by total quantity
     const baseCena = parseFloat(formData.get('cena'));
     formData.set('cena', (baseCena * totalKolicina).toFixed(2));
 
@@ -199,6 +209,7 @@ form.addEventListener('submit', async (e) => {
         if (response.ok) {
             alert('Porudžbina je uspešno dodana!');
             form.reset();
+            preview.style.display = 'none';
             // Reset kombinacije
             document.getElementById('kombinacije-container').innerHTML = `
                 <div class="kombinacija-row">
@@ -208,11 +219,12 @@ form.addEventListener('submit', async (e) => {
                 </div>
             `;
         } else {
-            alert('Greška pri dodavanju porudžbine.');
+            const errorData = await response.json();
+            alert('Greška pri dodavanju porudžbine: ' + (errorData.error || 'Nepoznata greška'));
         }
     } catch (err) {
         console.error(err);
-        alert('Greška pri konektovanju na server.');
+        alert('Greška pri konektovanju na server: ' + err.message);
     }
 });
 </script>

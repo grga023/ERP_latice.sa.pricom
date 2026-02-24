@@ -42,52 +42,89 @@ def edit():
 
 @orders_bp.route('/api/orders', methods=['GET'])
 def get_all_orders():
-    orders = Order.query.all()
-    return jsonify([o.to_dict() for o in orders])
+    try:
+        orders = Order.query.all()
+        return jsonify([o.to_dict() for o in orders])
+    except Exception as e:
+        print(f"Error getting all orders: {str(e)}")
+        return jsonify({'error': f'Greška pri učitavanju porudžbina: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders/new', methods=['GET'])
 def get_new_orders():
-    orders = Order.query.filter_by(status='new').all()
-    return jsonify([o.to_dict() for o in orders])
+    try:
+        orders = Order.query.filter_by(status='new').all()
+        return jsonify([o.to_dict() for o in orders])
+    except Exception as e:
+        print(f"Error getting new orders: {str(e)}")
+        return jsonify({'error': f'Greška pri učitavanju novih porudžbina: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders/for_delivery', methods=['GET'])
 def get_delivery_orders():
-    orders = Order.query.filter_by(status='for_delivery').all()
-    return jsonify([o.to_dict() for o in orders])
+    try:
+        orders = Order.query.filter_by(status='for_delivery').all()
+        return jsonify([o.to_dict() for o in orders])
+    except Exception as e:
+        print(f"Error getting delivery orders: {str(e)}")
+        return jsonify({'error': f'Greška pri učitavanju porudžbina za dostavu: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders/realized', methods=['GET'])
 def get_realized_orders():
-    orders = Order.query.filter_by(status='realized').all()
-    return jsonify([o.to_dict() for o in orders])
+    try:
+        orders = Order.query.filter_by(status='realized').all()
+        return jsonify([o.to_dict() for o in orders])
+    except Exception as e:
+        print(f"Error getting realized orders: {str(e)}")
+        return jsonify({'error': f'Greška pri učitavanju realizovanih porudžbina: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders', methods=['POST'])
 def create_order():
-    o = request.form
-    file = request.files.get('slika')
-    filename = ''
-    if file and file.filename:
-        filename = f"{int(time.time())}_{file.filename}"
-        file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
+    try:
+        o = request.form
+        file = request.files.get('slika')
+        filename = ''
+        if file and file.filename:
+            filename = f"{int(time.time())}_{file.filename}"
+            file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
 
-    order = Order(
-        naziv=o['naziv'],
-        cena=float(o['cena']),
-        placeno=o['placeno'] == 'true',
-        kupac=o['kupac'],
-        datum=o.get('datum', ''),
-        kolicina=int(o.get('kolicina', 1)),
-        boja=o.get('boja', ''),
-        opis=o.get('opis', ''),
-        slika=filename,
-        status='new'
-    )
-    db.session.add(order)
-    db.session.commit()
-    return jsonify({'ok': True})
+        # Validate required fields
+        if not o.get('naziv'):
+            return jsonify({'error': 'Naziv je obavezan'}), 400
+        if not o.get('kupac'):
+            return jsonify({'error': 'Kupac je obavezan'}), 400
+        
+        try:
+            cena = float(o.get('cena', 0))
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Cena mora biti broj'}), 400
+        
+        try:
+            kolicina = int(o.get('kolicina', 1))
+        except (ValueError, TypeError):
+            kolicina = 1
+
+        order = Order(
+            naziv=o['naziv'],
+            cena=cena,
+            placeno=o.get('placeno', 'false') == 'true',
+            kupac=o['kupac'],
+            datum=o.get('datum', ''),
+            kolicina=kolicina,
+            boja=o.get('boja', ''),
+            opis=o.get('opis', ''),
+            slika=filename,
+            status='new'
+        )
+        db.session.add(order)
+        db.session.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error creating order: {str(e)}")
+        return jsonify({'error': f'Greška pri kreiranju porudžbine: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/update_status', methods=['POST'])

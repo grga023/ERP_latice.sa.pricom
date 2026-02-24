@@ -181,6 +181,12 @@ async function loadLager() {
         const outOfStock = (item.kolicina || 0) <= 0;
         const tr = document.createElement('tr');
         if (outOfStock) tr.classList.add('out-of-stock');
+        
+        // Escape special characters for safe HTML insertion
+        const escapedNaziv = (item.naziv || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const escapedBoja = (item.boja || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const escapedSlika = (item.slika || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        
         tr.innerHTML = `
             <td data-label="Slika">${item.slika ? '<img src="/images/' + item.slika + '" />' : '-'}</td>
             <td data-label="Naziv">${item.naziv}</td>
@@ -189,8 +195,8 @@ async function loadLager() {
             <td data-label="Količina">${outOfStock ? '<span class="badge-unavailable">Nedostupno</span>' : item.kolicina}</td>
             <td data-label="Lokacija">${item.lokacija || '-'}</td>
             <td data-label="Akcija">
-                <button onclick="openOrderModal(${item.id}, '${item.naziv}', ${item.cena}, '${item.boja}', '${item.slika}', ${item.kolicina || 0})">Kreiraj porudžbinu</button>
-                <button onclick="openIncreaseModal(${item.id}, '${item.naziv}', ${item.kolicina || 0})" class="btn-increase">+ Dodaj količinu</button>
+                <button onclick="openOrderModal(${item.id}, '${escapedNaziv}', ${item.cena}, '${escapedBoja}', '${escapedSlika}', ${item.kolicina || 0})">Kreiraj porudžbinu</button>
+                <button onclick="openIncreaseModal(${item.id}, '${escapedNaziv}', ${item.kolicina || 0})" class="btn-increase">+ Dodaj količinu</button>
                 <button onclick="deleteLager(${item.id})">Obriši</button>
             </td>
         `;
@@ -291,7 +297,14 @@ document.getElementById('increaseQuantityForm').addEventListener('submit', async
 
 // --- Order from Lager Modal ---
 function openOrderModal(lagerId, naziv, cena, boja, slika, stock) {
-    document.getElementById('modalImg').src = slika ? '/images/' + slika : '';
+    const imgElement = document.getElementById('modalImg');
+    if (slika && slika.trim() !== '') {
+        imgElement.src = '/images/' + slika;
+        imgElement.style.display = 'block';
+    } else {
+        imgElement.src = '';
+        imgElement.style.display = 'none';
+    }
     document.getElementById('modalNaziv').textContent = naziv;
     document.getElementById('modalCena').textContent = 'Cena: ' + cena;
     document.getElementById('modalBoja').textContent = 'Boja: ' + boja;

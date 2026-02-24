@@ -24,24 +24,43 @@ def get_lager():
 
 @lager_bp.route('/api/lager', methods=['POST'])
 def add_lager():
-    o = request.form
-    file = request.files.get('slika')
-    filename = ''
-    if file and file.filename:
-        filename = f"{int(time.time())}_{file.filename}"
-        file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
+    try:
+        o = request.form
+        file = request.files.get('slika')
+        filename = ''
+        if file and file.filename:
+            filename = f"{int(time.time())}_{file.filename}"
+            file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
 
-    item = LagerItem(
-        naziv=o.get('naziv', ''),
-        cena=float(o.get('cena', 0)),
-        boja=o.get('boja', ''),
-        kolicina=int(o.get('kolicina', 0)),
-        lokacija=o.get('lokacija', 'Kuća'),
-        slika=filename
-    )
-    db.session.add(item)
-    db.session.commit()
-    return jsonify({'ok': True})
+        # Validate required fields
+        if not o.get('naziv'):
+            return jsonify({'error': 'Naziv je obavezan'}), 400
+        
+        try:
+            cena = float(o.get('cena', 0))
+        except (ValueError, TypeError):
+            cena = 0.0
+        
+        try:
+            kolicina = int(o.get('kolicina', 0))
+        except (ValueError, TypeError):
+            kolicina = 0
+
+        item = LagerItem(
+            naziv=o.get('naziv', ''),
+            cena=cena,
+            boja=o.get('boja', ''),
+            kolicina=kolicina,
+            lokacija=o.get('lokacija', 'Kuća'),
+            slika=filename
+        )
+        db.session.add(item)
+        db.session.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error adding lager item: {str(e)}")
+        return jsonify({'error': f'Greška pri dodavanju artikla: {str(e)}'}), 500
 
 
 @lager_bp.route('/api/lager/<int:item_id>', methods=['DELETE'])
