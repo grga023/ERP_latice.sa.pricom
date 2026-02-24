@@ -13,6 +13,7 @@ import os
 import logging
 import threading
 from flask import Flask, jsonify, send_from_directory
+from sqlalchemy import event
 from models import db
 from blueprints.orders import orders_bp
 from blueprints.lager import lager_bp
@@ -49,6 +50,19 @@ def create_app():
     # ─── Initialize Extensions ─────────────────────────────────
     db.init_app(app)
 
+    # SQLite PRAGMA optimizacije za brži USB storage
+    def set_sqlite_pragma(dbapi_conn, connection_record):
+        cursor = dbapi_conn.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=OFF")
+        cursor.execute("PRAGMA temp_store=MEMORY")
+        cursor.execute("PRAGMA cache_size=-32000")
+        cursor.close()
+
+    with app.app_context():
+        event.listen(db.engine, "connect", set_sqlite_pragma)
+        db.create_all()
+
     # ─── Register Blueprints ───────────────────────────────────
     app.register_blueprint(orders_bp)
     app.register_blueprint(lager_bp)
@@ -75,10 +89,6 @@ def create_app():
     @app.errorhandler(500)
     def server_error(e):
         return jsonify({'error': 'Greška na serveru', 'status': 500}), 500
-
-    # ─── Create Database Tables ────────────────────────────────
-    with app.app_context():
-        db.create_all()
 
     return app
 
