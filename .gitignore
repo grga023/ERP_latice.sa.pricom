@@ -4,8 +4,8 @@ __pycache__/
 *.pyo
 
 # Data & uploads
-/data/
-/images/
+data
+images
 
 # IDE & config
 /.vscode/
