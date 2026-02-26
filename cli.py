@@ -43,18 +43,18 @@ def cmd_start(args):
             sys.exit(1)
     else:
         # Pokreni kao servis
-        subprocess.run(["sudo", "systemctl", "start", "erp-latice"])
+        subprocess.run(["sudo", "systemctl", "start", "erp"])
         print("ERP servis pokrenut.")
         cmd_status(args)
 
 def cmd_stop(args):
     """Zaustavi servis"""
-    subprocess.run(["sudo", "systemctl", "stop", "erp-latice"])
+    subprocess.run(["sudo", "systemctl", "stop", "erp"])
     print("ERP servis zaustavljen.")
 
 def cmd_restart(args):
     """Restartuj servis"""
-    subprocess.run(["sudo", "systemctl", "restart", "erp-latice"])
+    subprocess.run(["sudo", "systemctl", "restart", "erp"])
     print("ERP servis restartovan.")
 
 def cmd_status(args):
@@ -76,13 +76,13 @@ def cmd_status(args):
     
     # Proveri servis status
     print(f"\nServis status:")
-    subprocess.run(["systemctl", "status", "erp-latice", "--no-pager", "-l"])
+    subprocess.run(["systemctl", "status", "erp", "--no-pager", "-l"])
 
 def cmd_logs(args):
     """Prikaži logove"""
     if args.service:
         # Systemd journal logovi
-        cmd = ["sudo", "journalctl", "-u", "erp-latice", "-n", str(args.lines)]
+        cmd = ["sudo", "journalctl", "-u", "erp", "-n", str(args.lines)]
         if args.follow:
             cmd.append("-f")
         subprocess.run(cmd)
@@ -118,12 +118,12 @@ def cmd_config(args):
 
 def cmd_enable(args):
     """Uključi autostart"""
-    subprocess.run(["sudo", "systemctl", "enable", "erp-latice"])
+    subprocess.run(["sudo", "systemctl", "enable", "erp"])
     print("Autostart uključen.")
 
 def cmd_disable(args):
     """Isključi autostart"""
-    subprocess.run(["sudo", "systemctl", "disable", "erp-latice"])
+    subprocess.run(["sudo", "systemctl", "disable", "erp"])
     print("Autostart isključen.")
 
 def cmd_uninstall(args):
@@ -141,12 +141,12 @@ def cmd_uninstall(args):
         
         # Zaustavi servis
         print("  - Zaustavljanje servisa...")
-        subprocess.run(["sudo", "systemctl", "stop", "erp-latice"], stderr=subprocess.DEVNULL)
-        subprocess.run(["sudo", "systemctl", "disable", "erp-latice"], stderr=subprocess.DEVNULL)
+        subprocess.run(["sudo", "systemctl", "stop", "erp"], stderr=subprocess.DEVNULL)
+        subprocess.run(["sudo", "systemctl", "disable", "erp"], stderr=subprocess.DEVNULL)
         
         # Obriši servis fajl
         print("  - Brisanje servis fajla...")
-        subprocess.run(["sudo", "rm", "-f", "/etc/systemd/system/erp-latice.service"])
+        subprocess.run(["sudo", "rm", "-f", "/etc/systemd/system/erp.service"])
         subprocess.run(["sudo", "systemctl", "daemon-reload"])
         
         # Obriši CLI komandu
@@ -207,7 +207,7 @@ def cmd_port(args):
     # Ažuriraj systemd servis
     print("Ažuriranje systemd servisa...")
     
-    service_file = "/etc/systemd/system/erp-latice.service"
+    service_file = "/etc/systemd/system/erp.service"
     subprocess.run([
         "sudo", "sed", "-i", 
         f"s/--port [0-9]*/--port {new_port}/g",
@@ -219,7 +219,7 @@ def cmd_port(args):
     # Pitaj za restart
     restart = input("Restartovati servis sada? [Y/n]: ").strip()
     if restart.lower() != 'n':
-        subprocess.run(["sudo", "systemctl", "restart", "erp-latice"])
+        subprocess.run(["sudo", "systemctl", "restart", "erp"])
         print("Servis restartovan.")
     else:
         print("Restartuj servis ručno sa: erp restart")
@@ -343,7 +343,7 @@ def cmd_update(args):
     
     # Zaustavi servis
     print("  Zaustavljanje servisa...")
-    subprocess.run(["sudo", "systemctl", "stop", "erp-latice"], stderr=subprocess.DEVNULL)
+    subprocess.run(["sudo", "systemctl", "stop", "erp"], stderr=subprocess.DEVNULL)
     
     # Git pull
     print("  Preuzimanje ažuriranja...")
@@ -351,7 +351,7 @@ def cmd_update(args):
     
     if result.returncode != 0:
         print(f"✗ Git pull nije uspeo: {result.stderr}")
-        subprocess.run(["sudo", "systemctl", "start", "erp-latice"])
+        subprocess.run(["sudo", "systemctl", "start", "erp"])
         sys.exit(1)
     
     print(result.stdout)
@@ -366,7 +366,7 @@ def cmd_update(args):
     
     # Pokreni servis
     print("  Pokretanje servisa...")
-    subprocess.run(["sudo", "systemctl", "start", "erp-latice"])
+    subprocess.run(["sudo", "systemctl", "start", "erp"])
     
     print("✓ Ažuriranje završeno.")
 
