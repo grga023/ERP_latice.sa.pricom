@@ -145,9 +145,9 @@ echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Default vrednosti
-DEFAULT_INSTALL_DIR="/opt/erp"
-DEFAULT_DATA_DIR="$HOME/.erp/data"
-DEFAULT_IMG_DIR="$HOME/.erp/images"
+DEFAULT_INSTALL_DIR="/opt/.erp"
+DEFAULT_DATA_DIR="/usb/ERP_data/data"
+DEFAULT_IMG_DIR="/usb/ERP_data/images"
 DEFAULT_PORT="8000"
 DEFAULT_VERSION="1.0.0"
 
