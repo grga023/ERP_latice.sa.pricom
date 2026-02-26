@@ -243,7 +243,9 @@ fi
 if [ -d "$INSTALL_DIR/.git" ]; then
     echo "Git repo već postoji, radim pull..."
     cd "$INSTALL_DIR"
-    git pull || true
+    sudo git fetch --all
+    sudo git checkout "$CURRENT_BRANCH" 2>/dev/null || sudo git checkout -b "$CURRENT_BRANCH" "origin/$CURRENT_BRANCH" 2>/dev/null || true
+    sudo git pull origin "$CURRENT_BRANCH" || true
 else
     echo "Kopiranje fajlova u $INSTALL_DIR..."
     sudo rm -rf "$INSTALL_DIR"
