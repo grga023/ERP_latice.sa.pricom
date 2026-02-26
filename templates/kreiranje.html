@@ -87,7 +87,7 @@
       <div id="kombinacije-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
         <div class="kombinacija-row">
           <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
-          <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
+          <input type="text" class="boja form-input" value="razno" placeholder="Boja" required>
           <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
           <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
         </div>
@@ -207,7 +207,7 @@ function addCombination() {
   newRow.className = 'kombinacija-row';
   newRow.innerHTML = `
     <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
-    <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
+    <input type="text" class="boja form-input" value="razno" placeholder="Boja" required>
     <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
   `;
   container.appendChild(newRow);
@@ -303,7 +303,7 @@ form.addEventListener('submit', async (e) => {
         document.getElementById('kombinacije-container').innerHTML = `
           <div class="kombinacija-row">
             <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
-            <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
+            <input type="text" class="boja form-input" value="razno" placeholder="Boja" required>
             <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
             <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
           </div>

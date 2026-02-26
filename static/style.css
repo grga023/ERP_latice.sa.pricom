@@ -858,25 +858,39 @@ body.modern-body {
     font-size: 0.875rem;
   }
   
+  /* Form row mobile - stack vertically */
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  /* Form inputs mobile */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
   /* Kombinacije mobile layout */
   .kombinacija-row {
     flex-wrap: wrap;
   }
   
   .kombinacija-row .kolicina {
-    flex: 0 1 32%;
-    min-width: 80px;
+    flex: 0 1 30%;
+    min-width: 70px;
   }
   
   .kombinacija-row .boja {
-    flex: 0 1 48%;
+    flex: 0 1 50%;
     min-width: 100px;
   }
   
   .kombinacija-row .btn-remove {
-    flex: 0 1 8%;
+    flex: 0 1 10%;
     padding: 0.5rem;
     min-width: 36px;
+    font-size: 1.1rem;
   }
   
   .kombinacija-row .btn-add {
