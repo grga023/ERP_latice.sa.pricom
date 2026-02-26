@@ -864,15 +864,17 @@ body.modern-body {
   }
   
   .kombinacija-row .kolicina {
-    flex: 0 0 35%;
+    flex: 0 1 32%;
+    min-width: 80px;
   }
   
   .kombinacija-row .boja {
-    flex: 0 0 50%;
+    flex: 0 1 48%;
+    min-width: 100px;
   }
   
   .kombinacija-row .btn-remove {
-    flex: 0 0 10%;
+    flex: 0 1 8%;
     padding: 0.5rem;
     min-width: 36px;
   }
