@@ -85,11 +85,11 @@
     <div class="form-group">
       <label class="form-label">Količina i boje</label>
       <div id="kombinacije-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
-        <div class="kombinacija-row" style="display: flex; gap: 0.75rem; align-items: center;">
-          <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required style="flex: 0 0 120px;">
-          <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required style="flex: 1;">
-          <button type="button" class="btn btn-danger btn-sm" onclick="removeCombination(this)" style="flex: 0 0 auto; padding: 0.5rem 0.875rem; font-size: 1.25rem; line-height: 1;">×</button>
-          <button type="button" class="btn btn-success btn-sm" onclick="addCombination()" style="flex: 0 0 auto;">+ Dodaj</button>
+        <div class="kombinacija-row">
+          <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
+          <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
+          <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
+          <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
         </div>
       </div>
     </div>
@@ -199,11 +199,10 @@ function addCombination() {
   const container = document.getElementById('kombinacije-container');
   const newRow = document.createElement('div');
   newRow.className = 'kombinacija-row';
-  newRow.style.cssText = 'display: flex; gap: 0.75rem; align-items: center;';
   newRow.innerHTML = `
-    <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required style="flex: 0 0 120px;">
-    <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required style="flex: 1;">
-    <button type="button" class="btn btn-danger btn-sm" onclick="removeCombination(this)" style="flex: 0 0 auto; padding: 0.5rem 0.875rem; font-size: 1.25rem; line-height: 1;">×</button>
+    <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
+    <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
+    <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
   `;
   container.appendChild(newRow);
 }
@@ -296,11 +295,11 @@ form.addEventListener('submit', async (e) => {
         preview.style.display = 'none';
         // Reset kombinacije
         document.getElementById('kombinacije-container').innerHTML = `
-          <div class="kombinacija-row" style="display: flex; gap: 0.75rem; align-items: center;">
-            <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required style="flex: 0 0 120px;">
-            <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required style="flex: 1;">
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeCombination(this)" style="flex: 0 0 auto; padding: 0.5rem 0.875rem; font-size: 1.25rem; line-height: 1;">×</button>
-            <button type="button" class="btn btn-success btn-sm" onclick="addCombination()" style="flex: 0 0 auto;">+ Dodaj</button>
+          <div class="kombinacija-row">
+            <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
+            <input type="text" class="boja form-input" value="razno" placeholder="Boja (npr. žuto, plavo)" required>
+            <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
+            <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
           </div>
         `;
         submitBtn.disabled = false;
