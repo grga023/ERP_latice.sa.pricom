@@ -29,7 +29,7 @@
 
         <div class="form-field">
             <label>App Password:</label>
-            <input type="password" id="appPassword" placeholder="Unesi Gmail App Password">
+            <input type="password" id="appPassword" placeholder="Enter Gmail App Password">
             <small id="passwordHint" style="color: var(--text-secondary);"></small>
         </div>
 
@@ -55,26 +55,26 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════
-     PODEŠAVANJA BIZNISA
+     BUSINESS SETTINGS
      ═══════════════════════════════════════════════ -->
 <div class="settings-card" style="margin-top: 30px;">
     <h2>🏢 Business information</h2>
-    <p class="settings-desc">Osnovne informacije koje se prikazuju u aplikaciji.</p>
+    <p class="settings-desc">Basic information displayed in the application.</p>
 
     <form id="businessForm" class="settings-form">
         <div class="form-field">
-            <label>Naziv biznisa:</label>
-            <input type="text" id="businessName" placeholder="Moj Biznis">
+            <label>Business Name:</label>
+            <input type="text" id="businessName" placeholder="My Business">
         </div>
 
         <div class="form-field">
-            <label>Kratak name (navbar):</label>
-            <input type="text" id="businessShortName" placeholder="Moj Biznis">
+            <label>Short Name (navbar):</label>
+            <input type="text" id="businessShortName" placeholder="My Business">
         </div>
 
         <div class="form-field">
             <label>Email:</label>
-            <input type="email" id="businessEmail" placeholder="kontakt@mojbiznis.com">
+            <input type="email" id="businessEmail" placeholder="contact@mybusiness.com">
         </div>
 
         <div class="form-field">
@@ -84,7 +84,7 @@
 
         <div class="form-field">
             <label>Adresa:</label>
-            <input type="text" id="businessAddress" placeholder="Ulica i broj, Grad">
+            <input type="text" id="businessAddress" placeholder="Street and number, City">
         </div>
 
         <div class="form-field">
@@ -101,26 +101,26 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════
-     REGIONALNA PODEŠAVANJA
+     REGIONAL SETTINGS
      ═══════════════════════════════════════════════ -->
 <div class="settings-card" style="margin-top: 30px;">
     <h2>🌐 Regional Settings</h2>
-    <p class="settings-desc">Valuta i vremenska zona.</p>
+    <p class="settings-desc">Currency and time zone.</p>
 
     <form id="localeForm" class="settings-form">
         <div class="form-field">
-            <label>Valuta:</label>
+            <label>Currency:</label>
             <select id="currency">
-                <option value="RSD">RSD - Srpski dinar</option>
+                <option value="RSD">RSD - Serbian Dinar</option>
                 <option value="EUR">EUR - Euro</option>
                 <option value="USD">USD - US Dollar</option>
-                <option value="BAM">BAM - Konvertibilna marka</option>
-                <option value="HRK">HRK - Hrvatska kuna</option>
+                <option value="BAM">BAM - Convertible Mark</option>
+                <option value="HRK">HRK - Croatian Kuna</option>
             </select>
         </div>
 
         <div class="form-field">
-            <label>Vremenska zona:</label>
+            <label>Time Zone:</label>
             <select id="timezone">
                 <option value="Europe/Belgrade">Europe/Belgrade</option>
                 <option value="Europe/Zagreb">Europe/Zagreb</option>
@@ -142,11 +142,11 @@
      ═══════════════════════════════════════════════ -->
 <div class="settings-card" style="margin-top: 30px;">
     <h2>🎨 Branding</h2>
-    <p class="settings-desc">Logo i boje aplikacije.</p>
+    <p class="settings-desc">Logo and app colors.</p>
 
     <div class="branding-uploads">
         <div class="branding-item">
-            <label>Logo (veliki):</label>
+            <label>Logo (large):</label>
             <div class="upload-box" onclick="document.getElementById('logoUpload').click()">
                 <img id="logoPreview" src="/images/branding/logo.png" onerror="this.style.display='none'" style="max-height: 60px;">
                 <span>📤 Klikni za upload</span>
@@ -155,7 +155,7 @@
         </div>
 
         <div class="branding-item">
-            <label>Logo (mali, navbar):</label>
+            <label>Logo (small, navbar):</label>
             <div class="upload-box" onclick="document.getElementById('logoSmallUpload').click()">
                 <img id="logoSmallPreview" src="/images/branding/logo-small.png" onerror="this.style.display='none'" style="max-height: 40px;">
                 <span>📤 Klikni za upload</span>
@@ -286,7 +286,7 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
 });
 
 async function testEmail() {
-    showStatus('emailStatusMsg', 'Šaljem test email...', true);
+    showStatus('emailStatusMsg', 'Sending test email...', true);
     try {
         const res = await fetch('/api/test_email', { method: 'POST' });
         const data = await res.json();
@@ -481,7 +481,7 @@ loadAppConfig();
 </script>
 
 <style>
-/* Dodatni CSS za novu stranicu */
+/* Additional CSS za novu stranicu */
 .branding-uploads {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
