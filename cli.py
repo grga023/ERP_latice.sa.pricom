@@ -109,7 +109,7 @@ def cmd_config(args):
         editor = os.environ.get('EDITOR', 'nano')
         subprocess.run([editor, str(CONFIG_FILE)])
     else:
-        # Default: prikaži status
+        # Default: show status
         print("ERP Konfiguracija:")
         print("=" * 40)
         for key, value in CONFIG.items():
