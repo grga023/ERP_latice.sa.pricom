@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Izmeni porudžbinu{% endblock %}
+{% block title %}Edit order{% endblock %}
 
 {% block head_extra %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -9,8 +9,8 @@
 
 {% block content %}
 <div class="page-header mb-4">
-  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">✏️ Izmeni Porudžbinu</h1>
-  <p style="color: #4a4a4a; font-size: 1.1rem;">Ažurirajte detalje porudžbine</p>
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">✏️ Edit Order</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Update order details</p>
 </div>
 
 <div class="form-container fade-in">
@@ -29,7 +29,7 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Plaćeno</label>
+        <label class="form-label">Paid</label>
         <select name="paid" class="form-select">
             <option value="false">Ne</option>
             <option value="true">Da</option>
@@ -59,9 +59,9 @@
 
     <div class="btn-group mt-4">
       <button type="submit" class="btn btn-primary">💾 Spremi izmene</button>
-      <button type="button" onclick="cancelEdit()" class="btn btn-secondary">❌ Otkaži</button>
+      <button type="button" onclick="cancelEdit()" class="btn btn-secondary">❌ Cancel</button>
       <button type="button" onclick="returnToLager()" class="btn btn-success">📦 Vrati na Lager</button>
-      <button type="button" onclick="deleteOrder()" class="btn btn-danger">🗑️ Obriši</button>
+      <button type="button" onclick="deleteOrder()" class="btn btn-danger">🗑️ Delete</button>
     </div>
   </form>
 </div>
@@ -74,7 +74,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get('id');
 
 if (!orderId) {
-    alert('Nema ID-a porudžbine!');
+    alert('No order ID!');
     window.location.href = '/new-orders';
 }
 
