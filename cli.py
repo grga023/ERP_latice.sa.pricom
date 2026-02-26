@@ -322,13 +322,32 @@ def cmd_update(args):
     
     print("Ažuriranje ERP aplikacije...")
     
+    # Proveri da li je git repo
+    git_dir = install_dir / ".git"
+    if not git_dir.exists():
+        print(f"✗ {install_dir} nije git repozitorijum.")
+        print("")
+        print("Opcije za ažuriranje:")
+        print("  1. Ručno ažuriraj:")
+        print(f"     cd /putanja/do/ERP_latice.sa.pricom")
+        print(f"     git pull")
+        print(f"     ./install.sh")
+        print("")
+        print("  2. Ili konvertuj instalaciju u git repo:")
+        print(f"     cd {install_dir}")
+        print(f"     sudo git init")
+        print(f"     sudo git remote add origin https://github.com/grga023/ERP_latice.sa.pricom.git")
+        print(f"     sudo git fetch origin")
+        print(f"     sudo git reset --hard origin/master")
+        sys.exit(1)
+    
     # Zaustavi servis
     print("  Zaustavljanje servisa...")
     subprocess.run(["sudo", "systemctl", "stop", "erp-latice"], stderr=subprocess.DEVNULL)
     
     # Git pull
     print("  Preuzimanje ažuriranja...")
-    result = subprocess.run(["git", "pull"], cwd=str(install_dir), capture_output=True, text=True)
+    result = subprocess.run(["sudo", "git", "pull"], cwd=str(install_dir), capture_output=True, text=True)
     
     if result.returncode != 0:
         print(f"✗ Git pull nije uspeo: {result.stderr}")
@@ -342,14 +361,14 @@ def cmd_update(args):
     venv_pip = install_dir / "venv" / "bin" / "pip"
     req_file = install_dir / "requirements.txt"
     if req_file.exists():
-        subprocess.run([str(venv_pip), "install", "-r", str(req_file)], capture_output=not args.verbose)
+        subprocess.run(["sudo", str(venv_pip), "install", "-r", str(req_file)], 
+                      capture_output=not args.verbose)
     
     # Pokreni servis
     print("  Pokretanje servisa...")
     subprocess.run(["sudo", "systemctl", "start", "erp-latice"])
     
     print("✓ Ažuriranje završeno.")
-
 
 def cmd_db(args):
     """Database operacije"""

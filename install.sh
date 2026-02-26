@@ -96,9 +96,38 @@ mkdir -p "$DATA_DIR"
 mkdir -p "$IMG_DIR"
 
 # Kopiranje fajlova
-echo -e "${GREEN}[2/7]${NC} Kopiranje fajlova..."
+echo -e "${GREEN}[2/7]${NC} Preuzimanje fajlova..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-sudo cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
+
+# Ako instaliramo iz git klona, kopiraj sve
+# Ako već postoji instalacija, proveri da li je git repo
+if [ -d "$INSTALL_DIR/.git" ]; then
+    echo "Git repo već postoji, radim pull..."
+    cd "$INSTALL_DIR"
+    sudo git pull
+else
+    # Proveri da li source dir ima .git
+    if [ -d "$SCRIPT_DIR/.git" ]; then
+        # Kloniraj umesto kopiranja
+        echo "Kloniranje repozitorijuma..."
+        GIT_REMOTE=$(cd "$SCRIPT_DIR" && git remote get-url origin 2>/dev/null || echo "")
+        if [ -n "$GIT_REMOTE" ]; then
+            sudo rm -rf "$INSTALL_DIR"
+            sudo git clone "$GIT_REMOTE" "$INSTALL_DIR"
+        else
+            # Nema remote, samo kopiraj
+            sudo cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
+            sudo cp -r "$SCRIPT_DIR"/.git "$INSTALL_DIR/" 2>/dev/null || true
+        fi
+    else
+        # Običan direktorijum, samo kopiraj
+        sudo cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
+    fi
+fi
+
+# Postavi vlasnika na trenutnog usera (ne root)
+echo -e "${GREEN}[2.5/7]${NC} Postavljanje permisija..."
+sudo chown -R $USER:$USER "$INSTALL_DIR"
 
 # Ukloni postojeće data/img ako postoje, napravi symlinkove
 echo -e "${GREEN}[3/7]${NC} Kreiranje symlinkova..."
