@@ -217,12 +217,23 @@ fileInput.addEventListener("change", function () {
 
 // Load lager items
 async function loadLager() {
-    const res = await fetch('/api/inventory');
-    const items = await res.json();
-    const tbody = document.querySelector('#lagerTable tbody');
-    tbody.innerHTML = '';
+    try {
+        const res = await fetch('/api/inventory');
+        if (!res.ok) {
+            console.error('API error:', res.status, res.statusText);
+            document.querySelector('#lagerTable tbody').innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--gray); padding: 2rem;">Unable to load inventory. Please refresh page.</td></tr>';
+            return;
+        }
+        const items = await res.json();
+        const tbody = document.querySelector('#lagerTable tbody');
+        tbody.innerHTML = '';
 
-    items.forEach(item => {
+        if (!items || items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--gray); padding: 2rem;">No items in inventory</td></tr>';
+            return;
+        }
+
+        items.forEach(item => {
         const outOfStock = (item.quantity || 0) <= 0;
         const tr = document.createElement('tr');
         if (outOfStock) tr.style.opacity = '0.6';
@@ -248,7 +259,10 @@ async function loadLager() {
             </td>
         `;
         tbody.appendChild(tr);
-    });
+        });
+    } catch (err) {
+        console.error('Error loading inventory:', err);
+    }
 }
 
 // Delete lager item
