@@ -9,6 +9,65 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# ═══════════════════════════════════════════════
+# GLOBALNE VARIJABLE
+# ═══════════════════════════════════════════════
+# Zameni "your-username" sa stvarnim GitHub korisničkim imenom
+GIT_REPO="https://github.com/grga023/ERP_latice.sa.pricom.git"
+
+# Detektuj branch ili tag
+CURRENT_BRANCH=""
+
+# Parsiraj argumente (-b za branch)
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -b|--branch)
+            CURRENT_BRANCH="$2"
+            shift 2
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# Ako branch nije prosleđen kao argument, pokušaj detektovati
+if [ -z "$CURRENT_BRANCH" ]; then
+    # Pokušaj da pronađeš najnoviji tag sa "_stable" u imenu
+    if command -v git &>/dev/null; then
+        STABLE_TAG=$(git ls-remote --tags "$GIT_REPO" | grep "_stable" | tail -1 | awk '{print $2}' | sed 's|refs/tags/||' | sed 's/\^{}//' 2>/dev/null || echo "")
+        if [ -n "$STABLE_TAG" ]; then
+            CURRENT_BRANCH="$STABLE_TAG"
+        else
+            CURRENT_BRANCH="main"
+        fi
+    else
+        CURRENT_BRANCH="main"
+    fi
+fi
+
+echo -e "${CYAN}Instalacija Simple ERP Tracking - Branch/Tag: ${CURRENT_BRANCH}${NC}"
+
+# ═══════════════════════════════════════════════
+# INFORMACIJE ZA STANDALONE MODOVE
+# ═══════════════════════════════════════════════
+# Ovaj skript se može koristiti na dva načina:
+#
+# 1. DOWNLOAD MODE - sa grane 'installation' (preporučeno):
+#    bash <(curl -sSL https://raw.githubusercontent.com/grga023/ERP_latice.sa.pricom/installation/install.sh)
+#
+# 2. DOWNLOAD MODE - sa custom grane/tag-a:
+#    bash <(curl -sSL https://raw.githubusercontent.com/grga023/ERP_latice.sa.pricom/installation/install.sh) -b v1.0.0_stable
+#
+# 3. LOKALNI MODE (izvršava se iz kloniranog repozitorijuma):
+#    git clone https://github.com/grga023/ERP_latice.sa.pricom.git
+#    cd ERP_latice.sa.pricom
+#    ./install.sh
+#    ili sa specifičnom granom:
+#    ./install.sh -b develop
+#
+# ═══════════════════════════════════════════════
+
 echo -e "${GREEN}"
 echo "╔═══════════════════════════════════════╗"
 echo "║     Simple ERP Tracking - Setup       ║"
@@ -145,31 +204,60 @@ fi
 
 # Kopiranje fajlova
 echo -e "${GREEN}[2/10]${NC} Preuzimanje fajlova..."
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Detektuj trenutnu granu
-CURRENT_BRANCH=$(cd "$SCRIPT_DIR" && git branch --show-current 2>/dev/null || echo "master")
+# Detektuj gdje je script pokrenut
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_SOURCE="${BASH_SOURCE[0]}"
+
+# Ako je script pokrenut iz /tmp ili pipe-a (npr `bash <(curl ...)`), trebamo da kloniramo
+if [[ "$SCRIPT_SOURCE" == "/dev/stdin" ]] || [[ "$SCRIPT_DIR" == "/tmp"* ]] || [[ ! -d "$SCRIPT_DIR/.git" && ! -f "$SCRIPT_DIR/ERP_server.py" ]]; then
+    TEMP_CLONE_DIR=$(mktemp -d)
+    echo -e "${CYAN}Preuzimam repository ($CURRENT_BRANCH)...${NC}"
+    
+    # Pokušaj sa git clone prvi put
+    if command -v git &>/dev/null; then
+        read -p "Git branch/tag [$CURRENT_BRANCH]: " BRANCH_INPUT
+        CURRENT_BRANCH="${BRANCH_INPUT:-$CURRENT_BRANCH}"
+        
+        if git clone -b "$CURRENT_BRANCH" "$GIT_REPO" "$TEMP_CLONE_DIR" 2>/dev/null; then
+            SCRIPT_DIR="$TEMP_CLONE_DIR"
+            echo -e "${GREEN}Repository kloniran iz grane/tag-a: $CURRENT_BRANCH${NC}"
+        else
+            echo -e "${RED}Greška: Ne mogu da kloniram repository sa granom/tag-om: $CURRENT_BRANCH${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${RED}Greška: git nije instaliran${NC}"
+        exit 1
+    fi
+else
+    # Pokrenut iz lokalnog direktorijuma sa filovima
+    # Detektuj granu iz lokalnog git repozitorijuma
+    LOCAL_BRANCH=$(cd "$SCRIPT_DIR" && git branch --show-current 2>/dev/null || echo "")
+    if [ -n "$LOCAL_BRANCH" ]; then
+        CURRENT_BRANCH="$LOCAL_BRANCH"
+    fi
+    TEMP_CLONE_DIR=""
+fi
 
 if [ -d "$INSTALL_DIR/.git" ]; then
     echo "Git repo već postoji, radim pull..."
     cd "$INSTALL_DIR"
     git pull || true
 else
+    echo "Kopiranje fajlova u $INSTALL_DIR..."
+    sudo rm -rf "$INSTALL_DIR"
+    sudo cp -r "$SCRIPT_DIR" "$INSTALL_DIR"
+    
+    # Ako je ".git" direktorijum, kopiraj ga sa a posebnom dozvolom
     if [ -d "$SCRIPT_DIR/.git" ]; then
-        echo "Kloniranje repozitorijuma (grana: $CURRENT_BRANCH)..."
-        GIT_REMOTE=$(cd "$SCRIPT_DIR" && git remote get-url origin 2>/dev/null || echo "")
-        if [ -n "$GIT_REMOTE" ]; then
-            sudo rm -rf "$INSTALL_DIR"
-            sudo git clone -b "$CURRENT_BRANCH" "$GIT_REMOTE" "$INSTALL_DIR"
-        else
-            # Nema remote, samo kopiraj
-            sudo cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
-            sudo cp -r "$SCRIPT_DIR"/.git "$INSTALL_DIR/" 2>/dev/null || true
-        fi
-    else
-        # Običan direktorijum, samo kopiraj
-        sudo cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
+        sudo cp -r "$SCRIPT_DIR/.git" "$INSTALL_DIR/" 2>/dev/null || true
     fi
+fi
+
+# Očisti temp clone ako je pravi
+if [ -n "$TEMP_CLONE_DIR" ] && [ -d "$TEMP_CLONE_DIR" ]; then
+    rm -rf "$TEMP_CLONE_DIR"
 fi
 
 # Postavi vlasnika na trenutnog usera
