@@ -13,6 +13,7 @@ from models import db
 from blueprints.orders import orders_bp
 from blueprints.lager import lager_bp
 from blueprints.email_notify import email_bp, notification_scheduler
+from blueprints.config import config_bp
 
 
 def load_erp_config():
@@ -76,11 +77,33 @@ def create_app():
     app.register_blueprint(orders_bp)
     app.register_blueprint(lager_bp)
     app.register_blueprint(email_bp)
+    app.register_blueprint(config_bp)
 
     # ─── Serve Uploaded Images ─────────────────────────────────
     @app.route('/images/<path:filename>')
     def serve_image(filename):
         return send_from_directory(IMAGES_DIR, filename)
+
+    @app.route('/api/config')
+    def get_config():
+        """Vraća frontend konfiguraciju"""
+        config_file = os.path.join(DATA_DIR, 'config.json')
+        if os.path.exists(config_file):
+            with open(config_file) as f:
+                return jsonify(json.load(f))
+        return jsonify({
+            'business': {'name': 'Simple ERP', 'shortName': 'ERP'},
+            'branding': {'primaryColor': '#4F46E5'}
+        })
+
+    @app.route('/api/config', methods=['POST'])
+    def save_config():
+        """Sačuvaj frontend konfiguraciju"""
+        config_file = os.path.join(DATA_DIR, 'config.json')
+        data = request.get_json()
+        with open(config_file, 'w') as f:
+            json.dump(data, f, indent=2)
+        return jsonify({'status': 'ok'})
 
     # ─── Central Error Handlers ────────────────────────────────
     @app.errorhandler(400)
