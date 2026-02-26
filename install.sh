@@ -304,10 +304,10 @@ echo -e "${GREEN}[8/10]${NC} Saving configuration..."
 
 tee "$INSTALL_DIR/.erp.conf" > /dev/null << EOF
 # ═══════════════════════════════════════
-# Simple ERP Tracking - Konfiguracija
+# Simple ERP - Configuration
 # ═══════════════════════════════════════
 
-# Biznis informacije
+# Business information
 BUSINESS_NAME=$BUSINESS_NAME
 BUSINESS_SHORT_NAME=$BUSINESS_SHORT_NAME
 BUSINESS_EMAIL=$BUSINESS_EMAIL
@@ -317,12 +317,12 @@ BUSINESS_WEBSITE=$BUSINESS_WEBSITE
 CURRENCY=$CURRENCY
 TIMEZONE=$TIMEZONE
 
-# Logo (relativna putanja u images/branding/)
+# Logo (relative path in images/branding/)
 LOGO_FILE=logo.png
 LOGO_SMALL_FILE=logo-small.png
 FAVICON_FILE=favicon.ico
 
-# Putanje
+# Paths
 INSTALL_DIR=$INSTALL_DIR
 DATA_DIR=$DATA_DIR
 IMG_DIR=$IMG_DIR
@@ -333,12 +333,12 @@ HOST=0.0.0.0
 PUBLIC_URL=$PUBLIC_URL
 DEBUG=false
 
-# Sistem
+# System
 VERSION=$DEFAULT_VERSION
 INSTALLED_DATE=$(date -Is)
 EOF
 
-# Kreiraj JSON config za frontend
+# Create JSON config for frontend
 tee "$DATA_DIR/config.json" > /dev/null << EOF
 {
     "business": {
