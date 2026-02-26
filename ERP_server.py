@@ -9,12 +9,14 @@ import json
 import threading
 import sqlite3
 import argparse
-from flask import Flask, jsonify, send_from_directory
-from models import db
+from flask import Flask, jsonify, send_from_directory, request
+from flask_login import LoginManager, login_required
+from models import db, User
 from blueprints.orders import orders_bp
 from blueprints.lager import lager_bp
 from blueprints.email_notify import email_bp, notification_scheduler
 from blueprints.config import config_bp
+from blueprints.auth import auth_bp
 
 
 def load_erp_config():
@@ -70,6 +72,17 @@ def create_app():
 
     # ─── Initialize Extensions ─────────────────────────────────
     db.init_app(app)
+    
+    # Flask-Login setup
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = 'Morate biti ulogovani da biste pristupili ovoj stranici.'
+    login_manager.login_message_category = 'error'
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     with app.app_context():
         db.create_all()
@@ -87,6 +100,8 @@ def create_app():
         return {'config': config}
 
     # ─── Register Blueprints ───────────────────────────────────
+    # Auth blueprint must be first (handles landing page at '/')
+    app.register_blueprint(auth_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(lager_bp)
     app.register_blueprint(email_bp)

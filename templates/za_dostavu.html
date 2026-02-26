@@ -3,24 +3,27 @@
 {% block title %}Za dostavu{% endblock %}
 
 {% block content %}
-<div class="container">
-<h1>Za dostavu</h1>
+<div class="page-header mb-4">
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">🚚 Za Dostavu</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Porudžbine spremne za isporuku</p>
+</div>
 
-<table id="shippingTable">
-<thead>
-<tr>
-    <th>Naziv</th>
-    <th>Cena</th>
-    <th>Plaćeno</th>
-    <th>Kupac</th>
-    <th>Datum</th>
-    <th>Opis</th>
-    <th>Slika</th>
-    <th>Akcija</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+<div class="table-container fade-in">
+  <table id="shippingTable" class="modern-table">
+    <thead>
+      <tr>
+        <th>Naziv</th>
+        <th>Cena</th>
+        <th>Plaćeno</th>
+        <th>Kupac</th>
+        <th>Datum</th>
+        <th>Opis</th>
+        <th>Slika</th>
+        <th>Akcija</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 {% endblock %}
 
@@ -57,16 +60,18 @@ async function loadToBeShipped() {
     orders.forEach(order => {
         const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td data-label="Naziv">${order.naziv}</td>
-                <td data-label="Cena">${order.cena}</td>
-                <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
+                <td data-label="Naziv"><strong>${order.naziv}</strong></td>
+                <td data-label="Cena"><strong>${order.cena} RSD</strong></td>
+                <td data-label="Plaćeno">${order.placeno ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
                 <td data-label="Kupac">${order.kupac}</td>
                 <td data-label="Datum">${order.datum || '-'}</td>
                 <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
-                <td data-label="Slika"><img src="/images/${order.slika}" /></td>
+                <td data-label="Slika">${order.slika ? `<img src="/images/${order.slika}" />` : '-'}</td>
                 <td data-label="Akcija">
-                    <button onclick="editOrder(${order.id})">Izmeni</button>
-                    <button onclick="realized(${order.id})">Realizovano</button>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button>
+                        <button class="btn btn-sm btn-success" onclick="realized(${order.id})">✅ Realizovano</button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);

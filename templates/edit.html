@@ -8,47 +8,62 @@
 {% endblock %}
 
 {% block content %}
-<div class="container" id="form-container">
-<h1>Izmeni porudžbinu</h1>
+<div class="page-header mb-4">
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">✏️ Izmeni Porudžbinu</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Ažurirajte detalje porudžbine</p>
+</div>
 
-<form id="editForm" enctype="multipart/form-data">
-    <div class="form-field">
-        <label>Naziv proizvoda:</label>
-        <input type="text" name="naziv" required>
+<div class="form-container fade-in">
+  <form id="editForm" enctype="multipart/form-data">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Naziv proizvoda</label>
+        <input type="text" name="naziv" class="form-input" placeholder="Naziv proizvoda" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cena (RSD)</label>
+        <input type="number" name="cena" step="0.01" class="form-input" placeholder="0.00" required>
+      </div>
     </div>
 
-    <div class="form-field">
-        <label>Cena:</label>
-        <input type="number" name="cena" step="0.01" required>
-    </div>
-
-    <div class="form-field">
-        <label>Plaćeno:</label>
-        <select name="placeno">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Plaćeno</label>
+        <select name="placeno" class="form-select">
             <option value="false">Ne</option>
             <option value="true">Da</option>
         </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Kupac</label>
+        <input type="text" name="kupac" class="form-input" placeholder="Ime kupca" required>
+      </div>
     </div>
 
-    <div class="form-field">
-        <label>Kupac:</label>
-        <input type="text" name="kupac" required>
+    <div class="form-group">
+      <label class="form-label">Datum</label>
+      <input type="date" id="datepicker" name="datum" class="form-input" required>
     </div>
 
-    <label>Datum:</label>
-    <input type="date" id="datepicker" name="datum" required>
-
-    <label>Opis:</label>
-    <textarea name="opis" placeholder="Opis i kombinacije..."></textarea>
+    <div class="form-group">
+      <label class="form-label">Opis</label>
+      <textarea name="opis" class="form-input" rows="4" placeholder="Opis i kombinacije..."></textarea>
+    </div>
     
-    <label>Slika:</label>
-    <input type="file" name="slika" accept="image/*">
+    <div class="form-group">
+      <label class="form-label">Slika</label>
+      <input type="file" name="slika" accept="image/*" class="form-input" style="padding: 0.75rem;">
+    </div>
 
-    <button type="submit">Spremi izmene</button>
-    <button type="button" onclick="cancelEdit()">Otkaži</button>
-    <button type="button" onclick="deleteOrder()">Obrisi</button>
-    <button type="button" onclick="returnToLager()">Vrati na Lager</button>
-</form>
+    <div class="btn-group mt-4">
+      <button type="submit" class="btn btn-primary">💾 Spremi izmene</button>
+      <button type="button" onclick="cancelEdit()" class="btn btn-secondary">❌ Otkaži</button>
+      <button type="button" onclick="returnToLager()" class="btn btn-success">📦 Vrati na Lager</button>
+      <button type="button" onclick="deleteOrder()" class="btn btn-danger">🗑️ Obriši</button>
+    </div>
+  </form>
 </div>
 {% endblock %}
 

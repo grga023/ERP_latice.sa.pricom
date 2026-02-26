@@ -3,35 +3,41 @@
 {% block title %}Realizovane porudžbine{% endblock %}
 
 {% block content %}
-<div class="container">
-<h1>Realizovane porudžbine</h1>
+<div class="page-header mb-4">
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">✅ Realizovane Porudžbine</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Sve porudžbine koje su uspešno završene</p>
+</div>
 
-<div class="summary-box">
-  <div class="summary-item">
-    <span class="summary-label">Ukupno realizovano:</span>
-    <span class="summary-value" id="totalSum">0.00 RSD</span>
+<!-- Stats Cards -->
+<div class="stats-grid mb-4">
+  <div class="stat-card">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value" id="totalSum">0.00</div>
+    <div class="stat-label">Ukupna Zarada</div>
   </div>
-  <div class="summary-item">
-    <span class="summary-label">Broj porudžbina:</span>
-    <span class="summary-value" id="totalCount">0</span>
+  <div class="stat-card">
+    <div class="stat-icon">📦</div>
+    <div class="stat-value" id="totalCount">0</div>
+    <div class="stat-label">Broj Porudžbina</div>
   </div>
 </div>
 
-<table id="shippingTable">
-<thead>
-<tr>
-    <th>Naziv</th>
-    <th>Cena</th>
-    <th>Plaćeno</th>
-    <th>Kupac</th>
-    <th>Datum</th>
-    <th>Opis</th>
-    <th>Slika</th>
-    <th>Akcija</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+<div class="table-container fade-in">
+  <table id="shippingTable" class="modern-table">
+    <thead>
+      <tr>
+        <th>Naziv</th>
+        <th>Cena</th>
+        <th>Plaćeno</th>
+        <th>Kupac</th>
+        <th>Datum</th>
+        <th>Opis</th>
+        <th>Slika</th>
+        <th>Akcija</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 {% endblock %}
 
@@ -67,20 +73,20 @@ async function loadToBeShipped() {
 
     // Calculate totals
     const totalSum = orders.reduce((sum, o) => sum + (parseFloat(o.cena) || 0), 0);
-    document.getElementById('totalSum').textContent = totalSum.toLocaleString('sr-RS', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' RSD';
+    document.getElementById('totalSum').textContent = totalSum.toLocaleString('sr-RS', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('totalCount').textContent = orders.length;
 
     orders.forEach(order => {
         const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td data-label="Naziv">${order.naziv}</td>
-                <td data-label="Cena">${order.cena}</td>
-                <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
+                <td data-label="Naziv"><strong>${order.naziv}</strong></td>
+                <td data-label="Cena"><strong>${order.cena} RSD</strong></td>
+                <td data-label="Plaćeno">${order.placeno ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
                 <td data-label="Kupac">${order.kupac}</td>
                 <td data-label="Datum">${order.datum || '-'}</td>
                 <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
-                <td data-label="Slika"><img src="/images/${order.slika}" /></td>
-                <td data-label="Akcija"><button onclick="editOrder(${order.id})">Izmeni</button></td>
+                <td data-label="Slika">${order.slika ? `<img src="/images/${order.slika}" />` : '-'}</td>
+                <td data-label="Akcija"><button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button></td>
             `;
             tbody.appendChild(tr);
     });

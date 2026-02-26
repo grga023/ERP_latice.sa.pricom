@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, render_template, current_app
+from flask_login import login_required
 import json
 import os
 
@@ -20,22 +21,26 @@ def save_config(data):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 @config_bp.route('/')
+@login_required
 def config_page():
     """Config stranica"""
     config = load_config()
     return render_template('config.html', config=config)
 
 @config_bp.route('/api/config', methods=['GET'])
+@login_required
 def api_get_config():
     return jsonify(load_config())
 
 @config_bp.route('/api/config', methods=['POST'])
+@login_required
 def api_save_config():
     data = request.get_json()
     save_config(data)
     return jsonify({'status': 'ok', 'message': 'Konfiguracija sačuvana'})
 
 @config_bp.route('/api/config/branding', methods=['POST'])
+@login_required
 def upload_branding():
     """Upload logo/favicon"""
     if 'file' not in request.files:

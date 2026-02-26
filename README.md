@@ -10,7 +10,28 @@ A complete ERP application system for managing orders, inventory (warehouse), an
 - 📧 **Email Notifications** - Automated notification sending
 - ⚙️ **Configuration** - System settings
 
-## 🚀 Technologies
+## � Authentication & Security
+
+The ERP system now includes user authentication and authorization:
+
+### First User Setup
+1. Start the server
+2. Navigate to the landing page
+3. Click "Register" to create the first user
+4. **The first user automatically becomes an administrator**
+
+### User Login
+- All routes require authentication
+- Login at `/login`
+- Sessions persist across browser restarts
+- Automatic redirect to login page when unauthorized
+
+### User Management
+- Admin users can manage other users
+- Password encryption using industry-standard hashing
+- Session management with Flask-Login
+
+## �🚀 Technologies
 
 - **Backend:** Flask 2.3.0+
 - **Database:** SQLite (SQLAlchemy ORM)

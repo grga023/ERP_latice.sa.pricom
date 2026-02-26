@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template
+from flask_login import login_required
 import smtplib
 import time
 from email.mime.text import MIMEText
@@ -109,6 +110,7 @@ def notification_scheduler(app):
 
 @email_bp.route('/podesavanja')
 @email_bp.route('/podesavanja.html')
+@login_required
 def podesavanja():
     return render_template('podesavanja.html')
 
@@ -116,6 +118,7 @@ def podesavanja():
 # ─── API Routes ────────────────────────────────────────────────
 
 @email_bp.route('/api/email_config', methods=['GET'])
+@login_required
 def get_config():
     config = get_email_config()
     return jsonify({
@@ -128,6 +131,7 @@ def get_config():
 
 
 @email_bp.route('/api/email_config', methods=['POST'])
+@login_required
 def save_config():
     data = request.get_json()
     config = get_email_config()
@@ -142,6 +146,7 @@ def save_config():
 
 
 @email_bp.route('/api/test_email', methods=['POST'])
+@login_required
 def test_email_route():
     config = get_email_config()
     if not config.sender_email or not config.app_password or not config.receiver_email:
@@ -155,6 +160,7 @@ def test_email_route():
 
 
 @email_bp.route('/api/check_notifications', methods=['POST'])
+@login_required
 def trigger_check():
     check_and_notify()
     return jsonify({'ok': True})
