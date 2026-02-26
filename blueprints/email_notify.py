@@ -109,8 +109,8 @@ def notification_scheduler(app):
 # ─── Page Route ────────────────────────────────────────────────
 
 @email_bp.route('/podesavanja')
-@login_required
 @email_bp.route('/podesavanja.html')
+@login_required
 def podesavanja():
     return render_template('podesavanja.html')
 

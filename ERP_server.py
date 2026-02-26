@@ -89,7 +89,7 @@ def create_app():
 
     @app.context_processor
     def inject_config():
-        cconfig_file = os.path.join(DATA_DIR, 'config.json')
+        config_file = os.path.join(DATA_DIR, 'config.json')
         config = {}
         if os.path.exists(config_file):
             try:
@@ -100,6 +100,8 @@ def create_app():
         return {'config': config}
 
     # ─── Register Blueprints ───────────────────────────────────
+    # Auth blueprint must be first (handles landing page at '/')
+    app.register_blueprint(auth_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(lager_bp)
     app.register_blueprint(email_bp)

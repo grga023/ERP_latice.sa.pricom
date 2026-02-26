@@ -9,16 +9,14 @@ orders_bp = Blueprint('orders', __name__)
 
 # ─── Page Routes ───────────────────────────────────────────────
 
-@orders_bp.route('/')
-@login_required
 @orders_bp.route('/index.html')
+@orders_bp.route('/dashboard')
 @login_required
 def index():
     return render_template('index.html')
 
 
 @orders_bp.route('/porudzbenice')
-@login_required
 @orders_bp.route('/porudzbenice.html')
 @login_required
 def porudzbenice():
@@ -26,7 +24,6 @@ def porudzbenice():
 
 
 @orders_bp.route('/realizovano')
-@login_required
 @orders_bp.route('/realizovano.html')
 @login_required
 def realizovano():
@@ -34,7 +31,6 @@ def realizovano():
 
 
 @orders_bp.route('/za-dostavu')
-@login_required
 @orders_bp.route('/za_daostavu.html')
 @login_required
 def za_dostavu():
@@ -42,7 +38,6 @@ def za_dostavu():
 
 
 @orders_bp.route('/edit')
-@login_required
 @orders_bp.route('/edit.html')
 @login_required
 def edit():
