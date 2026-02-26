@@ -143,17 +143,12 @@ fi
 # Instalacija
 # ═══════════════════════════════════════════════
 
-# Kreiranje direktorijuma
-echo -e "${GREEN}[1/10]${NC} Kreiranje direktorijuma..."
-sudo mkdir -p "$INSTALL_DIR"
-mkdir -p "$DATA_DIR"
-mkdir -p "$DATA_DIR/logs"
-mkdir -p "$IMG_DIR"
-mkdir -p "$IMG_DIR/branding"
-
 # Kopiranje fajlova
 echo -e "${GREEN}[2/10]${NC} Preuzimanje fajlova..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Detektuj trenutnu granu
+CURRENT_BRANCH=$(cd "$SCRIPT_DIR" && git branch --show-current 2>/dev/null || echo "master")
 
 if [ -d "$INSTALL_DIR/.git" ]; then
     echo "Git repo već postoji, radim pull..."
@@ -161,16 +156,18 @@ if [ -d "$INSTALL_DIR/.git" ]; then
     git pull || true
 else
     if [ -d "$SCRIPT_DIR/.git" ]; then
-        echo "Kloniranje repozitorijuma..."
+        echo "Kloniranje repozitorijuma (grana: $CURRENT_BRANCH)..."
         GIT_REMOTE=$(cd "$SCRIPT_DIR" && git remote get-url origin 2>/dev/null || echo "")
         if [ -n "$GIT_REMOTE" ]; then
             sudo rm -rf "$INSTALL_DIR"
-            sudo git clone "$GIT_REMOTE" "$INSTALL_DIR"
+            sudo git clone -b "$CURRENT_BRANCH" "$GIT_REMOTE" "$INSTALL_DIR"
         else
+            # Nema remote, samo kopiraj
             sudo cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
             sudo cp -r "$SCRIPT_DIR"/.git "$INSTALL_DIR/" 2>/dev/null || true
         fi
     else
+        # Običan direktorijum, samo kopiraj
         sudo cp -r "$SCRIPT_DIR"/* "$INSTALL_DIR/"
     fi
 fi
