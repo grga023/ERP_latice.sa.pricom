@@ -214,11 +214,25 @@ sudo chmod +x "$INSTALL_DIR/backup.sh"
 # Kreiraj logs direktorijum
 mkdir -p "$DATA_DIR/logs"
 
-# Dodaj u crontab (ukloni stari ako postoji, dodaj novi)
+# Dodaj u crontab
 CRON_JOB="0 3 * * * $INSTALL_DIR/backup.sh"
-(crontab -l 2>/dev/null | grep -v "backup.sh"; echo "$CRON_JOB") | crontab -
 
-echo -e "${GREEN}Backup zakazan za 3:00 AM svaki dan.${NC}"
+# Proveri da li već postoji crontab
+if crontab -l 2>/dev/null | grep -q "backup.sh"; then
+    echo -e "${YELLOW}Backup cron job već postoji.${NC}"
+else
+    # Dodaj novi cron job
+    (crontab -l 2>/dev/null || echo "") | grep -v "backup.sh" | { cat; echo "$CRON_JOB"; } | crontab -
+    
+    # Verifikuj
+    if crontab -l 2>/dev/null | grep -q "backup.sh"; then
+        echo -e "${GREEN}Backup zakazan za 3:00 AM svaki dan.${NC}"
+    else
+        echo -e "${YELLOW}UPOZORENJE: Nije uspelo automatsko dodavanje cron job-a.${NC}"
+        echo -e "${YELLOW}Dodaj ručno sa: crontab -e${NC}"
+        echo -e "${YELLOW}Linija: $CRON_JOB${NC}"
+    fi
+fi
 
 # ═══════════════════════════════════════════════
 # Provera Git konfiguracije za backup
