@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, render_template, current_app
 from flask_login import login_required
 import time
 import os
-from models import db, LagerItem
+from models import db, InventoryItem
 
 lager_bp = Blueprint('lager', __name__)
 
@@ -27,7 +27,7 @@ def inventory_page():
 def get_inventory():
     """Get all inventory items"""
     try:
-        items = LagerItem.query.all()
+        items = InventoryItem.query.all()
         return jsonify([i.to_dict() for i in items])
     except Exception as e:
         print(f"Error getting inventory: {str(e)}")
@@ -61,7 +61,7 @@ def add_inventory():
         except (ValueError, TypeError):
             quantity = 0
 
-        item = LagerItem(
+        item = InventoryItem(
             name=form_data.get('name', ''),
             price=price,
             color=form_data.get('color', ''),
@@ -84,7 +84,7 @@ def add_inventory():
 def delete_inventory(item_id):
     """Delete inventory item"""
     try:
-        item = db.session.get(LagerItem, item_id)
+        item = db.session.get(InventoryItem, item_id)
         if not item:
             return jsonify({'error': 'Item not found'}), 404
         db.session.delete(item)
@@ -102,7 +102,7 @@ def delete_inventory(item_id):
 def increase_quantity(item_id):
     """Increase quantity of inventory item"""
     try:
-        item = db.session.get(LagerItem, item_id)
+        item = db.session.get(InventoryItem, item_id)
         if not item:
             return jsonify({'error': 'Item not found'}), 404
         

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, render_template, redirect, url_fo
 from flask_login import login_required
 import time
 import os
-from models import db, Order, LagerItem
+from models import db, Order, InventoryItem
 
 orders_bp = Blueprint('orders', __name__)
 
@@ -212,7 +212,7 @@ def order_from_lager():
 
     # Subtract quantity from lager (minimum 0)
     if lager_id:
-        item = db.session.get(LagerItem, int(lager_id))
+        item = db.session.get(InventoryItem, int(lager_id))
         if item:
             item.quantity = max(0, item.quantity - order_qty)
 
@@ -244,7 +244,7 @@ def return_to_lager(order_id):
     if not order.lager_id:
         return jsonify({'error': 'Order has no lager_id'}), 404
     
-    item = db.session.get(LagerItem, int(order.lager_id))
+    item = db.session.get(InventoryItem, int(order.lager_id))
     if not item:
         return jsonify({'error': 'Lager item not found'}), 404
     

@@ -44,7 +44,7 @@ The ERP system now includes user authentication and authorization:
 ```
 ERP_latice.sa.pricom/
 ├── ERP_server.py              # Main Flask application
-├── models.py                  # SQLAlchemy models (Order, LagerItem)
+├── models.py                  # SQLAlchemy models (Order, InventoryItem)
 ├── cli.py                     # Command-line interface
 ├── requirements.txt           # Python dependencies
 ├── setup & install scripts    # Installation scripts
