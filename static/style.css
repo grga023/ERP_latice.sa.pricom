@@ -346,6 +346,7 @@ body.modern-body {
 
 .form-group {
   margin-bottom: var(--spacing-md);
+  overflow: visible; /* Ensures dropdown elements are visible */
 }
 
 .form-label {
@@ -360,6 +361,7 @@ body.modern-body {
 .form-select,
 .form-textarea {
   width: 100%;
+  max-width: 100%;
   padding: 0.875rem 1.25rem;
   border: 2px solid var(--light-gray);
   border-radius: var(--radius-md);
@@ -367,6 +369,7 @@ body.modern-body {
   font-family: inherit;
   transition: var(--transition-fast);
   background: var(--white);
+  box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -869,6 +872,17 @@ body.modern-body {
   .form-select,
   .form-textarea {
     font-size: 16px; /* Prevents zoom on iOS */
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Date input specific mobile fixes */
+  input[type="date"] {
+    max-width: 100%;
+    min-width: 0;
+    padding: 0.75rem 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* Kombinacije mobile layout */
