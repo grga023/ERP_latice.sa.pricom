@@ -4,8 +4,11 @@
 
 {% block content %}
 <div class="container">
-<h1>⚙ Podešavanja notifikacija</h1>
+<h1>⚙ Podešavanja</h1>
 
+<!-- ═══════════════════════════════════════════════
+     EMAIL NOTIFIKACIJE (tvoj originalni deo)
+     ═══════════════════════════════════════════════ -->
 <div class="settings-card">
     <h2>📧 Email notifikacije</h2>
     <p class="settings-desc">Primaćeš email obaveštenje kada porudžbina ima rok u narednih N dana. Koristiš Gmail sa App Password-om.</p>
@@ -48,33 +51,209 @@
         </div>
     </form>
 
-    <div id="statusMsg" class="status-msg" style="display:none;"></div>
+    <div id="emailStatusMsg" class="status-msg" style="display:none;"></div>
 </div>
+
+<!-- ═══════════════════════════════════════════════
+     PODEŠAVANJA BIZNISA
+     ═══════════════════════════════════════════════ -->
+<div class="settings-card" style="margin-top: 30px;">
+    <h2>🏢 Informacije o biznisu</h2>
+    <p class="settings-desc">Osnovne informacije koje se prikazuju u aplikaciji.</p>
+
+    <form id="businessForm" class="settings-form">
+        <div class="form-field">
+            <label>Naziv biznisa:</label>
+            <input type="text" id="businessName" placeholder="Moj Biznis">
+        </div>
+
+        <div class="form-field">
+            <label>Kratak naziv (navbar):</label>
+            <input type="text" id="businessShortName" placeholder="Moj Biznis">
+        </div>
+
+        <div class="form-field">
+            <label>Email:</label>
+            <input type="email" id="businessEmail" placeholder="kontakt@mojbiznis.com">
+        </div>
+
+        <div class="form-field">
+            <label>Telefon:</label>
+            <input type="tel" id="businessPhone" placeholder="+381 11 123 4567">
+        </div>
+
+        <div class="form-field">
+            <label>Adresa:</label>
+            <input type="text" id="businessAddress" placeholder="Ulica i broj, Grad">
+        </div>
+
+        <div class="form-field">
+            <label>Website:</label>
+            <input type="url" id="businessWebsite" placeholder="https://www.mojbiznis.com">
+        </div>
+
+        <div class="settings-buttons">
+            <button type="submit">💾 Sačuvaj</button>
+        </div>
+    </form>
+
+    <div id="businessStatusMsg" class="status-msg" style="display:none;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     REGIONALNA PODEŠAVANJA
+     ═══════════════════════════════════════════════ -->
+<div class="settings-card" style="margin-top: 30px;">
+    <h2>🌍 Regionalna podešavanja</h2>
+    <p class="settings-desc">Valuta i vremenska zona.</p>
+
+    <form id="localeForm" class="settings-form">
+        <div class="form-field">
+            <label>Valuta:</label>
+            <select id="currency">
+                <option value="RSD">RSD - Srpski dinar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="USD">USD - US Dollar</option>
+                <option value="BAM">BAM - Konvertibilna marka</option>
+                <option value="HRK">HRK - Hrvatska kuna</option>
+            </select>
+        </div>
+
+        <div class="form-field">
+            <label>Vremenska zona:</label>
+            <select id="timezone">
+                <option value="Europe/Belgrade">Europe/Belgrade</option>
+                <option value="Europe/Zagreb">Europe/Zagreb</option>
+                <option value="Europe/Sarajevo">Europe/Sarajevo</option>
+                <option value="UTC">UTC</option>
+            </select>
+        </div>
+
+        <div class="settings-buttons">
+            <button type="submit">💾 Sačuvaj</button>
+        </div>
+    </form>
+
+    <div id="localeStatusMsg" class="status-msg" style="display:none;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     BRANDING
+     ═══════════════════════════════════════════════ -->
+<div class="settings-card" style="margin-top: 30px;">
+    <h2>🎨 Branding</h2>
+    <p class="settings-desc">Logo i boje aplikacije.</p>
+
+    <div class="branding-uploads">
+        <div class="branding-item">
+            <label>Logo (veliki):</label>
+            <div class="upload-box" onclick="document.getElementById('logoUpload').click()">
+                <img id="logoPreview" src="/images/branding/logo.png" onerror="this.style.display='none'" style="max-height: 60px;">
+                <span>📤 Klikni za upload</span>
+            </div>
+            <input type="file" id="logoUpload" accept="image/*" style="display:none" onchange="uploadBranding('logo', this)">
+        </div>
+
+        <div class="branding-item">
+            <label>Logo (mali, navbar):</label>
+            <div class="upload-box" onclick="document.getElementById('logoSmallUpload').click()">
+                <img id="logoSmallPreview" src="/images/branding/logo-small.png" onerror="this.style.display='none'" style="max-height: 40px;">
+                <span>📤 Klikni za upload</span>
+            </div>
+            <input type="file" id="logoSmallUpload" accept="image/*" style="display:none" onchange="uploadBranding('logoSmall', this)">
+        </div>
+
+        <div class="branding-item">
+            <label>Favicon:</label>
+            <div class="upload-box" onclick="document.getElementById('faviconUpload').click()">
+                <img id="faviconPreview" src="/images/branding/favicon.ico" onerror="this.style.display='none'" style="max-height: 32px;">
+                <span>📤 Klikni za upload</span>
+            </div>
+            <input type="file" id="faviconUpload" accept="image/*,.ico" style="display:none" onchange="uploadBranding('favicon', this)">
+        </div>
+    </div>
+
+    <form id="brandingForm" class="settings-form" style="margin-top: 20px;">
+        <div class="form-field">
+            <label>Primarna boja:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="color" id="primaryColor" value="#4F46E5" style="width: 60px; height: 40px; padding: 0; border: none;">
+                <input type="text" id="primaryColorText" value="#4F46E5" style="width: 100px;">
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label>Sekundarna boja:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="color" id="secondaryColor" value="#10B981" style="width: 60px; height: 40px; padding: 0; border: none;">
+                <input type="text" id="secondaryColorText" value="#10B981" style="width: 100px;">
+            </div>
+        </div>
+
+        <div class="settings-buttons">
+            <button type="submit">💾 Sačuvaj boje</button>
+        </div>
+    </form>
+
+    <div id="brandingStatusMsg" class="status-msg" style="display:none;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SISTEM INFO
+     ═══════════════════════════════════════════════ -->
+<div class="settings-card" style="margin-top: 30px;">
+    <h2>ℹ️ Sistem</h2>
+    <p class="settings-desc">Informacije o sistemu.</p>
+
+    <div class="system-info">
+        <div class="info-row"><span>Verzija:</span> <span id="sysVersion">-</span></div>
+        <div class="info-row"><span>Server:</span> <span id="sysServer">-</span></div>
+    </div>
+
+    <div class="settings-buttons" style="margin-top: 15px;">
+        <button type="button" onclick="checkHealth()">🏥 Health Check</button>
+    </div>
+
+    <div id="systemStatusMsg" class="status-msg" style="display:none;"></div>
+</div>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-async function loadConfig() {
-    const res = await fetch('/api/email_config');
-    const config = await res.json();
-    document.getElementById('emailEnabled').value = config.enabled ? 'true' : 'false';
-    document.getElementById('senderEmail').value = config.sender_email || '';
-    document.getElementById('receiverEmail').value = config.receiver_email || '';
-    document.getElementById('daysBefore').value = config.days_before || 2;
-    if (config.has_password) {
-        document.getElementById('passwordHint').textContent = '✅ Password je sačuvan. Ostavi prazno ako ne menjaš.';
-    }
-}
+// ═══════════════════════════════════════════════
+// Utility funkcije
+// ═══════════════════════════════════════════════
 
-function showStatus(msg, ok) {
-    const el = document.getElementById('statusMsg');
+function showStatus(elementId, msg, ok) {
+    const el = document.getElementById(elementId);
     el.textContent = msg;
     el.style.display = 'block';
     el.style.background = ok ? '#d4edda' : '#f8d7da';
     el.style.color = ok ? '#155724' : '#721c24';
     el.style.border = ok ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
     setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+// ═══════════════════════════════════════════════
+// Email notifikacije (tvoj originalni kod)
+// ═══════════════════════════════════════════════
+
+async function loadEmailConfig() {
+    try {
+        const res = await fetch('/api/email_config');
+        const config = await res.json();
+        document.getElementById('emailEnabled').value = config.enabled ? 'true' : 'false';
+        document.getElementById('senderEmail').value = config.sender_email || '';
+        document.getElementById('receiverEmail').value = config.receiver_email || '';
+        document.getElementById('daysBefore').value = config.days_before || 2;
+        if (config.has_password) {
+            document.getElementById('passwordHint').textContent = '✅ Password je sačuvan. Ostavi prazno ako ne menjaš.';
+        }
+    } catch (err) {
+        console.error('Greška pri učitavanju email config:', err);
+    }
 }
 
 document.getElementById('emailForm').addEventListener('submit', async (e) => {
@@ -95,40 +274,280 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
             body: JSON.stringify(data)
         });
         if (res.ok) {
-            showStatus('Podešavanja su sačuvana!', true);
+            showStatus('emailStatusMsg', 'Podešavanja su sačuvana!', true);
             document.getElementById('appPassword').value = '';
-            loadConfig();
+            loadEmailConfig();
         } else {
-            showStatus('Greška pri čuvanju.', false);
+            showStatus('emailStatusMsg', 'Greška pri čuvanju.', false);
         }
     } catch (err) {
-        showStatus('Greška pri konekciji.', false);
+        showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
     }
 });
 
 async function testEmail() {
-    showStatus('Šaljem test email...', true);
+    showStatus('emailStatusMsg', 'Šaljem test email...', true);
     try {
         const res = await fetch('/api/test_email', { method: 'POST' });
         const data = await res.json();
-        if (data.ok) showStatus('✅ Test email je uspešno poslat!', true);
-        else showStatus('❌ Greška: ' + (data.error || 'Neuspelo slanje.'), false);
+        if (data.ok) showStatus('emailStatusMsg', '✅ Test email je uspešno poslat!', true);
+        else showStatus('emailStatusMsg', '❌ Greška: ' + (data.error || 'Neuspelo slanje.'), false);
     } catch (err) {
-        showStatus('Greška pri konekciji.', false);
+        showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
     }
 }
 
 async function triggerCheck() {
-    showStatus('Proveravam porudžbine...', true);
+    showStatus('emailStatusMsg', 'Proveravam porudžbine...', true);
     try {
         const res = await fetch('/api/check_notifications', { method: 'POST' });
-        if (res.ok) showStatus('✅ Provera završena! Ako ima porudžbina sa bliskim rokom, email je poslat.', true);
-        else showStatus('Greška pri proveri.', false);
+        if (res.ok) showStatus('emailStatusMsg', '✅ Provera završena! Ako ima porudžbina sa bliskim rokom, email je poslat.', true);
+        else showStatus('emailStatusMsg', 'Greška pri proveri.', false);
     } catch (err) {
-        showStatus('Greška pri konekciji.', false);
+        showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
     }
 }
 
-loadConfig();
+// ═══════════════════════════════════════════════
+// Config (biznis, locale, branding)
+// ═══════════════════════════════════════════════
+
+let appConfig = {};
+
+async function loadAppConfig() {
+    try {
+        const res = await fetch('/api/config');
+        appConfig = await res.json();
+        
+        // Business
+        if (appConfig.business) {
+            document.getElementById('businessName').value = appConfig.business.name || '';
+            document.getElementById('businessShortName').value = appConfig.business.shortName || '';
+            document.getElementById('businessEmail').value = appConfig.business.email || '';
+            document.getElementById('businessPhone').value = appConfig.business.phone || '';
+            document.getElementById('businessAddress').value = appConfig.business.address || '';
+            document.getElementById('businessWebsite').value = appConfig.business.website || '';
+        }
+        
+        // Locale
+        if (appConfig.locale) {
+            document.getElementById('currency').value = appConfig.locale.currency || 'RSD';
+            document.getElementById('timezone').value = appConfig.locale.timezone || 'Europe/Belgrade';
+        }
+        
+        // Branding
+        if (appConfig.branding) {
+            document.getElementById('primaryColor').value = appConfig.branding.primaryColor || '#4F46E5';
+            document.getElementById('primaryColorText').value = appConfig.branding.primaryColor || '#4F46E5';
+            document.getElementById('secondaryColor').value = appConfig.branding.secondaryColor || '#10B981';
+            document.getElementById('secondaryColorText').value = appConfig.branding.secondaryColor || '#10B981';
+        }
+        
+        // Version
+        document.getElementById('sysVersion').textContent = appConfig.version || '1.0.0';
+        document.getElementById('sysServer').textContent = window.location.host;
+        
+    } catch (err) {
+        console.error('Greška pri učitavanju config:', err);
+    }
+}
+
+async function saveConfig() {
+    try {
+        const res = await fetch('/api/config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(appConfig)
+        });
+        return res.ok;
+    } catch (err) {
+        return false;
+    }
+}
+
+// Business form
+document.getElementById('businessForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    appConfig.business = {
+        name: document.getElementById('businessName').value,
+        shortName: document.getElementById('businessShortName').value,
+        email: document.getElementById('businessEmail').value,
+        phone: document.getElementById('businessPhone').value,
+        address: document.getElementById('businessAddress').value,
+        website: document.getElementById('businessWebsite').value
+    };
+    
+    if (await saveConfig()) {
+        showStatus('businessStatusMsg', '✅ Informacije o biznisu sačuvane!', true);
+    } else {
+        showStatus('businessStatusMsg', '❌ Greška pri čuvanju.', false);
+    }
+});
+
+// Locale form
+document.getElementById('localeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    appConfig.locale = {
+        currency: document.getElementById('currency').value,
+        timezone: document.getElementById('timezone').value
+    };
+    
+    if (await saveConfig()) {
+        showStatus('localeStatusMsg', '✅ Regionalna podešavanja sačuvana!', true);
+    } else {
+        showStatus('localeStatusMsg', '❌ Greška pri čuvanju.', false);
+    }
+});
+
+// Branding form
+document.getElementById('brandingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!appConfig.branding) appConfig.branding = {};
+    appConfig.branding.primaryColor = document.getElementById('primaryColor').value;
+    appConfig.branding.secondaryColor = document.getElementById('secondaryColor').value;
+    
+    if (await saveConfig()) {
+        showStatus('brandingStatusMsg', '✅ Boje sačuvane!', true);
+    } else {
+        showStatus('brandingStatusMsg', '❌ Greška pri čuvanju.', false);
+    }
+});
+
+// Sync color pickers
+document.getElementById('primaryColor').addEventListener('input', function() {
+    document.getElementById('primaryColorText').value = this.value;
+});
+document.getElementById('primaryColorText').addEventListener('input', function() {
+    document.getElementById('primaryColor').value = this.value;
+});
+document.getElementById('secondaryColor').addEventListener('input', function() {
+    document.getElementById('secondaryColorText').value = this.value;
+});
+document.getElementById('secondaryColorText').addEventListener('input', function() {
+    document.getElementById('secondaryColor').value = this.value;
+});
+
+// Upload branding
+async function uploadBranding(type, input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+
+    try {
+        const response = await fetch('/api/config/branding', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        
+        if (result.status === 'ok') {
+            // Update preview
+            const previewId = type + 'Preview';
+            document.getElementById(previewId).src = result.path + '?t=' + Date.now();
+            document.getElementById(previewId).style.display = 'block';
+            showStatus('brandingStatusMsg', '✅ ' + type + ' uspešno uploadovan!', true);
+        } else {
+            showStatus('brandingStatusMsg', '❌ Greška: ' + result.error, false);
+        }
+    } catch (err) {
+        showStatus('brandingStatusMsg', '❌ Greška pri uploadu.', false);
+    }
+}
+
+// Health check
+async function checkHealth() {
+    try {
+        const res = await fetch('/health');
+        const data = await res.json();
+        if (data.status === 'healthy') {
+            showStatus('systemStatusMsg', '✅ Server je zdrav! DB: ' + data.database, true);
+        } else {
+            showStatus('systemStatusMsg', '⚠️ Server ima problema.', false);
+        }
+    } catch (err) {
+        showStatus('systemStatusMsg', '❌ Server nije dostupan.', false);
+    }
+}
+
+// ═══════════════════════════════════════════════
+// Inicijalizacija
+// ═══════════════════════════════════════════════
+
+loadEmailConfig();
+loadAppConfig();
 </script>
+
+<style>
+/* Dodatni CSS za novu stranicu */
+.branding-uploads {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.branding-item {
+    text-align: center;
+}
+
+.branding-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.upload-box {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.upload-box:hover {
+    border-color: var(--button-bg);
+    background: rgba(0, 86, 179, 0.05);
+}
+
+.upload-box img {
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.upload-box span {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.system-info {
+    background: var(--bg-primary);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row span:first-child {
+    font-weight: 600;
+}
+</style>
 {% endblock %}

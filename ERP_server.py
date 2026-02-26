@@ -5,13 +5,29 @@ Latice sa pričom ERP - Flask Application
 
 import os
 import logging
+import json
 import threading
 import sqlite3
+import argparse
 from flask import Flask, jsonify, send_from_directory
 from models import db
 from blueprints.orders import orders_bp
 from blueprints.lager import lager_bp
 from blueprints.email_notify import email_bp, notification_scheduler
+from blueprints.config import config_bp
+
+
+def load_erp_config():
+    """Učitaj konfiguraciju iz .erp.conf"""
+    config = {}
+    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.erp.conf')
+    if os.path.exists(config_file):
+        with open(config_file) as f:
+            for line in f:
+                if '=' in line and not line.strip().startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    config[key] = value
+    return config
 
 
 def create_app():
@@ -58,15 +74,49 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+    @app.context_processor
+    def inject_config():
+        config_file = os.path.join(DATA_DIR, 'config.json')
+        config = {}
+        if os.path.exists(config_file):
+            try:
+                with open(config_file) as f:
+                    config = json.load(f)
+            except:
+                pass
+        return {'config': config}
+
     # ─── Register Blueprints ───────────────────────────────────
     app.register_blueprint(orders_bp)
     app.register_blueprint(lager_bp)
     app.register_blueprint(email_bp)
+    app.register_blueprint(config_bp)
 
     # ─── Serve Uploaded Images ─────────────────────────────────
     @app.route('/images/<path:filename>')
     def serve_image(filename):
         return send_from_directory(IMAGES_DIR, filename)
+
+    @app.route('/api/config')
+    def get_config():
+        """Vraća frontend konfiguraciju"""
+        config_file = os.path.join(DATA_DIR, 'config.json')
+        if os.path.exists(config_file):
+            with open(config_file) as f:
+                return jsonify(json.load(f))
+        return jsonify({
+            'business': {'name': 'Simple ERP', 'shortName': 'ERP'},
+            'branding': {'primaryColor': '#4F46E5'}
+        })
+
+    @app.route('/api/config', methods=['POST'])
+    def save_config():
+        """Sačuvaj frontend konfiguraciju"""
+        config_file = os.path.join(DATA_DIR, 'config.json')
+        data = request.get_json()
+        with open(config_file, 'w') as f:
+            json.dump(data, f, indent=2)
+        return jsonify({'status': 'ok'})
 
     # ─── Central Error Handlers ────────────────────────────────
     @app.errorhandler(400)
@@ -85,13 +135,38 @@ def create_app():
     def server_error(e):
         return jsonify({'error': 'Greška na serveru', 'status': 500}), 500
 
+    # ─── Health Check ─────────────────────────────────────────
+    @app.route('/health')
+    def health_check():
+        """Health check endpoint"""
+        return jsonify({'status': 'healthy','version': '1.0.0','database': 'connected'})
+
     return app
 
 
-if __name__ == '__main__':
+def main():
+    parser = argparse.ArgumentParser(description='ERP Latice sa Pričom Server')
+    parser.add_argument('-p', '--port', type=int, default=None, help='Port (default: 8000)')
+    parser.add_argument('-H', '--host', type=str, default='0.0.0.0', help='Host (default: 0.0.0.0)')
+    parser.add_argument('-d', '--debug', action='store_true', help='Debug mode')
+    args = parser.parse_args()
+
+    # Učitaj config
+    erp_config = load_erp_config()
+    
+    # Prioritet: CLI argument > config fajl > default
+    port = args.port or int(erp_config.get('PORT', 8000))
+    host = args.host or erp_config.get('HOST', '0.0.0.0')
+    debug = args.debug or erp_config.get('DEBUG', 'false').lower() == 'true'
+
     app = create_app()
 
     t = threading.Thread(target=notification_scheduler, args=(app,), daemon=True)
     t.start()
 
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    print(f"Starting ERP server on {host}:{port}")
+    app.run(host=host, port=port, debug=debug)
+
+
+if __name__ == '__main__':
+    main()
