@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +27,7 @@
         {% else %}
         <span class="brand-logo">🎨</span>
         {% endif %}
-        <span class="brand-name">{{ config.business.name if config and config.business else 'Latice sa pričom' }}</span>
+        <span class="brand-name">{{ config.business.name if config and config.business else 'Simple ERP' }}</span>
       </a>
     </div>
     
@@ -44,31 +44,31 @@
       </a>
       <a href="/create" class="nav-link">
         <span class="nav-icon">➕</span>
-        <span>Nova Porudžbina</span>
+        <span>New Order</span>
       </a>
       <a href="/new-orders" class="nav-link">
         <span class="nav-icon">📋</span>
-        <span>Porudžbine</span>
+        <span>Orders</span>
       </a>
       <a href="/realized" class="nav-link">
         <span class="nav-icon">✅</span>
-        <span>Realizovano</span>
+        <span>Completed</span>
       </a>
       <a href="/for-delivery" class="nav-link">
         <span class="nav-icon">🚚</span>
-        <span>Dostava</span>
+        <span>For Delivery</span>
       </a>
       <a href="/inventory" class="nav-link">
         <span class="nav-icon">📦</span>
-        <span>Lager</span>
+        <span>Inventory</span>
       </a>
       <a href="/settings" class="nav-link">
         <span class="nav-icon">⚙️</span>
-        <span>Podešavanja</span>
+        <span>Settings</span>
       </a>
       <a href="/logout" class="nav-link logout-link">
         <span class="nav-icon">🚪</span>
-        <span>Odjavi se</span>
+        <span>Logout</span>
       </a>
     </div>
   </div>
