@@ -9,11 +9,17 @@ orders_bp = Blueprint('orders', __name__)
 
 # ─── Page Routes ───────────────────────────────────────────────
 
-@orders_bp.route('/index.html')
 @orders_bp.route('/dashboard')
 @login_required
-def index():
-    return render_template('index.html')
+def dashboard():
+    return render_template('dashboard.html')
+
+
+@orders_bp.route('/kreiranje')
+@orders_bp.route('/index.html')
+@login_required
+def kreiranje():
+    return render_template('kreiranje.html')
 
 
 @orders_bp.route('/porudzbenice')

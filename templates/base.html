@@ -15,37 +15,110 @@
 {% block head_extra %}{% endblock %}
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
-<body>
+<body class="modern-body">
 
-<!-- Navigation bar -->
-<nav class="topnav">
-  <div class="nav-brand">
-      <a href="/" class="nav-title-link">
-          <span class="nav-title">{{ config.business.name if config and config.business else 'Simple ERP' }}</span>
+<!-- Modern Glassmorphism Navigation -->
+<nav class="modern-navbar">
+  <div class="navbar-container">
+    <div class="nav-brand">
+      <a href="/dashboard" class="brand-link">
+        <span class="brand-logo">🎨</span>
+        <span class="brand-name">{{ config.business.name if config and config.business else 'Latice sa pričom' }}</span>
       </a>
-  </div>
+    </div>
     
-  <button class="hamburger" onclick="toggleMenu()">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-  
-  <div class="nav-menu">
-    <a href="/">Dodaj porudžbinu</a>
-    <a href="/porudzbenice">Nove porudžbine</a>
-    <a href="/realizovano">Realizovane porudžbine</a>
-    <a href="/za-dostavu">Za dostavu</a>
-    <a href="/lager">Lager</a>
-    <a href="/podesavanja">⚙ Podešavanja</a>
+    <button class="mobile-toggle" onclick="toggleMobileMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <div class="nav-links" id="navLinks">
+      <a href="/dashboard" class="nav-link">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="/kreiranje" class="nav-link">
+        <span class="nav-icon">➕</span>
+        <span>Nova Porudžbina</span>
+      </a>
+      <a href="/porudzbenice" class="nav-link">
+        <span class="nav-icon">📋</span>
+        <span>Porudžbine</span>
+      </a>
+      <a href="/realizovano" class="nav-link">
+        <span class="nav-icon">✅</span>
+        <span>Realizovano</span>
+      </a>
+      <a href="/za-dostavu" class="nav-link">
+        <span class="nav-icon">🚚</span>
+        <span>Dostava</span>
+      </a>
+      <a href="/lager" class="nav-link">
+        <span class="nav-icon">📦</span>
+        <span>Lager</span>
+      </a>
+      <a href="/config/" class="nav-link">
+        <span class="nav-icon">⚙️</span>
+        <span>Config</span>
+      </a>
+      <a href="/logout" class="nav-link logout-link">
+        <span class="nav-icon">🚪</span>
+        <span>Odjavi se</span>
+      </a>
+    </div>
   </div>
-  
-  <button class="theme-toggle" onclick="toggleDarkMode()">🌙</button>
 </nav>
 
-{% block content %}{% endblock %}
+<main class="main-content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ category }}">
+            <span class="flash-icon">
+              {% if category == 'success' %}✅{% elif category == 'error' %}❌{% else %}ℹ️{% endif %}
+            </span>
+            <span class="flash-text">{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  
+  {% block content %}{% endblock %}
+</main>
 
 {% block scripts %}{% endblock %}
+
+<script>
+function toggleMobileMenu() {
+  const navLinks = document.getElementById('navLinks');
+  navLinks.classList.toggle('active');
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+  const nav = document.querySelector('.modern-navbar');
+  const toggle = document.querySelector('.mobile-toggle');
+  const navLinks = document.getElementById('navLinks');
+  
+  if (!nav.contains(event.target) && navLinks.classList.contains('active')) {
+    navLinks.classList.remove('active');
+  }
+});
+
+// Highlight active page
+document.addEventListener('DOMContentLoaded', function() {
+  const currentPath = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(link => {
+    if (link.getAttribute('href') === currentPath || 
+        (currentPath.includes(link.getAttribute('href')) && link.getAttribute('href') !== '/')) {
+      link.classList.add('active');
+    }
+  });
+});
+</script>
 
 </body>
 </html>

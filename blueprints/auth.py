@@ -14,7 +14,7 @@ auth_bp = Blueprint('auth', __name__)
 def landing():
     """Landing page - prikazuje se ako korisnik nije ulogovan"""
     if current_user.is_authenticated:
-        return redirect(url_for('orders.index'))
+        return redirect(url_for('orders.dashboard'))
     return render_template('landing.html')
 
 
@@ -33,7 +33,7 @@ def login():
         if user and user.check_password(password):
             login_user(user, remember=True)
             next_page = request.args.get('next')
-            return redirect(next_page if next_page else url_for('orders.index'))
+            return redirect(next_page if next_page else url_for('orders.dashboard'))
         else:
             flash('Pogrešno korisničko ime ili lozinka!', 'error')
     

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Kreiranje Porudžbine{% endblock %}
 
 {% block head_extra %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -9,8 +9,8 @@
 
 {% block content %}
 <div class="page-header mb-4">
-  <h1 class="gradient-text" style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Dashboard</h1>
-  <p style="color: var(--gray); font-size: 1.1rem;">Dodajte novu porudžbinu ili pratite statistiku</p>
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">➕ Kreiranje Porudžbine</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Dodajte novu porudžbinu u sistem</p>
 </div>
 
 <!-- Stats Cards (Optional - uncomment when stats API is ready) -->
@@ -125,6 +125,12 @@
 
 <!-- Quick Links -->
 <div class="grid grid-3 mt-5">
+  <a href="/dashboard" class="card text-center" style="text-decoration: none; color: inherit;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Dashboard</h3>
+    <p style="color: var(--gray); margin: 0;">Vrati se na dashboard</p>
+  </a>
+
   <a href="/porudzbenice" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Nove Porudžbine</h3>

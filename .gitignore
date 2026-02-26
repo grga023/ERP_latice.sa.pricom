@@ -17,3 +17,7 @@ images
 # Virtual environment
 /venv/
 /.venv/
+
+# Deployment scripts
+deploy_fixes.sh
+*.backup

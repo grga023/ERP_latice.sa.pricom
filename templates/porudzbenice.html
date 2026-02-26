@@ -3,37 +3,44 @@
 {% block title %}Nove porudžbine{% endblock %}
 
 {% block content %}
-<div class="container">
-<h1>Nove porudžbine</h1>
-
-<table id="ordersTable">
-<thead>
-<tr>
-    <th>Naziv</th>
-    <th>Cena</th>
-    <th>Plaćeno</th>
-    <th>Kupac</th>
-    <th>Datum</th>
-    <th>Opis</th>
-    <th>Slika</th>
-    <th>Akcija</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+<div class="page-header mb-4">
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">📋 Nove Porudžbine</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Pregled svih novih porudžbina koje čekaju obradu</p>
 </div>
 
-<!-- Popup za potvrdu plaćanja -->
-<div id="paymentModal" class="modal-overlay">
-    <div class="modal-content">
-        <span class="modal-close" onclick="closePaymentModal()">&times;</span>
-        <h2>Porudžbina nije plaćena</h2>
-        <p style="color: var(--text-secondary); margin-bottom: 20px;">Ova porudžbina još nije plaćena. Da li je kupac platio?</p>
-        <div style="display: flex; gap: 12px;">
-            <button id="btnPlaceno" style="flex:1; padding: 12px; background-color: #28a745; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600;">Da, plaćeno ✅</button>
-            <button id="btnNijePlaceno" style="flex:1; padding: 12px; background-color: #dc3545; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600;">Ne, nije plaćeno ❌</button>
-        </div>
+<div class="table-container fade-in">
+  <table id="ordersTable" class="modern-table">
+    <thead>
+      <tr>
+        <th>Naziv</th>
+        <th>Cena</th>
+        <th>Plaćeno</th>
+        <th>Kupac</th>
+        <th>Datum</th>
+        <th>Opis</th>
+        <th>Slika</th>
+        <th>Akcija</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- Modern Modal za potvrdu plaćanja -->
+<div id="paymentModal" class="modal-overlay" style="align-items: center; justify-content: center;">
+  <div class="card" style="max-width: 500px; margin: 2rem; animation: slideInUp 0.3s ease;">
+    <div class="card-header">
+      <h2 class="card-title" style="margin: 0;">💳 Potvrda Plaćanja</h2>
+      <button onclick="closePaymentModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray);">&times;</button>
     </div>
+    <div class="card-body">
+      <p style="color: var(--gray); margin-bottom: 1.5rem;">Ova porudžbina još nije plaćena. Da li je kupac platio?</p>
+      <div class="btn-group">
+        <button id="btnPlaceno" class="btn btn-success btn-lg">✅ Da, plaćeno</button>
+        <button id="btnNijePlaceno" class="btn btn-danger btn-lg">❌ Ne, nije plaćeno</button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
@@ -71,16 +78,18 @@ async function loadOrders() {
     orders.forEach(order => {
         const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td data-label="Naziv">${order.naziv}</td>
-                <td data-label="Cena">${order.cena}</td>
-                <td data-label="Plaćeno">${order.placeno ? '✅' : '❌'}</td>
+                <td data-label="Naziv"><strong>${order.naziv}</strong></td>
+                <td data-label="Cena"><strong>${order.cena} RSD</strong></td>
+                <td data-label="Plaćeno">${order.placeno ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
                 <td data-label="Kupac">${order.kupac}</td>
                 <td data-label="Datum">${order.datum || '-'}</td>
                 <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
-                <td data-label="Slika"><img src="/images/${order.slika}" /></td>
+                <td data-label="Slika">${order.slika ? `<img src="/images/${order.slika}" />` : '-'}</td>
                 <td data-label="Akcija">
-                    <button onclick="editOrder(${order.id})">Izmeni</button>
-                    <button onclick="forDelivery(${order.id}, ${order.placeno})">Za dostavu</button>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button>
+                        <button class="btn btn-sm btn-success" onclick="forDelivery(${order.id}, ${order.placeno})">🚚 Dostava</button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -89,7 +98,7 @@ async function loadOrders() {
 
 async function forDelivery(id, placeno) {
     if (!placeno) {
-        // Show payment popup
+        // Show payment modal
         const modal = document.getElementById('paymentModal');
         modal.classList.add('active');
 

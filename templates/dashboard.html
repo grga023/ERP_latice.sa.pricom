@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+  <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">📊 Dashboard</h1>
+  <p style="color: #4a4a4a; font-size: 1.2rem;">Pregled poslovanja i brze akcije</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid mb-5 fade-in">
+  <div class="stat-card">
+    <div class="stat-icon">📋</div>
+    <div class="stat-value" id="stat-nove">0</div>
+    <div class="stat-label">Nove Porudžbine</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">🚚</div>
+    <div class="stat-value" id="stat-dostava">0</div>
+    <div class="stat-label">Za Dostavu</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">✅</div>
+    <div class="stat-value" id="stat-realizovano">0</div>
+    <div class="stat-label">Realizovano</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value" id="stat-zarada">0 RSD</div>
+    <div class="stat-label">Ukupna Zarada</div>
+  </div>
+</div>
+
+<!-- Quick Action Cards -->
+<div class="page-header mb-3">
+  <h2 style="font-size: 1.75rem; font-weight: 700; color: var(--dark-gray);">Brze Akcije</h2>
+</div>
+
+<div class="grid grid-3 fade-in">
+  <a href="/kreiranje" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">➕</div>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Nova Porudžbina</h3>
+    <p style="color: var(--gray); margin: 0;">Kreiraj novu porudžbinu</p>
+  </a>
+
+  <a href="/porudzbenice" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Porudžbine</h3>
+    <p style="color: var(--gray); margin: 0;">Pregledaj sve porudžbine</p>
+  </a>
+
+  <a href="/za-dostavu" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🚚</div>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Za Dostavu</h3>
+    <p style="color: var(--gray); margin: 0;">Pogledaj porudžbine za dostavu</p>
+  </a>
+
+  <a href="/realizovano" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Realizovano</h3>
+    <p style="color: var(--gray); margin: 0;">Istorija realizovanih porudžbina</p>
+  </a>
+
+  <a href="/lager" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Lager</h3>
+    <p style="color: var(--gray); margin: 0;">Upravljaj zalihama</p>
+  </a>
+
+  <a href="/config" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">⚙️</div>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Podešavanja</h3>
+    <p style="color: var(--gray); margin: 0;">Konfigurisanje sistema</p>
+  </a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load statistics
+async function loadStats() {
+  try {
+    // Get new orders count
+    const noveRes = await fetch('/api/orders/new');
+    const nove = await noveRes.json();
+    document.getElementById('stat-nove').textContent = nove.length;
+
+    // Get for delivery count
+    const dostavaRes = await fetch('/api/orders/for_delivery');
+    const dostava = await dostavaRes.json();
+    document.getElementById('stat-dostava').textContent = dostava.length;
+
+    // Get realized orders and calculate total
+    const realizovanoRes = await fetch('/api/orders/realized');
+    const realizovano = await realizovanoRes.json();
+    document.getElementById('stat-realizovano').textContent = realizovano.length;
+
+    // Calculate total revenue
+    let totalRevenue = 0;
+    realizovano.forEach(order => {
+      totalRevenue += parseFloat(order.cena) || 0;
+    });
+    document.getElementById('stat-zarada').textContent = totalRevenue.toLocaleString('sr-RS') + ' RSD';
+
+  } catch (err) {
+    console.error('Error loading stats:', err);
+  }
+}
+
+// Add hover effect to cards
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mouseenter', function() {
+    this.style.transform = 'translateY(-5px)';
+  });
+  card.addEventListener('mouseleave', function() {
+    this.style.transform = 'translateY(0)';
+  });
+});
+
+// Load stats on page load
+loadStats();
+
+// Refresh stats every 30 seconds
+setInterval(loadStats, 30000);
+</script>
+{% endblock %}

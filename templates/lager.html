@@ -3,104 +3,135 @@
 {% block title %}Lager{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="page-header mb-4">
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">📦 Lager</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Upravljanje zalihama i artiklima</p>
+</div>
 
 <!-- Add Lager Item Form -->
-<h1>Dodaj u lager</h1>
+<div class="form-container mb-5 fade-in">
+  <div class="card-header mb-4">
+    <h2 class="card-title">➕ Dodaj Novi Artikal</h2>
+  </div>
 
-<form id="lagerForm" enctype="multipart/form-data" class="lager-form">
-    <div class="form-field">
-        <label>Naziv:</label>
-        <input type="text" name="naziv" required>
+<form id="lagerForm" enctype="multipart/form-data">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Naziv *</label>
+        <input type="text" name="naziv" class="form-input" placeholder="Naziv artikla" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cena *</label>
+        <input type="number" name="cena" step="0.01" class="form-input" placeholder="0.00" required>
+      </div>
     </div>
 
-    <div class="form-field">
-        <label>Cena:</label>
-        <input type="number" name="cena" step="0.01" required>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Boja *</label>
+        <input type="text" name="boja" class="form-input" placeholder="npr. crvena, plava" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Količina *</label>
+        <input type="number" name="kolicina" min="0" value="1" class="form-input" required>
+      </div>
     </div>
 
-    <div class="form-field">
-        <label>Boja:</label>
-        <input type="text" name="boja" placeholder="npr. crvena, plava" required>
+    <div class="form-group">
+      <label class="form-label">Lokacija</label>
+      <select name="lokacija" class="form-select">
+        <option value="Kuća">Kuća</option>
+        <option value="Teodora">Teodora</option>
+      </select>
     </div>
 
-    <div class="form-field">
-        <label>Količina:</label>
-        <input type="number" name="kolicina" min="0" value="1" required>
+    <div class="form-group">
+      <label class="form-label">Slika</label>
+      <div id="pasteArea" class="image-upload" style="position: relative;">
+        <input type="file" id="fileInput" name="slika" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+        <p style="margin: 0; font-weight: 500; color: var(--gray);">📎 Kliknite da odaberete ili pritisnite CTRL+V</p>
+      </div>
+      <img id="preview" class="image-preview mt-3" alt="Preview slike" style="display: none;">
     </div>
 
-    <div class="form-field">
-        <label>Lokacija:</label>
-        <select name="lokacija">
-            <option value="Kuća">Kuća</option>
-            <option value="Teodora">Teodora</option>
-        </select>
+    <div class="btn-group mt-4">
+      <button type="submit" class="btn btn-primary btn-lg w-full">
+        <span>✨</span>
+        <span>Dodaj u Lager</span>
+      </button>
     </div>
-
-    <div class="form-field">
-        <label>Slika:</label>
-        <div id="pasteArea" class="paste-area">
-            <input type="file" id="fileInput" name="slika" accept="image/*" class="file-input">
-            <p class="paste-hint">📎 Odaberi sliku ili pritisni CTRL+V</p>
-        </div>
-        <img id="preview" class="image-preview" alt="Preview slike" style="display: none;">
-    </div>
-
-    <button type="submit">Dodaj u lager</button>
 </form>
+</div>
 
 <!-- Lager Table -->
-<h1 style="margin-top: 40px;">Lager - Pregled</h1>
+<div class="page-header mb-3">
+  <h2 style="font-size: 2rem; font-weight: 700; color: #1a1a1a;">Pregled Lagera</h2>
+</div>
 
-<table id="lagerTable">
-<thead>
-<tr>
-    <th>Slika</th>
-    <th>Naziv</th>
-    <th>Cena</th>
-    <th>Boja</th>
-    <th>Količina</th>
-    <th>Lokacija</th>
-    <th>Akcija</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
+<div class="table-container fade-in">
+  <table id="lagerTable" class="modern-table">
+    <thead>
+      <tr>
+        <th>Slika</th>
+        <th>Naziv</th>
+        <th>Cena</th>
+        <th>Boja</th>
+        <th>Količina</th>
+        <th>Lokacija</th>
+        <th>Akcija</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <!-- Popup modal za povećanje količine -->
 <div id="increaseModal" class="modal-overlay">
-    <div class="modal-content modal-small">
-        <span class="modal-close" onclick="closeIncreaseModal()">&times;</span>
-        <h2>Dodaj količinu</h2>
-        <div class="modal-item-info">
-            <strong id="increaseNaziv"></strong>
-            <span id="increaseCurrentQty"></span>
+    <div class="card" style="max-width: 400px; margin: 100px auto; position: relative;">
+        <span class="modal-close" onclick="closeIncreaseModal()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: var(--gray); transition: color 0.2s;">&times;</span>
+        
+        <div class="card-header mb-3">
+          <h2 class="card-title">➕ Dodaj Količinu</h2>
         </div>
+        
+        <div class="mb-3" style="padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
+            <strong id="increaseNaziv" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
+            <span id="increaseCurrentQty" style="color: var(--gray);"></span>
+        </div>
+        
         <form id="increaseQuantityForm">
             <input type="hidden" id="increaseItemId">
             
-            <label>Količina za dodavanje:</label>
-            <input type="number" id="increaseAmount" min="1" value="1" required autofocus>
+            <div class="form-group">
+              <label class="form-label">Količina za dodavanje</label>
+              <input type="number" id="increaseAmount" min="1" value="1" class="form-input" required autofocus>
+            </div>
             
-            <button type="submit">Potvrdi</button>
+            <button type="submit" class="btn btn-primary w-full mt-3">Potvrdi</button>
         </form>
     </div>
 </div>
 
 <!-- Popup modal za kreiranje porudžbine iz lagera -->
 <div id="orderModal" class="modal-overlay">
-    <div class="modal-content">
-        <span class="modal-close" onclick="closeOrderModal()">&times;</span>
-        <h2>Kreiraj porudžbinu</h2>
-        <div class="modal-preview">
-            <img id="modalImg" src="" alt="Slika artikla">
-            <div class="modal-item-info">
-                <strong id="modalNaziv"></strong>
-                <span id="modalCena"></span>
-                <span id="modalBoja"></span>
+    <div class="card" style="max-width: 500px; margin: 80px auto; position: relative;">
+        <span class="modal-close" onclick="closeOrderModal()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: var(--gray); transition: color 0.2s;">&times;</span>
+        
+        <div class="card-header mb-3">
+          <h2 class="card-title">🛍️ Kreiraj Porudžbinu</h2>
+        </div>
+        
+        <div class="mb-4" style="display: flex; gap: 1rem; padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
+            <img id="modalImg" src="" alt="Slika artikla" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);">
+            <div style="flex: 1;">
+                <strong id="modalNaziv" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
+                <span id="modalCena" style="display: block; color: var(--primary); font-weight: 600; margin-bottom: 0.25rem;"></span>
+                <span id="modalBoja" style="display: block; color: var(--gray);"></span>
             </div>
         </div>
+        
         <form id="orderFromLagerForm">
             <input type="hidden" id="modalLagerNaziv">
             <input type="hidden" id="modalLagerCena">
@@ -109,25 +140,37 @@
             <input type="hidden" id="modalLagerId">
             <input type="hidden" id="modalLagerStock">
 
-            <label>Kupac:</label>
-            <input type="text" id="modalKupac" required>
+            <div class="form-group">
+              <label class="form-label">Kupac</label>
+              <input type="text" id="modalKupac" class="form-input" placeholder="Ime kupca" required>
+            </div>
 
-            <label>Količina:</label>
-            <input type="number" id="modalKolicina" min="1" value="1" required>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Količina</label>
+                <input type="number" id="modalKolicina" min="1" value="1" class="form-input" required>
+              </div>
 
-            <label>Datum:</label>
-            <input type="date" id="modalDatum" required>
+              <div class="form-group">
+                <label class="form-label">Datum</label>
+                <input type="date" id="modalDatum" class="form-input" required>
+              </div>
+            </div>
 
-            <label>Plaćeno:</label>
-            <select id="modalPlaceno">
+            <div class="form-group">
+              <label class="form-label">Plaćeno</label>
+              <select id="modalPlaceno" class="form-select">
                 <option value="false">Ne</option>
                 <option value="true">Da</option>
-            </select>
+              </select>
+            </div>
 
-            <label>Dodatna poruka:</label>
-            <textarea id="modalOpis" placeholder="Dodatne napomene..."></textarea>
+            <div class="form-group">
+              <label class="form-label">Dodatna poruka</label>
+              <textarea id="modalOpis" class="form-input" rows="3" placeholder="Dodatne napomene..."></textarea>
+            </div>
 
-            <button type="submit">Kreiraj porudžbinu</button>
+            <button type="submit" class="btn btn-primary w-full mt-3">🚀 Kreiraj Porudžbinu</button>
         </form>
     </div>
 </div>
@@ -180,7 +223,7 @@ async function loadLager() {
     items.forEach(item => {
         const outOfStock = (item.kolicina || 0) <= 0;
         const tr = document.createElement('tr');
-        if (outOfStock) tr.classList.add('out-of-stock');
+        if (outOfStock) tr.style.opacity = '0.6';
         
         // Escape special characters for safe HTML insertion
         const escapedNaziv = (item.naziv || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -188,16 +231,18 @@ async function loadLager() {
         const escapedSlika = (item.slika || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
         
         tr.innerHTML = `
-            <td data-label="Slika">${item.slika ? '<img src="/images/' + item.slika + '" />' : '-'}</td>
-            <td data-label="Naziv">${item.naziv}</td>
-            <td data-label="Cena">${item.cena}</td>
+            <td data-label="Slika">${item.slika ? '<img src="/images/' + item.slika + '" style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);" />' : '<span style="color: var(--gray);">-</span>'}</td>
+            <td data-label="Naziv"><strong>${item.naziv}</strong></td>
+            <td data-label="Cena"><span style="color: var(--primary); font-weight: 600;">${item.cena} RSD</span></td>
             <td data-label="Boja">${item.boja}</td>
-            <td data-label="Količina">${outOfStock ? '<span class="badge-unavailable">Nedostupno</span>' : item.kolicina}</td>
+            <td data-label="Količina">${outOfStock ? '<span class="badge badge-danger">Nedostupno</span>' : '<span class="badge badge-success">' + item.kolicina + '</span>'}</td>
             <td data-label="Lokacija">${item.lokacija || '-'}</td>
             <td data-label="Akcija">
-                <button onclick="openOrderModal(${item.id}, '${escapedNaziv}', ${item.cena}, '${escapedBoja}', '${escapedSlika}', ${item.kolicina || 0})">Kreiraj porudžbinu</button>
-                <button onclick="openIncreaseModal(${item.id}, '${escapedNaziv}', ${item.kolicina || 0})" class="btn-increase">+ Dodaj količinu</button>
-                <button onclick="deleteLager(${item.id})">Obriši</button>
+                <div class="btn-group">
+                    <button onclick="openOrderModal(${item.id}, '${escapedNaziv}', ${item.cena}, '${escapedBoja}', '${escapedSlika}', ${item.kolicina || 0})" class="btn btn-primary btn-sm">🛍️ Porudžbina</button>
+                    <button onclick="openIncreaseModal(${item.id}, '${escapedNaziv}', ${item.kolicina || 0})" class="btn btn-secondary btn-sm">➕ Dodaj</button>
+                    <button onclick="deleteLager(${item.id})" class="btn btn-danger btn-sm">🗑️</button>
+                </div>
             </td>
         `;
         tbody.appendChild(tr);
