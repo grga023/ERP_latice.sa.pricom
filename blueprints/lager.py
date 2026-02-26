@@ -10,7 +10,6 @@ lager_bp = Blueprint('lager', __name__)
 # ─── Page Route ────────────────────────────────────────────────
 
 @lager_bp.route('/lager')
-@login_required
 @lager_bp.route('/lager.html')
 @login_required
 def lager_page():
