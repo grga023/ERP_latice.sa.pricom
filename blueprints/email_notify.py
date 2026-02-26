@@ -61,14 +61,14 @@ def check_and_notify():
 
     alerts = []
     for order in orders:
-        if not order.datum:
+        if not order.date:
             continue
         try:
-            order_date = datetime.strptime(order.datum, '%d.%m.%Y').date()
+            order_date = datetime.strptime(order.date, '%d.%m.%Y').date()
         except ValueError:
             continue
 
-        notify_key = f"{order.id}_{order.datum}"
+        notify_key = f"{order.id}_{order.date}"
         existing = NotificationLog.query.filter_by(notify_key=notify_key).first()
 
         if today <= order_date <= target_date and not existing:
@@ -81,9 +81,9 @@ def check_and_notify():
         body += '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;">'
         body += '<tr style="background:#f0f0f0;"><th>Naziv</th><th>Kupac</th><th>Datum</th><th>Cena</th><th>Opis</th></tr>'
         for o in alerts:
-            opis = (o.opis or '').replace('\r\n', '<br>').replace('\n', '<br>')
-            body += f"<tr><td>{o.naziv}</td><td>{o.kupac}</td>"
-            body += f"<td><strong>{o.datum}</strong></td><td>{o.cena}</td>"
+            description = (o.description or '').replace('\r\n', '<br>').replace('\n', '<br>')
+            body += f"<tr><td>{o.name}</td><td>{o.customer}</td>"
+            body += f"<td><strong>{o.date}</strong></td><td>{o.price}</td>"
             body += f"<td>{opis}</td></tr>"
         body += '</table>'
         body += '<br><p style="color:#888;">Latice sa pri\u010dom ERP - automatska notifikacija</p>'

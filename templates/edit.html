@@ -18,19 +18,19 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Naziv proizvoda</label>
-        <input type="text" name="naziv" class="form-input" placeholder="Naziv proizvoda" required>
+        <input type="text" name="name" class="form-input" placeholder="Naziv proizvoda" required>
       </div>
 
       <div class="form-group">
         <label class="form-label">Cena (RSD)</label>
-        <input type="number" name="cena" step="0.01" class="form-input" placeholder="0.00" required>
+        <input type="number" name="price" step="0.01" class="form-input" placeholder="0.00" required>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Plaćeno</label>
-        <select name="placeno" class="form-select">
+        <select name="paid" class="form-select">
             <option value="false">Ne</option>
             <option value="true">Da</option>
         </select>
@@ -38,23 +38,23 @@
 
       <div class="form-group">
         <label class="form-label">Kupac</label>
-        <input type="text" name="kupac" class="form-input" placeholder="Ime kupca" required>
+        <input type="text" name="customer" class="form-input" placeholder="Ime kupca" required>
       </div>
     </div>
 
     <div class="form-group">
       <label class="form-label">Datum</label>
-      <input type="date" id="datepicker" name="datum" class="form-input" required>
+      <input type="date" id="datepicker" name="date" class="form-input" required>
     </div>
 
     <div class="form-group">
       <label class="form-label">Opis</label>
-      <textarea name="opis" class="form-input" rows="4" placeholder="Opis i kombinacije..."></textarea>
+      <textarea name="description" class="form-input" rows="4" placeholder="Opis i kombinacije..."></textarea>
     </div>
     
     <div class="form-group">
       <label class="form-label">Slika</label>
-      <input type="file" name="slika" accept="image/*" class="form-input" style="padding: 0.75rem;">
+      <input type="file" name="image" accept="image/*" class="form-input" style="padding: 0.75rem;">
     </div>
 
     <div class="btn-group mt-4">
@@ -75,7 +75,7 @@ const orderId = urlParams.get('id');
 
 if (!orderId) {
     alert('Nema ID-a porudžbine!');
-    window.location.href = '/porudzbenice';
+    window.location.href = '/new-orders';
 }
 
 // Load order data
@@ -83,24 +83,24 @@ async function loadOrder() {
     const res = await fetch(`/api/order/${orderId}`);
     if (!res.ok) {
         alert('Porudžbina nije pronađena!');
-        window.location.href = '/porudzbenice';
+        window.location.href = '/new-orders';
         return;
     }
     const order = await res.json();
     
-    document.querySelector('[name="naziv"]').value = order.naziv;
-    document.querySelector('[name="cena"]').value = order.cena;
-    document.querySelector('[name="placeno"]').value = order.placeno ? 'true' : 'false';
-    document.querySelector('[name="kupac"]').value = order.kupac;
+    document.querySelector('[name="name"]').value = order.name;
+    document.querySelector('[name="price"]').value = order.price;
+    document.querySelector('[name="paid"]').value = order.paid ? 'true' : 'false';
+    document.querySelector('[name="customer"]').value = order.customer;
     
-    // Convert datum from DD.MM.YYYY to YYYY-MM-DD for HTML5 date input
-    if (order.datum) {
-        const [day, month, year] = order.datum.split('.');
+    // Convert date from DD.MM.YYYY to YYYY-MM-DD for HTML5 date input
+    if (order.date) {
+        const [day, month, year] = order.date.split('.');
         const htmlDate = `${year}-${month}-${day}`;
-        document.querySelector('[name="datum"]').value = htmlDate;
+        document.querySelector('[name="date"]').value = htmlDate;
     }
     
-    document.querySelector('[name="opis"]').value = order.opis;
+    document.querySelector('[name="description"]').value = order.description;
 }
 
 // Handle form submission
@@ -111,12 +111,12 @@ form.addEventListener('submit', async (e) => {
     const formData = new FormData(form);
     
     // Convert date from YYYY-MM-DD to DD.MM.YYYY format
-    let datumValue = document.querySelector('[name="datum"]').value;
-    if (datumValue) {
-        const [year, month, day] = datumValue.split('-');
-        datumValue = `${day}.${month}.${year}`;
+    let dateValue = document.querySelector('[name="date"]').value;
+    if (dateValue) {
+        const [year, month, day] = dateValue.split('-');
+        dateValue = `${day}.${month}.${year}`;
     }
-    formData.set('datum', datumValue);
+    formData.set('date', dateValue);
     
     try {
         const response = await fetch(`/api/update_order/${orderId}`, {
@@ -126,7 +126,7 @@ form.addEventListener('submit', async (e) => {
         
         if (response.ok) {
             alert('Porudžbina je uspešno ažurirana!');
-            window.location.href = '/porudzbenice';
+            window.location.href = '/new-orders';
         } else {
             alert('Greška pri ažuriranju porudžbine.');
         }
@@ -137,7 +137,7 @@ form.addEventListener('submit', async (e) => {
 });
 
 function cancelEdit() {
-    window.location.href = '/porudzbenice';
+    window.location.href = '/new-orders';
 }
 
 function deleteOrder() {
@@ -147,7 +147,7 @@ function deleteOrder() {
             .then(data => {
                 if (data.ok) {
                     alert('Porudžbina je obrisana!');
-                    window.location.href = '/porudzbenice';
+                    window.location.href = '/new-orders';
                 } else {
                     alert(data.error || 'Greška pri brisanju porudžbine.');
                 }
@@ -166,7 +166,7 @@ function returnToLager() {
             .then(data => {
                 if (data.ok) {
                     alert('Porudžbina je vraćena na lager!');
-                    window.location.href = '/porudzbenice';
+                    window.location.href = '/new-orders';
                 } else {
                     alert(data.error || 'Greška pri vraćanju porudžbine na lager.');
                 }

@@ -38,31 +38,31 @@
 </div>
 
 <div class="grid grid-3 fade-in">
-  <a href="/kreiranje" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+  <a href="/create" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">➕</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Nova Porudžbina</h3>
     <p style="color: var(--gray); margin: 0;">Kreiraj novu porudžbinu</p>
   </a>
 
-  <a href="/porudzbenice" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+  <a href="/new-orders" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Porudžbine</h3>
     <p style="color: var(--gray); margin: 0;">Pregledaj sve porudžbine</p>
   </a>
 
-  <a href="/za-dostavu" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+  <a href="/for-delivery" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">🚚</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Za Dostavu</h3>
     <p style="color: var(--gray); margin: 0;">Pogledaj porudžbine za dostavu</p>
   </a>
 
-  <a href="/realizovano" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+  <a href="/realized" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Realizovano</h3>
     <p style="color: var(--gray); margin: 0;">Istorija realizovanih porudžbina</p>
   </a>
 
-  <a href="/lager" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
+  <a href="/inventory" class="card text-center" style="text-decoration: none; color: inherit; transition: transform 0.3s ease;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Lager</h3>
     <p style="color: var(--gray); margin: 0;">Upravljaj zalihama</p>
@@ -100,7 +100,7 @@ async function loadStats() {
     // Calculate total revenue
     let totalRevenue = 0;
     realizovano.forEach(order => {
-      totalRevenue += parseFloat(order.cena) || 0;
+      totalRevenue += parseFloat(order.price) || 0;
     });
     document.getElementById('stat-zarada').textContent = totalRevenue.toLocaleString('sr-RS') + ' RSD';
 

@@ -29,9 +29,9 @@
 
 {% block scripts %}
 <script>
-function formatOpis(opis) {
-    if (!opis || opis === '-') return '-';
-    const lines = opis.split(/\r\n|\n/).filter(l => l.trim());
+function formatOpis(description) {
+    if (!description || description === '-') return '-';
+    const lines = description.split(/\r\n|\n/).filter(l => l.trim());
     let kolLines = [];
     let detalji = [];
     let inDetalji = false;
@@ -60,13 +60,13 @@ async function loadToBeShipped() {
     orders.forEach(order => {
         const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td data-label="Naziv"><strong>${order.naziv}</strong></td>
-                <td data-label="Cena"><strong>${order.cena} RSD</strong></td>
-                <td data-label="Plaćeno">${order.placeno ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
-                <td data-label="Kupac"><strong>${order.kupac}</strong></td>
-                <td data-label="Datum">${order.datum || '-'}</td>
-                <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
-                <td data-label="Slika">${order.slika ? `<img src="/images/${order.slika}" />` : '-'}</td>
+                <td data-label="Naziv"><strong>${order.name}</strong></td>
+                <td data-label="Cena"><strong>${order.price} RSD</strong></td>
+                <td data-label="Plaćeno">${order.paid ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
+                <td data-label="Kupac"><strong>${order.customer}</strong></td>
+                <td data-label="Datum">${order.date || '-'}</td>
+                <td data-label="Opis" class="td-description">${formatOpis(order.description)}</td>
+                <td data-label="Slika">${order.image ? `<img src="/images/${order.image}" />` : '-'}</td>
                 <td data-label="Akcija">
                     <div class="btn-group">
                         <button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button>

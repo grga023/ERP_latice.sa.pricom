@@ -9,67 +9,67 @@ lager_bp = Blueprint('lager', __name__)
 
 # ─── Page Route ────────────────────────────────────────────────
 
-@lager_bp.route('/lager')
-@lager_bp.route('/lager.html')
+@lager_bp.route('/inventory')
+@lager_bp.route('/inventory.html')
 @login_required
-def lager_page():
-    return render_template('lager.html')
+def inventory_page():
+    return render_template('inventory.html')
 
 
 # ─── API Routes ────────────────────────────────────────────────
 
-@lager_bp.route('/api/lager', methods=['GET'])
+@lager_bp.route('/api/inventory', methods=['GET'])
 @login_required
-def get_lager():
+def get_inventory():
     items = LagerItem.query.all()
     return jsonify([i.to_dict() for i in items])
 
 
-@lager_bp.route('/api/lager', methods=['POST'])
+@lager_bp.route('/api/inventory', methods=['POST'])
 @login_required
-def add_lager():
+def add_inventory():
     try:
-        o = request.form
-        file = request.files.get('slika')
+        form_data = request.form
+        file = request.files.get('image')
         filename = ''
         if file and file.filename:
             filename = f"{int(time.time())}_{file.filename}"
             file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
 
         # Validate required fields
-        if not o.get('naziv'):
+        if not form_data.get('name'):
             return jsonify({'error': 'Naziv je obavezan'}), 400
         
         try:
-            cena = float(o.get('cena', 0))
+            price = float(form_data.get('price', 0))
         except (ValueError, TypeError):
-            cena = 0.0
+            price = 0.0
         
         try:
-            kolicina = int(o.get('kolicina', 0))
+            quantity = int(form_data.get('quantity', 0))
         except (ValueError, TypeError):
-            kolicina = 0
+            quantity = 0
 
         item = LagerItem(
-            naziv=o.get('naziv', ''),
-            cena=cena,
-            boja=o.get('boja', ''),
-            kolicina=kolicina,
-            lokacija=o.get('lokacija', 'Kuća'),
-            slika=filename
+            name=form_data.get('name', ''),
+            price=price,
+            color=form_data.get('color', ''),
+            quantity=quantity,
+            location=form_data.get('location', 'House'),
+            image=filename
         )
         db.session.add(item)
         db.session.commit()
         return jsonify({'ok': True})
     except Exception as e:
         db.session.rollback()
-        print(f"Error adding lager item: {str(e)}")
+        print(f"Error adding inventory item: {str(e)}")
         return jsonify({'error': f'Greška pri dodavanju artikla: {str(e)}'}), 500
 
 
-@lager_bp.route('/api/lager/<int:item_id>', methods=['DELETE'])
+@lager_bp.route('/api/inventory/<int:item_id>', methods=['DELETE'])
 @login_required
-def delete_lager(item_id):
+def delete_inventory(item_id):
     item = db.session.get(LagerItem, item_id)
     if not item:
         return jsonify({'error': 'Artikal nije pronađen'}), 404
@@ -78,7 +78,7 @@ def delete_lager(item_id):
     return jsonify({'ok': True})
 
 
-@lager_bp.route('/api/lager/<int:item_id>/increase_quantity', methods=['POST'])
+@lager_bp.route('/api/inventory/<int:item_id>/increase_quantity', methods=['POST'])
 @login_required
 def increase_quantity(item_id):
     item = db.session.get(LagerItem, item_id)
@@ -91,6 +91,6 @@ def increase_quantity(item_id):
     if increase_by <= 0:
         return jsonify({'error': 'Količina mora biti veća od 0'}), 400
     
-    item.kolicina += increase_by
+    item.quantity += increase_by
     db.session.commit()
-    return jsonify({'ok': True, 'new_quantity': item.kolicina})
+    return jsonify({'ok': True, 'new_quantity': item.quantity})

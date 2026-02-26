@@ -50,12 +50,12 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Naziv proizvoda *</label>
-        <input type="text" name="naziv" class="form-input" placeholder="Unesite naziv proizvoda" required>
+        <input type="text" name="name" class="form-input" placeholder="Unesite name proizvoda" required>
       </div>
 
       <div class="form-group">
         <label class="form-label">Cena (po jedinici) *</label>
-        <input type="number" name="cena" step="0.01" class="form-input" placeholder="0.00" required>
+        <input type="number" name="price" step="0.01" class="form-input" placeholder="0.00" required>
       </div>
     </div>
 
@@ -63,7 +63,7 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Plaćeno</label>
-        <select name="placeno" class="form-select">
+        <select name="paid" class="form-select">
           <option value="false">❌ Ne</option>
           <option value="true">✅ Da</option>
         </select>
@@ -71,7 +71,7 @@
 
       <div class="form-group">
         <label class="form-label" style="font-weight: 700;">Kupac *</label>
-        <input type="text" name="kupac" class="form-input" placeholder="Ime kupca" required>
+        <input type="text" name="customer" class="form-input" placeholder="Ime kupca" required>
       </div>
     </div>
 
@@ -79,17 +79,17 @@
     <div class="form-group">
       <label class="form-label">Datum isporuke *</label>
       <div style="overflow: hidden; width: 100%; max-width: 100%;">
-        <input type="date" id="datepicker" name="datum" class="form-input" required style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0; font-size: 14px;">
+        <input type="date" id="datepicker" name="date" class="form-input" required style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0; font-size: 14px;">
       </div>
     </div>
 
-    <!-- Kombinacije boja i količina -->
+    <!-- Kombinacije color i količina -->
     <div class="form-group">
       <label class="form-label">Količina i boje</label>
       <div id="kombinacije-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
         <div class="kombinacija-row">
-          <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
-          <input type="text" class="boja form-input" value="razno" placeholder="Boja" required>
+          <input type="number" class="quantity form-input" min="1" value="1" placeholder="Količina" required>
+          <input type="text" class="color form-input" value="razno" placeholder="Boja" required>
           <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
           <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
         </div>
@@ -102,14 +102,14 @@
       <textarea id="customMessage" name="customMessage" class="form-textarea" placeholder="Unesite dodatne detalje, napomene ili specijalne zahteve..."></textarea>
     </div>
 
-    <!-- Hidden field for formatted opis -->
-    <input type="hidden" name="opis" id="opisField">
+    <!-- Hidden field for formatted description -->
+    <input type="hidden" name="description" id="descriptionField">
 
     <!-- Slika Upload -->
     <div class="form-group">
       <label class="form-label">Slika proizvoda</label>
       <div id="pasteArea" class="image-upload" style="position: relative;">
-        <input type="file" id="fileInput" name="slika" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+        <input type="file" id="fileInput" name="image" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
         <p style="margin: 0; font-weight: 500; color: var(--gray);">📎 Kliknite da odaberete ili pritisnite CTRL+V</p>
       </div>
       <img id="preview" class="image-preview mt-3" alt="Preview slike" style="display: none;">
@@ -127,19 +127,19 @@
 
 <!-- Quick Links -->
 <div class="grid grid-3 mt-5">
-  <a href="/porudzbenice" class="card text-center" style="text-decoration: none; color: inherit;">
+  <a href="/new-orders" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Nove Porudžbine</h3>
     <p style="color: var(--gray); margin: 0;">Pregledaj nove porudžbine</p>
   </a>
 
-  <a href="/za-dostavu" class="card text-center" style="text-decoration: none; color: inherit;">
+  <a href="/for-delivery" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">🚚</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Za Dostavu</h3>
     <p style="color: var(--gray); margin: 0;">Pogledaj porudžbine za dostavu</p>
   </a>
 
-  <a href="/lager" class="card text-center" style="text-decoration: none; color: inherit;">
+  <a href="/inventory" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Lager</h3>
     <p style="color: var(--gray); margin: 0;">Upravljaj zalihama</p>
@@ -202,8 +202,8 @@ function addCombination() {
   const newRow = document.createElement('div');
   newRow.className = 'kombinacija-row';
   newRow.innerHTML = `
-    <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
-    <input type="text" class="boja form-input" value="razno" placeholder="Boja" required>
+    <input type="number" class="quantity form-input" min="1" value="1" placeholder="Količina" required>
+    <input type="text" class="color form-input" value="razno" placeholder="Boja" required>
     <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
   `;
   container.appendChild(newRow);
@@ -221,10 +221,10 @@ function formatCombinations() {
   let formatted = '';
   
   rows.forEach(row => {
-    const kolicina = row.querySelector('.kolicina').value;
-    const boja = row.querySelector('.boja').value;
-    if (kolicina && boja) {
-      formatted += kolicina + ' ' + boja + '\r\n';
+    const quantity = row.querySelector('.quantity').value;
+    const color = row.querySelector('.color').value;
+    if (quantity && color) {
+      formatted += quantity + ' ' + color + '\r\n';
     }
   });
   
@@ -233,7 +233,7 @@ function formatCombinations() {
     formatted += 'Detalji: ' + customMessage + '\r\n';
   }
   
-  document.querySelector('#opisField').value = formatted;
+  document.querySelector('#descriptionField').value = formatted;
 }
 
 // ═══════════════════════════════════════════
@@ -254,29 +254,29 @@ form.addEventListener('submit', async (e) => {
   let totalKolicina = 0;
   let firstBoja = '';
   rows.forEach((row, index) => {
-    const k = parseInt(row.querySelector('.kolicina').value) || 0;
+    const k = parseInt(row.querySelector('.quantity').value) || 0;
     totalKolicina += k;
     if (index === 0) {
-      firstBoja = row.querySelector('.boja').value || '';
+      firstBoja = row.querySelector('.color').value || '';
     }
   });
   if (totalKolicina < 1) totalKolicina = 1;
   
-  // Add kolicina and boja fields for backend
-  formData.set('kolicina', totalKolicina);
-  formData.set('boja', firstBoja);
+  // Add quantity and color fields for backend
+  formData.set('quantity', totalKolicina);
+  formData.set('color', firstBoja);
   
   // Multiply price by total quantity
-  const baseCena = parseFloat(formData.get('cena'));
-  formData.set('cena', (baseCena * totalKolicina).toFixed(2));
+  const baseCena = parseFloat(formData.get('price'));
+  formData.set('price', (baseCena * totalKolicina).toFixed(2));
 
   // Convert date from YYYY-MM-DD to DD.MM.YYYY format
-  let datumValue = document.querySelector('#datepicker').value;
-  if (datumValue) {
-    const [year, month, day] = datumValue.split('-');
-    datumValue = `${day}.${month}.${year}`;
+  let dateValue = document.querySelector('#datepicker').value;
+  if (dateValue) {
+    const [year, month, day] = dateValue.split('-');
+    dateValue = `${day}.${month}.${year}`;
   }
-  formData.set('datum', datumValue);
+  formData.set('date', dateValue);
 
   try {
     const submitBtn = form.querySelector('button[type="submit"]');
@@ -298,8 +298,8 @@ form.addEventListener('submit', async (e) => {
         // Reset kombinacije
         document.getElementById('kombinacije-container').innerHTML = `
           <div class="kombinacija-row">
-            <input type="number" class="kolicina form-input" min="1" value="1" placeholder="Količina" required>
-            <input type="text" class="boja form-input" value="razno" placeholder="Boja" required>
+            <input type="number" class="quantity form-input" min="1" value="1" placeholder="Količina" required>
+            <input type="text" class="color form-input" value="razno" placeholder="Boja" required>
             <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
             <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
           </div>

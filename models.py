@@ -35,30 +35,30 @@ class Order(db.Model):
     __tablename__ = 'orders'
 
     id = db.Column(db.Integer, primary_key=True)
-    naziv = db.Column(db.String(200), nullable=False)
-    cena = db.Column(db.Float, nullable=False, default=0)
-    placeno = db.Column(db.Boolean, default=False)
-    kupac = db.Column(db.String(200), nullable=False)
-    datum = db.Column(db.String(20), default='')
-    kolicina = db.Column(db.Integer, default=1)
-    boja = db.Column(db.String(100), default='')
-    opis = db.Column(db.Text, default='')
-    slika = db.Column(db.String(300), default='')
+    name = db.Column(db.String(200), nullable=False)
+    price = db.Column(db.Float, nullable=False, default=0)
+    paid = db.Column(db.Boolean, default=False)
+    customer = db.Column(db.String(200), nullable=False)
+    date = db.Column(db.String(20), default='')
+    quantity = db.Column(db.Integer, default=1)
+    color = db.Column(db.String(100), default='')
+    description = db.Column(db.Text, default='')
+    image = db.Column(db.String(300), default='')
     status = db.Column(db.String(20), nullable=False, default='new')
     lager_id = db.Column(db.Integer, db.ForeignKey('lager.id'), nullable=True)
 
     def to_dict(self):
         return {
             'id': self.id,
-            'naziv': self.naziv,
-            'cena': self.cena,
-            'placeno': self.placeno,
-            'kupac': self.kupac,
-            'datum': self.datum,
-            'kolicina': self.kolicina,
-            'boja': self.boja,
-            'opis': self.opis,
-            'slika': self.slika,
+            'name': self.name,
+            'price': self.price,
+            'paid': self.paid,
+            'customer': self.customer,
+            'date': self.date,
+            'quantity': self.quantity,
+            'color': self.color,
+            'description': self.description,
+            'image': self.image,
             'status': self.status,
             'lager_id': self.lager_id
         }
@@ -68,22 +68,22 @@ class LagerItem(db.Model):
     __tablename__ = 'lager'
 
     id = db.Column(db.Integer, primary_key=True)
-    naziv = db.Column(db.String(200), nullable=False)
-    cena = db.Column(db.Float, default=0)
-    boja = db.Column(db.String(100), default='')
-    kolicina = db.Column(db.Integer, default=0)
-    lokacija = db.Column(db.String(100), default='Kuća')
-    slika = db.Column(db.String(300), default='')
+    name = db.Column(db.String(200), nullable=False)
+    price = db.Column(db.Float, default=0)
+    color = db.Column(db.String(100), default='')
+    quantity = db.Column(db.Integer, default=0)
+    location = db.Column(db.String(100), default='House')
+    image = db.Column(db.String(300), default='')
 
     def to_dict(self):
         return {
             'id': self.id,
-            'naziv': self.naziv,
-            'cena': self.cena,
-            'boja': self.boja,
-            'kolicina': self.kolicina,
-            'lokacija': self.lokacija,
-            'slika': self.slika
+            'name': self.name,
+            'price': self.price,
+            'color': self.color,
+            'quantity': self.quantity,
+            'location': self.location,
+            'image': self.image
         }
 
 

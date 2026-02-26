@@ -15,32 +15,32 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-@orders_bp.route('/kreiranje')
+@orders_bp.route('/create')
 @orders_bp.route('/index.html')
 @login_required
-def kreiranje():
-    return render_template('kreiranje.html')
+def create_order_page():
+    return render_template('create_order.html')
 
 
-@orders_bp.route('/porudzbenice')
-@orders_bp.route('/porudzbenice.html')
+@orders_bp.route('/new-orders')
+@orders_bp.route('/new_orders.html')
 @login_required
-def porudzbenice():
-    return render_template('porudzbenice.html')
+def new_orders_page():
+    return render_template('new_orders.html')
 
 
-@orders_bp.route('/realizovano')
-@orders_bp.route('/realizovano.html')
+@orders_bp.route('/realized')
+@orders_bp.route('/realized.html')
 @login_required
-def realizovano():
-    return render_template('realizovano.html')
+def realized_page():
+    return render_template('realized.html')
 
 
-@orders_bp.route('/za-dostavu')
-@orders_bp.route('/za_daostavu.html')
+@orders_bp.route('/for-delivery')
+@orders_bp.route('/for_delivery.html')
 @login_required
-def za_dostavu():
-    return render_template('za_dostavu.html')
+def for_delivery_page():
+    return render_template('for_delivery.html')
 
 
 @orders_bp.route('/edit')
@@ -100,39 +100,39 @@ def get_realized_orders():
 @login_required
 def create_order():
     try:
-        o = request.form
-        file = request.files.get('slika')
+        form_data = request.form
+        file = request.files.get('image')
         filename = ''
         if file and file.filename:
             filename = f"{int(time.time())}_{file.filename}"
             file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
 
         # Validate required fields
-        if not o.get('naziv'):
+        if not form_data.get('name'):
             return jsonify({'error': 'Naziv je obavezan'}), 400
-        if not o.get('kupac'):
+        if not form_data.get('customer'):
             return jsonify({'error': 'Kupac je obavezan'}), 400
         
         try:
-            cena = float(o.get('cena', 0))
+            price = float(form_data.get('price', 0))
         except (ValueError, TypeError):
             return jsonify({'error': 'Cena mora biti broj'}), 400
         
         try:
-            kolicina = int(o.get('kolicina', 1))
+            quantity = int(form_data.get('quantity', 1))
         except (ValueError, TypeError):
-            kolicina = 1
+            quantity = 1
 
         order = Order(
-            naziv=o['naziv'],
-            cena=cena,
-            placeno=o.get('placeno', 'false') == 'true',
-            kupac=o['kupac'],
-            datum=o.get('datum', ''),
-            kolicina=kolicina,
-            boja=o.get('boja', ''),
-            opis=o.get('opis', ''),
-            slika=filename,
+            name=form_data['name'],
+            price=price,
+            paid=form_data.get('paid', 'false') == 'true',
+            customer=form_data['customer'],
+            date=form_data.get('date', ''),
+            quantity=quantity,
+            color=form_data.get('color', ''),
+            description=form_data.get('description', ''),
+            image=filename,
             status='new'
         )
         db.session.add(order)
@@ -152,8 +152,8 @@ def update_status():
     if not order:
         return jsonify({'error': 'Porudžbina nije pronađena'}), 404
 
-    if 'placeno' in data:
-        order.placeno = data['placeno']
+    if 'paid' in data:
+        order.paid = data['paid']
     order.status = data['status']
     db.session.commit()
     return jsonify({'ok': True})
@@ -185,19 +185,19 @@ def update_order(order_id):
     if not order:
         return jsonify({'error': 'Porudžbina nije pronađena'}), 404
 
-    o = request.form
-    order.naziv = o.get('naziv', order.naziv)
-    order.cena = float(o.get('cena', order.cena))
-    order.placeno = o.get('placeno') == 'true'
-    order.kupac = o.get('kupac', order.kupac)
-    order.datum = o.get('datum', order.datum)
-    order.opis = o.get('opis', order.opis)
+    form_data = request.form
+    order.name = form_data.get('name', order.name)
+    order.price = float(form_data.get('price', order.price))
+    order.paid = form_data.get('paid') == 'true'
+    order.customer = form_data.get('customer', order.customer)
+    order.date = form_data.get('date', order.date)
+    order.description = form_data.get('description', order.description)
 
-    if 'slika' in request.files and request.files['slika'].filename:
-        file = request.files['slika']
+    if 'image' in request.files and request.files['image'].filename:
+        file = request.files['image']
         filename = f"{int(time.time())}_{file.filename}"
         file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
-        order.slika = filename
+        order.image = filename
 
     db.session.commit()
     return jsonify({'ok': True})
@@ -206,26 +206,26 @@ def update_order(order_id):
 @orders_bp.route('/api/order_from_lager', methods=['POST'])
 @login_required
 def order_from_lager():
-    o = request.get_json()
-    order_qty = int(o.get('kolicina', 1))
-    lager_id = int(o.get('lager_id', 0)) if o.get('lager_id') else None
+    data = request.get_json()
+    order_qty = int(data.get('quantity', 1))
+    lager_id = int(data.get('lager_id', 0)) if data.get('lager_id') else None
 
     # Subtract quantity from lager (minimum 0)
     if lager_id:
         item = db.session.get(LagerItem, int(lager_id))
         if item:
-            item.kolicina = max(0, item.kolicina - order_qty)
+            item.quantity = max(0, item.quantity - order_qty)
 
     order = Order(
-        naziv=o.get('naziv', ''),
-        cena=float(o.get('cena', 0)),
-        placeno=o.get('placeno', 'false') == 'true',
-        kupac=o.get('kupac', ''),
-        datum=o.get('datum', ''),
-        kolicina=order_qty,
-        boja=o.get('boja', ''),
-        opis=o.get('opis', ''),
-        slika=o.get('slika', ''),
+        name=data.get('name', ''),
+        price=float(data.get('price', 0)),
+        paid=data.get('paid', 'false') == 'true',
+        customer=data.get('customer', ''),
+        date=data.get('date', ''),
+        quantity=order_qty,
+        color=data.get('color', ''),
+        description=data.get('description', ''),
+        image=data.get('image', ''),
         status='new',
         lager_id=lager_id if lager_id else None
     )
@@ -249,7 +249,7 @@ def return_to_lager(order_id):
         return jsonify({'error': 'Lager item not found'}), 404
     
     # Return the order quantity back to lager
-    item.kolicina += order.kolicina
+    item.quantity += order.quantity
     
     # Delete the order after returning to lager
     db.session.delete(order)
