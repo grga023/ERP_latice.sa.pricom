@@ -35,7 +35,7 @@ done
 if [ -z "$CURRENT_BRANCH" ]; then
     # Pokušaj da pronađeš najnoviji tag sa "_stabile" u imenu
     if command -v git &>/dev/null; then
-        STABLE_TAG=$(git ls-remote --tags "$GIT_REPO" | grep "_stabile" | tail -1 | awk '{print $2}' | sed 's|refs/tags/||' | sed 's/\^{}//' 2>/dev/null || echo "")
+        STABLE_TAG=$(git ls-remote --tags "$GIT_REPO" | grep "_stabile" | awk '{print $2}' | sed 's|refs/tags/||' | sed 's/\^{}//' | sort -V | tail -1 2>/dev/null || echo "")
         if [ -n "$STABLE_TAG" ]; then
             CURRENT_BRANCH="$STABLE_TAG"
         else
