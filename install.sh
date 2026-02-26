@@ -2,7 +2,7 @@
 
 set -e
 
-# Boje za output
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -15,10 +15,10 @@ NC='\033[0m' # No Color
 # Replace with your actual GitHub username
 GIT_REPO="https://github.com/grga023/Simple_ERP.git"
 
-# Detektuj branch ili tag
+# Detect branch or tag
 CURRENT_BRANCH=""
 
-# Parsiraj argumente (-b za branch)
+# Parse arguments (-b for branch)
 while [[ $# -gt 0 ]]; do
     case $1 in
         -b|--branch)
@@ -46,7 +46,7 @@ if [ -z "$CURRENT_BRANCH" ]; then
     fi
 fi
 
-echo -e "${CYAN}Instalacija Simple ERP Tracking - Branch/Tag: ${CURRENT_BRANCH}${NC}"
+echo -e "${CYAN}Install Simple ERP - Branch/Tag: ${CURRENT_BRANCH}${NC}"
 
 # ═══════════════════════════════════════════════
 # STANDALONE MODE INFORMATION
@@ -77,7 +77,7 @@ echo -e "${NC}"
 # ═══════════════════════════════════════════════
 # Check and install system dependencies
 # ═══════════════════════════════════════════════
-echo -e "${YELLOW}[0/10]${NC} Provera sistemskih zavisnosti..."
+echo -e "${YELLOW}[0/10]${NC} Checking system dependencies..."
 
 PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
 VENV_PACKAGE="python${PYTHON_VERSION}-venv"
@@ -96,39 +96,39 @@ if ! command -v pip3 &>/dev/null; then
 fi
 
 if [ -n "$PACKAGES_TO_INSTALL" ]; then
-    echo -e "${YELLOW}Instalacija paketa:${PACKAGES_TO_INSTALL}${NC}"
+    echo -e "${YELLOW}Installing packages:${PACKAGES_TO_INSTALL}${NC}"
     sudo apt update
     sudo apt install -y $PACKAGES_TO_INSTALL
-    echo -e "${GREEN}Sistemske zavisnosti instalirane.${NC}"
+    echo -e "${GREEN}System dependencies installed.${NC}"
 else
-    echo -e "${GREEN}Sve sistemske zavisnosti su već instalirane.${NC}"
+    echo -e "${GREEN}All system dependencies are already installed.${NC}"
 fi
 
 echo ""
 
 # ═══════════════════════════════════════════════
-# Branding konfiguracija
+# Business configuration
 # ═══════════════════════════════════════════════
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${CYAN}           PODEŠAVANJE BIZNISA          ${NC}"
+echo -e "${CYAN}           BUSINESS SETUP              ${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-read -p "Naziv biznisa [Moj Biznis]: " BUSINESS_NAME
-BUSINESS_NAME="${BUSINESS_NAME:-Moj Biznis}"
+read -p "Business name [My Business]: " BUSINESS_NAME
+BUSINESS_NAME="${BUSINESS_NAME:-My Business}"
 
-read -p "Kratak naziv (za navbar) [${BUSINESS_NAME}]: " BUSINESS_SHORT_NAME
+read -p "Short name (for navbar) [${BUSINESS_NAME}]: " BUSINESS_SHORT_NAME
 BUSINESS_SHORT_NAME="${BUSINESS_SHORT_NAME:-$BUSINESS_NAME}"
 
-read -p "Email biznisa []: " BUSINESS_EMAIL
+read -p "Business email []: " BUSINESS_EMAIL
 
-read -p "Telefon biznisa []: " BUSINESS_PHONE
+read -p "Business phone []: " BUSINESS_PHONE
 
-read -p "Adresa biznisa []: " BUSINESS_ADDRESS
+read -p "Business address []: " BUSINESS_ADDRESS
 
 read -p "Website []: " BUSINESS_WEBSITE
 
-read -p "Valuta [RSD]: " CURRENCY
+read -p "Currency [RSD]: " CURRENCY
 CURRENCY="${CURRENCY:-RSD}"
 
 read -p "Timezone [Europe/Belgrade]: " TIMEZONE
@@ -140,61 +140,61 @@ echo ""
 # Technical configuration
 # ═══════════════════════════════════════════════
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${CYAN}        TEHNIČKA KONFIGURACIJA          ${NC}"
+echo -e "${CYAN}        TECHNICAL CONFIGURATION        ${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-# Default vrednosti
+# Default values
 DEFAULT_INSTALL_DIR="/opt/.erp"
 DEFAULT_DATA_DIR="/usb/ERP_data/data"
 DEFAULT_IMG_DIR="/usb/ERP_data/images"
 DEFAULT_PORT="8000"
 DEFAULT_VERSION="1.0.0"
 
-read -p "Instalacioni direktorijum [$DEFAULT_INSTALL_DIR]: " INSTALL_DIR
+read -p "Installation directory [$DEFAULT_INSTALL_DIR]: " INSTALL_DIR
 INSTALL_DIR="${INSTALL_DIR:-$DEFAULT_INSTALL_DIR}"
 
-read -p "Data direktorijum [$DEFAULT_DATA_DIR]: " DATA_DIR
+read -p "Data directory [$DEFAULT_DATA_DIR]: " DATA_DIR
 DATA_DIR="${DATA_DIR:-$DEFAULT_DATA_DIR}"
 
-read -p "Img direktorijum [$DEFAULT_IMG_DIR]: " IMG_DIR
+read -p "Images directory [$DEFAULT_IMG_DIR]: " IMG_DIR
 IMG_DIR="${IMG_DIR:-$DEFAULT_IMG_DIR}"
 
 read -p "Port [$DEFAULT_PORT]: " PORT
 PORT="${PORT:-$DEFAULT_PORT}"
 
-read -p "Javni URL (Cloudflare, ostaviti prazno ako nema) []: " PUBLIC_URL
+read -p "Public URL (Cloudflare, leave empty if none) []: " PUBLIC_URL
 
 echo ""
 echo -e "${YELLOW}═══════════════════════════════════════${NC}"
-echo -e "${YELLOW}           PREGLED KONFIGURACIJE       ${NC}"
+echo -e "${YELLOW}        CONFIGURATION REVIEW           ${NC}"
 echo -e "${YELLOW}═══════════════════════════════════════${NC}"
 echo ""
-echo -e "${CYAN}Biznis:${NC}"
-echo "  Naziv:        $BUSINESS_NAME"
-echo "  Kratak naziv: $BUSINESS_SHORT_NAME"
+echo -e "${CYAN}Business:${NC}"
+echo "  Name:         $BUSINESS_NAME"
+echo "  Short name:   $BUSINESS_SHORT_NAME"
 echo "  Email:        ${BUSINESS_EMAIL:-N/A}"
-echo "  Telefon:      ${BUSINESS_PHONE:-N/A}"
-echo "  Adresa:       ${BUSINESS_ADDRESS:-N/A}"
+echo "  Phone:        ${BUSINESS_PHONE:-N/A}"
+echo "  Address:      ${BUSINESS_ADDRESS:-N/A}"
 echo "  Website:      ${BUSINESS_WEBSITE:-N/A}"
-echo "  Valuta:       $CURRENCY"
+echo "  Currency:     $CURRENCY"
 echo "  Timezone:     $TIMEZONE"
 echo ""
-echo -e "${CYAN}Tehnički:${NC}"
-echo "  Instalacija:  $INSTALL_DIR"
+echo -e "${CYAN}Technical:${NC}"
+echo "  Installation: $INSTALL_DIR"
 echo "  Data:         $DATA_DIR"
-echo "  Slike:        $IMG_DIR"
+echo "  Images:       $IMG_DIR"
 echo "  Port:         $PORT"
 if [ -n "$PUBLIC_URL" ]; then
-    echo "  Javni URL:    $PUBLIC_URL"
+    echo "  Public URL:   $PUBLIC_URL"
 fi
 echo ""
 
-read -p "Nastavi sa instalacijom? [Y/n]: " CONFIRM
+read -p "Continue with installation? [Y/n]: " CONFIRM
 CONFIRM="${CONFIRM:-Y}"
 
 if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
-    echo "Instalacija otkazana."
+    echo "Installation cancelled."
     exit 1
 fi
 
@@ -203,7 +203,7 @@ fi
 # ═══════════════════════════════════════════════
 
 # Copy files
-echo -e "${GREEN}[2/10]${NC} Preuzimanje fajlova..."
+echo -e "${GREEN}[2/10]${NC} Downloading files..."
 
 # Detect where script is executed
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -212,7 +212,7 @@ SCRIPT_SOURCE="${BASH_SOURCE[0]}"
 # If script is executed from /tmp or pipe (e.g. `bash <(curl ...)`), we need to clone
 if [[ "$SCRIPT_SOURCE" == "/dev/stdin" ]] || [[ "$SCRIPT_DIR" == "/tmp"* ]] || [[ ! -d "$SCRIPT_DIR/.git" && ! -f "$SCRIPT_DIR/ERP_server.py" ]]; then
     TEMP_CLONE_DIR=$(mktemp -d)
-    echo -e "${CYAN}Preuzimam repository ($CURRENT_BRANCH)...${NC}"
+    echo -e "${CYAN}Downloading repository ($CURRENT_BRANCH)...${NC}"
     
     # Try git clone first
     if command -v git &>/dev/null; then
@@ -221,13 +221,13 @@ if [[ "$SCRIPT_SOURCE" == "/dev/stdin" ]] || [[ "$SCRIPT_DIR" == "/tmp"* ]] || [
         
         if git clone -b "$CURRENT_BRANCH" "$GIT_REPO" "$TEMP_CLONE_DIR" 2>/dev/null; then
             SCRIPT_DIR="$TEMP_CLONE_DIR"
-            echo -e "${GREEN}Repository kloniran iz grane/tag-a: $CURRENT_BRANCH${NC}"
+            echo -e "${GREEN}Repository cloned from branch/tag: $CURRENT_BRANCH${NC}"
         else
-            echo -e "${RED}Greška: Ne mogu da kloniram repository sa granom/tag-om: $CURRENT_BRANCH${NC}"
+            echo -e "${RED}Error: Cannot clone repository with branch/tag: $CURRENT_BRANCH${NC}"
             exit 1
         fi
     else
-        echo -e "${RED}Greška: git nije instaliran${NC}"
+        echo -e "${RED}Error: git is not installed${NC}"
         exit 1
     fi
 else
@@ -241,13 +241,13 @@ else
 fi
 
 if [ -d "$INSTALL_DIR/.git" ]; then
-    echo "Git repo već postoji, radim pull..."
+    echo "Git repo already exists, pulling updates..."
     cd "$INSTALL_DIR"
     sudo git fetch --all
     sudo git checkout "$CURRENT_BRANCH" 2>/dev/null || sudo git checkout -b "$CURRENT_BRANCH" "origin/$CURRENT_BRANCH" 2>/dev/null || true
     sudo git pull origin "$CURRENT_BRANCH" || true
 else
-    echo "Kopiranje fajlova u $INSTALL_DIR..."
+    echo "Copying files to $INSTALL_DIR..."
     sudo rm -rf "$INSTALL_DIR"
     sudo cp -r "$SCRIPT_DIR" "$INSTALL_DIR"
     
@@ -263,31 +263,31 @@ if [ -n "$TEMP_CLONE_DIR" ] && [ -d "$TEMP_CLONE_DIR" ]; then
 fi
 
 # Set owner to current user
-echo -e "${GREEN}[3/10]${NC} Postavljanje permisija..."
+echo -e "${GREEN}[3/10]${NC} Setting permissions..."
 sudo chown -R $USER:$USER "$INSTALL_DIR"
 
 # Remove existing data/img if they exist, create symlinks
-echo -e "${GREEN}[4/10]${NC} Kreiranje symlinkova..."
+echo -e "${GREEN}[4/10]${NC} Creating symlinks..."
 rm -rf "$INSTALL_DIR/data" 2>/dev/null || true
 rm -rf "$INSTALL_DIR/images" 2>/dev/null || true
 ln -sf "$DATA_DIR" "$INSTALL_DIR/data"
 ln -sf "$IMG_DIR" "$INSTALL_DIR/images"
 
 # Python virtual environment
-echo -e "${GREEN}[5/10]${NC} Kreiranje Python virtualnog okruženja..."
+echo -e "${GREEN}[5/10]${NC} Creating Python virtual environment..."
 python3 -m venv "$INSTALL_DIR/venv"
 "$INSTALL_DIR/venv/bin/pip" install --upgrade pip
 
-# Instalacija zavisnosti
-echo -e "${GREEN}[6/10]${NC} Instalacija Python zavisnosti..."
+# Install dependencies
+echo -e "${GREEN}[6/10]${NC} Installing Python dependencies..."
 if [ -f "$INSTALL_DIR/requirements.txt" ]; then
     "$INSTALL_DIR/venv/bin/pip" install -r "$INSTALL_DIR/requirements.txt"
 else
-    echo -e "${YELLOW}UPOZORENJE: requirements.txt nije pronađen${NC}"
+    echo -e "${YELLOW}WARNING: requirements.txt not found${NC}"
 fi
 
 # Create CLI command
-echo -e "${GREEN}[7/10]${NC} Instalacija 'erp' komande..."
+echo -e "${GREEN}[7/10]${NC} Installing 'erp' command..."
 
 sudo tee /usr/local/bin/erp > /dev/null << 'WRAPPER'
 #!/bin/bash
@@ -300,7 +300,7 @@ sudo sed -i "s|__INSTALL_DIR__|$INSTALL_DIR|g" /usr/local/bin/erp
 sudo chmod +x /usr/local/bin/erp
 
 # Save configuration
-echo -e "${GREEN}[8/10]${NC} Čuvanje konfiguracije..."
+echo -e "${GREEN}[8/10]${NC} Saving configuration..."
 
 tee "$INSTALL_DIR/.erp.conf" > /dev/null << EOF
 # ═══════════════════════════════════════
@@ -367,7 +367,7 @@ EOF
 # ═══════════════════════════════════════════════
 # Create systemd service
 # ═══════════════════════════════════════════════
-echo -e "${GREEN}[9/10]${NC} Kreiranje systemd servisa..."
+echo -e "${GREEN}[9/10]${NC} Creating systemd service..."
 
 sudo tee /etc/systemd/system/erp.service > /dev/null << EOF
 [Unit]
@@ -391,26 +391,26 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable erp.service
 
-echo -e "${GREEN}Servis 'erp' kreiran i uključen za autostart.${NC}"
+echo -e "${GREEN}Service 'erp' created and enabled for autostart.${NC}"
 
 # ═══════════════════════════════════════════════
 # Create backup cron job
 # ═══════════════════════════════════════════════
-echo -e "${GREEN}[10/10]${NC} Kreiranje backup cron job-a..."
+echo -e "${GREEN}[10/10]${NC} Creating backup cron job..."
 
 chmod +x "$INSTALL_DIR/backup.sh" 2>/dev/null || true
 
 CRON_JOB="0 3 * * * $INSTALL_DIR/backup.sh"
 
 if crontab -l 2>/dev/null | grep -q "backup.sh"; then
-    echo -e "${YELLOW}Backup cron job već postoji.${NC}"
+    echo -e "${YELLOW}Backup cron job already exists.${NC}"
 else
     (crontab -l 2>/dev/null || echo "") | grep -v "backup.sh" | { cat; echo "$CRON_JOB"; } | crontab -
     
     if crontab -l 2>/dev/null | grep -q "backup.sh"; then
-        echo -e "${GREEN}Backup zakazan za 3:00 AM svaki dan.${NC}"
+        echo -e "${GREEN}Backup scheduled for 3:00 AM daily.${NC}"
     else
-        echo -e "${YELLOW}UPOZORENJE: Dodaj ručno cron job:${NC}"
+        echo -e "${YELLOW}WARNING: Add cron job manually:${NC}"
         echo -e "${YELLOW}  crontab -e${NC}"
         echo -e "${YELLOW}  $CRON_JOB${NC}"
     fi
@@ -420,20 +420,20 @@ fi
 # Check Git configuration for backup
 # ═══════════════════════════════════════════════
 echo ""
-echo -e "${CYAN}Git backup konfiguracija...${NC}"
+echo -e "${CYAN}Git backup configuration...${NC}"
 
 if [ -d "$DATA_DIR/.git" ]; then
-    echo -e "${GREEN}Git repo već postoji u DATA_DIR.${NC}"
+    echo -e "${GREEN}Git repo already exists in DATA_DIR.${NC}"
 else
-    read -p "Inicijalizovati git repo u $DATA_DIR za backup? [Y/n]: " INIT_GIT
+    read -p "Initialize git repo in $DATA_DIR for backup? [Y/n]: " INIT_GIT
     INIT_GIT="${INIT_GIT:-Y}"
     if [[ "$INIT_GIT" =~ ^[Yy]$ ]]; then
         cd "$DATA_DIR"
         git init
-        read -p "Git remote URL (ostaviti prazno za preskočiti): " GIT_REMOTE
+        read -p "Git remote URL (leave empty to skip): " GIT_REMOTE
         if [ -n "$GIT_REMOTE" ]; then
             git remote add origin "$GIT_REMOTE"
-            echo -e "${GREEN}Git remote dodat: $GIT_REMOTE${NC}"
+            echo -e "${GREEN}Git remote added: $GIT_REMOTE${NC}"
         fi
     fi
 fi
@@ -443,36 +443,36 @@ fi
 # ═══════════════════════════════════════════════
 echo ""
 echo -e "${GREEN}════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}       Instalacija uspešno završena!            ${NC}"
+echo -e "${GREEN}       Installation completed successfully!      ${NC}"
 echo -e "${GREEN}════════════════════════════════════════════════${NC}"
 echo ""
-echo -e "  ${CYAN}$BUSINESS_NAME${NC} - Simple ERP Tracking"
+echo -e "  ${CYAN}$BUSINESS_NAME${NC} - Simple ERP"
 echo ""
 echo -e "${YELLOW}Server:${NC}"
-echo "  Lokalni:  http://localhost:$PORT"
+echo "  Local:    http://localhost:$PORT"
 if [ -n "$PUBLIC_URL" ]; then
-    echo "  Javni:    $PUBLIC_URL"
+    echo "  Public:   $PUBLIC_URL"
 fi
 echo ""
-echo -e "${YELLOW}Branding (dodaj slike):${NC}"
+echo -e "${YELLOW}Branding (add images):${NC}"
 echo "  Logo:         $IMG_DIR/branding/logo.png"
-echo "  Mali logo:    $IMG_DIR/branding/logo-small.png"
+echo "  Small logo:   $IMG_DIR/branding/logo-small.png"
 echo "  Favicon:      $IMG_DIR/branding/favicon.ico"
-echo "  Ili koristi:  http://localhost:$PORT/config"
+echo "  Or visit:     http://localhost:$PORT/config"
 echo ""
-echo -e "${YELLOW}Komande:${NC}"
-echo "  erp start         - Pokreni servis"
-echo "  erp stop          - Zaustavi servis"
-echo "  erp restart       - Restartuj servis"
-echo "  erp status        - Proveri status"
-echo "  erp info          - Sve informacije"
-echo "  erp logs -f       - Prati logove"
-echo "  erp config        - Konfiguracija"
-echo "  erp backup        - Ručni backup"
-echo "  erp update        - Ažuriraj iz git-a"
+echo -e "${YELLOW}Commands:${NC}"
+echo "  erp start         - Start service"
+echo "  erp stop          - Stop service"
+echo "  erp restart       - Restart service"
+echo "  erp status        - Check status"
+echo "  erp info          - All information"
+echo "  erp logs -f       - Follow logs"
+echo "  erp config        - Configuration"
+echo "  erp backup        - Manual backup"
+echo "  erp update        - Update from git"
 echo ""
 echo -e "${YELLOW}Healthcheck:${NC}"
 echo "  curl http://localhost:$PORT/health"
 echo ""
-echo -e "${GREEN}Pokreni servis sa: erp start${NC}"
+echo -e "${GREEN}Start service with: erp start${NC}"
 echo ""
