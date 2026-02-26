@@ -93,7 +93,7 @@
         </div>
 
         <div class="settings-buttons">
-            <button type="submit">💾 Sačuvaj</button>
+            <button type="submit">💾 Save</button>
         </div>
     </form>
 
@@ -130,7 +130,7 @@
         </div>
 
         <div class="settings-buttons">
-            <button type="submit">💾 Sačuvaj</button>
+            <button type="submit">💾 Save</button>
         </div>
     </form>
 
@@ -191,7 +191,7 @@
         </div>
 
         <div class="settings-buttons">
-            <button type="submit">💾 Sačuvaj boje</button>
+            <button type="submit">💾 Save colors</button>
         </div>
     </form>
 
@@ -281,7 +281,7 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
             showStatus('emailStatusMsg', 'Error saving.', false);
         }
     } catch (err) {
-        showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
+        showStatus('emailStatusMsg', 'Connection error.', false);
     }
 });
 
@@ -293,18 +293,18 @@ async function testEmail() {
         if (data.ok) showStatus('emailStatusMsg', '✅ Test email sent successfully!', true);
         else showStatus('emailStatusMsg', '❌ Error: ' + (data.error || 'Failed to send.'), false);
     } catch (err) {
-        showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
+        showStatus('emailStatusMsg', 'Connection error.', false);
     }
 }
 
 async function triggerCheck() {
-    showStatus('emailStatusMsg', 'Proveravam porudžbine...', true);
+    showStatus('emailStatusMsg', 'Checking orders...', true);
     try {
         const res = await fetch('/api/check_notifications', { method: 'POST' });
-        if (res.ok) showStatus('emailStatusMsg', '✅ Provera završena! Ako ima porudžbina sa bliskim rokom, email je poslat.', true);
-        else showStatus('emailStatusMsg', 'Greška pri proveri.', false);
+        if (res.ok) showStatus('emailStatusMsg', '✅ Verification completed! Ako ima order sa bliskim rokom, email je poslat.', true);
+        else showStatus('emailStatusMsg', 'Error checking.', false);
     } catch (err) {
-        showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
+        showStatus('emailStatusMsg', 'Connection error.', false);
     }
 }
 
@@ -348,7 +348,7 @@ async function loadAppConfig() {
         document.getElementById('sysServer').textContent = window.location.host;
         
     } catch (err) {
-        console.error('Greška pri učitavanju config:', err);
+        console.error('Error loading config:', err);
     }
 }
 
@@ -378,9 +378,9 @@ document.getElementById('businessForm').addEventListener('submit', async (e) => 
     };
     
     if (await saveConfig()) {
-        showStatus('businessStatusMsg', '✅ Business information sačuvane!', true);
+        showStatus('businessStatusMsg', '✅ Business information saved!', true);
     } else {
-        showStatus('businessStatusMsg', '❌ Greška pri čuvanju.', false);
+        showStatus('businessStatusMsg', '❌ Error saving.', false);
     }
 });
 
@@ -393,9 +393,9 @@ document.getElementById('localeForm').addEventListener('submit', async (e) => {
     };
     
     if (await saveConfig()) {
-        showStatus('localeStatusMsg', '✅ Regionalna podešavanja sačuvana!', true);
+        showStatus('localeStatusMsg', '✅ Regional settings saved!', true);
     } else {
-        showStatus('localeStatusMsg', '❌ Greška pri čuvanju.', false);
+        showStatus('localeStatusMsg', '❌ Error saving.', false);
     }
 });
 
@@ -407,9 +407,9 @@ document.getElementById('brandingForm').addEventListener('submit', async (e) => 
     appConfig.branding.secondaryColor = document.getElementById('secondaryColor').value;
     
     if (await saveConfig()) {
-        showStatus('brandingStatusMsg', '✅ Boje sačuvane!', true);
+        showStatus('brandingStatusMsg', '✅ Colors saved!', true);
     } else {
-        showStatus('brandingStatusMsg', '❌ Greška pri čuvanju.', false);
+        showStatus('brandingStatusMsg', '❌ Error saving.', false);
     }
 });
 
@@ -448,12 +448,12 @@ async function uploadBranding(type, input) {
             const previewId = type + 'Preview';
             document.getElementById(previewId).src = result.path + '?t=' + Date.now();
             document.getElementById(previewId).style.display = 'block';
-            showStatus('brandingStatusMsg', '✅ ' + type + ' uspešno uploadovan!', true);
+            showStatus('brandingStatusMsg', '✅ ' + type + ' successfully uploaded!', true);
         } else {
-            showStatus('brandingStatusMsg', '❌ Greška: ' + result.error, false);
+            showStatus('brandingStatusMsg', '❌ Error: ' + result.error, false);
         }
     } catch (err) {
-        showStatus('brandingStatusMsg', '❌ Greška pri uploadu.', false);
+        showStatus('brandingStatusMsg', '❌ Error uploading.', false);
     }
 }
 

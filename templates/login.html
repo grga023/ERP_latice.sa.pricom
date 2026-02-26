@@ -160,8 +160,8 @@
 <body>
     <div class="login-container">
         <div class="logo">
-            <h1>👋 Dobrodošli nazad</h1>
-            <p>Prijavite se na vaš nalog</p>
+            <h1>👋 Welcome back</h1>
+            <p>Login to your nalog</p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -174,7 +174,7 @@
 
         <form method="POST" action="{{ url_for('auth.login') }}">
             <div class="form-group">
-                <label for="username">Korisničko ime</label>
+                <label for="username">Username</label>
                 <input type="text" id="username" name="username" required autofocus>
             </div>
 
@@ -189,8 +189,8 @@
         <div class="divider">ili</div>
 
         <div class="links">
-            <p>Nemate nalog? <a href="{{ url_for('auth.register') }}">Registrujte se</a></p>
-            <p style="margin-top: 1rem;"><a href="{{ url_for('auth.landing') }}">← Nazad na početnu</a></p>
+            <p>Nemate nalog? <a href="{{ url_for('auth.register') }}">Register</a></p>
+            <p style="margin-top: 1rem;"><a href="{{ url_for('auth.landing') }}">← Back to home</a></p>
         </div>
     </div>
 </body>

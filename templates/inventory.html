@@ -34,7 +34,7 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Količina *</label>
+        <label class="form-label">Quantity *</label>
         <input type="number" name="quantity" min="0" value="1" class="form-input" required>
       </div>
     </div>
@@ -42,7 +42,7 @@
     <div class="form-group">
       <label class="form-label">Location</label>
       <select name="location" class="form-select">
-        <option value="Kuća">Kuća</option>
+        <option value="Home">Home</option>
         <option value="Teodora">Teodora</option>
       </select>
     </div>
@@ -78,7 +78,7 @@
         <th>Name</th>
         <th>Price</th>
         <th>Color</th>
-        <th>Količina</th>
+        <th>Quantity</th>
         <th>Location</th>
         <th>Action</th>
       </tr>
@@ -93,7 +93,7 @@
         <span class="modal-close" onclick="closeIncreaseModal()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: var(--gray); transition: color 0.2s;">&times;</span>
         
         <div class="card-header mb-3">
-          <h2 class="card-title">➕ Dodaj Količinu</h2>
+          <h2 class="card-title">➕ Add Quantity</h2>
         </div>
         
         <div class="mb-3" style="padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
@@ -105,7 +105,7 @@
             <input type="hidden" id="increaseItemId">
             
             <div class="form-group">
-              <label class="form-label">Količina za dodavanje</label>
+              <label class="form-label">Quantity to add</label>
               <input type="number" id="increaseAmount" min="1" value="1" class="form-input" required autofocus>
             </div>
             
@@ -120,7 +120,7 @@
         <span class="modal-close" onclick="closeOrderModal()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: var(--gray); transition: color 0.2s;">&times;</span>
         
         <div class="card-header mb-3">
-          <h2 class="card-title">🛍️ Kreiraj Porudžbinu</h2>
+          <h2 class="card-title">🛍️ Create Order</h2>
         </div>
         
         <div class="modal-preview mb-4" style="display: flex; gap: 1rem; padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
@@ -147,7 +147,7 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Količina</label>
+                <label class="form-label">Quantity</label>
                 <input type="number" id="modalKolicina" min="1" value="1" class="form-input" required>
               </div>
 
@@ -160,7 +160,7 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Plaćeno</label>
+              <label class="form-label">Paid</label>
               <select id="modalPlaceno" class="form-select">
                 <option value="false">Ne</option>
                 <option value="true">Da</option>
@@ -172,7 +172,7 @@
               <textarea id="modalOpis" class="form-input" rows="3" placeholder="Dodatne napomene..."></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary w-full mt-3">🚀 Kreiraj Porudžbinu</button>
+            <button type="submit" class="btn btn-primary w-full mt-3">🚀 Create Order</button>
         </form>
     </div>
 </div>
@@ -237,11 +237,11 @@ async function loadLager() {
             <td data-label="Name"><strong>${item.name}</strong></td>
             <td data-label="Price"><span style="color: var(--primary); font-weight: 600;">${item.price} RSD</span></td>
             <td data-label="Color">${item.color}</td>
-            <td data-label="Količina">${outOfStock ? '<span class="badge badge-danger">Nedostupno</span>' : '<span class="badge badge-success">' + item.quantity + '</span>'}</td>
+            <td data-label="Quantity">${outOfStock ? '<span class="badge badge-danger">Unavailable</span>' : '<span class="badge badge-success">' + item.quantity + '</span>'}</td>
             <td data-label="Location">${item.location || '-'}</td>
             <td data-label="Action">
                 <div class="btn-group">
-                    <button onclick="openOrderModal(${item.id}, '${escapedName}', ${item.price}, '${escapedColor}', '${escapedSlika}', ${item.quantity || 0})" class="btn btn-primary btn-sm">🛍️ Porudžbina</button>
+                    <button onclick="openOrderModal(${item.id}, '${escapedName}', ${item.price}, '${escapedColor}', '${escapedSlika}', ${item.quantity || 0})" class="btn btn-primary btn-sm">🛍️ Order</button>
                     <button onclick="openIncreaseModal(${item.id}, '${escapedName}', ${item.quantity || 0})" class="btn btn-secondary btn-sm">➕ Dodaj</button>
                     <button onclick="deleteLager(${item.id})" class="btn btn-danger btn-sm">🗑️</button>
                 </div>
@@ -253,14 +253,14 @@ async function loadLager() {
 
 // Delete lager item
 async function deleteLager(id) {
-    if (!confirm('Da li ste sigurni da želite da obrišete ovaj artikal?')) return;
+    if (!confirm('Are you sure you want to delete this item?')) return;
     try {
         const res = await fetch('/api/inventory/' + id, { method: 'DELETE' });
         if (res.ok) loadLager();
-        else alert('Greška pri brisanju.');
+        else alert('Error deleting.');
     } catch (err) {
         console.error(err);
-        alert('Greška pri konektovanju na server.');
+        alert('Error connecting to server.');
     }
 }
 
@@ -276,16 +276,16 @@ form.addEventListener('submit', async (e) => {
             body: formData
         });
         if (response.ok) {
-            alert('Artikal je uspešno dodat u lager!');
+            alert('Item successfully added to inventory!');
             form.reset();
             preview.style.display = 'none';
             loadLager();
         } else {
-            alert('Greška pri dodavanju u lager.');
+            alert('Error adding to inventory.');
         }
     } catch (err) {
         console.error(err);
-        alert('Greška pri konektovanju na server.');
+        alert('Error connecting to server.');
     }
 });
 
@@ -296,7 +296,7 @@ loadLager();
 function openIncreaseModal(itemId, name, currentQty) {
     document.getElementById('increaseItemId').value = itemId;
     document.getElementById('increaseName').textContent = name;
-    document.getElementById('increaseCurrentQty').textContent = 'Trenutna količina: ' + currentQty;
+    document.getElementById('increaseCurrentQty').textContent = 'Trenutna quantity: ' + currentQty;
     document.getElementById('increaseAmount').value = 1;
     document.getElementById('increaseModal').classList.add('active');
     setTimeout(() => document.getElementById('increaseAmount').focus(), 100);
@@ -318,7 +318,7 @@ document.getElementById('increaseQuantityForm').addEventListener('submit', async
     const quantity = parseInt(document.getElementById('increaseAmount').value);
     
     if (quantity <= 0) {
-        alert('Količina mora biti veća od 0!');
+        alert('Quantity must be greater than 0!');
         return;
     }
     
@@ -330,15 +330,15 @@ document.getElementById('increaseQuantityForm').addEventListener('submit', async
         });
         if (res.ok) {
             const data = await res.json();
-            alert('Količina je uspešno ažurirana! Nova količina: ' + data.new_quantity);
+            alert('Quantity was successfully updated! Nova quantity: ' + data.new_quantity);
             closeIncreaseModal();
             loadLager();
         } else {
-            alert('Greška pri ažuriranju količine.');
+            alert('Error updating quantity.');
         }
     } catch (err) {
         console.error(err);
-        alert('Greška pri konektovanju na server.');
+        alert('Error connecting to server.');
     }
 });
 
@@ -375,7 +375,7 @@ function openOrderModal(lagerId, name, price, color, image, stock) {
         document.querySelector('.modal-preview').after(warn);
     }
     if (stock <= 0) {
-        warn.textContent = '⚠️ Proizvod nedostupan na lageru! Možete kreirati porudžbinu ali se količina neće oduzeti.';
+        warn.textContent = '⚠️ Product unavailable in inventory! You can create an order ali se quantity won't be deducted.';
         warn.className = 'stock-warning stock-warning-red';
         warn.style.display = 'block';
     } else {
@@ -445,15 +445,15 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
             body: JSON.stringify(data)
         });
         if (res.ok) {
-            alert('Porudžbina je uspešno kreirana!');
+            alert('Order was successfully created!');
             closeOrderModal();
             loadLager();
         } else {
-            alert('Greška pri kreiranju porudžbine.');
+            alert('Error creating order.');
         }
     } catch (err) {
         console.error(err);
-        alert('Greška pri konektovanju na server.');
+        alert('Error connecting to server.');
     }
 });
 </script>

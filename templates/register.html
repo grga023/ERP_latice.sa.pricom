@@ -189,7 +189,7 @@
     <div class="register-container">
         <div class="logo">
             <h1>🚀 Kreirajte nalog</h1>
-            <p>Počnite da koristite ERP sistem danas</p>
+            <p>Start using the ERP system danas</p>
         </div>
 
         <div class="info-box">
@@ -206,7 +206,7 @@
 
         <form method="POST" action="{{ url_for('auth.register') }}">
             <div class="form-group">
-                <label for="username">Korisničko ime</label>
+                <label for="username">Username</label>
                 <input type="text" id="username" name="username" required autofocus minlength="3">
             </div>
 
@@ -234,8 +234,8 @@
         <div class="divider">ili</div>
 
         <div class="links">
-            <p>Već imate nalog? <a href="{{ url_for('auth.login') }}">Prijavite se</a></p>
-            <p style="margin-top: 1rem;"><a href="{{ url_for('auth.landing') }}">← Nazad na početnu</a></p>
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+            <p style="margin-top: 1rem;"><a href="{{ url_for('auth.landing') }}">← Back to home</a></p>
         </div>
     </div>
 

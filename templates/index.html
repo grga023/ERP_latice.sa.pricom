@@ -310,11 +310,11 @@ form.addEventListener('submit', async (e) => {
     } else {
       const errorData = await response.json();
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>❌</span><span>Pokušaj ponovo</span>';
+      submitBtn.innerHTML = '<span>❌</span><span>Try again</span>';
       setTimeout(() => {
-        submitBtn.innerHTML = '<span>✨</span><span>Dodaj Porudžbinu</span>';
+        submitBtn.innerHTML = '<span>✨</span><span>Add Order</span>';
       }, 2000);
-      alert('Greška pri dodavanju porudžbine: ' + (errorData.error || 'Nepoznata greška'));
+      alert('Error adding order: ' + (errorData.error || 'Unknown error'));
     }
   } catch (err) {
     console.error(err);

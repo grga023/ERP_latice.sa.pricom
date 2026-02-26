@@ -332,25 +332,25 @@
 
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
-                <h3>Izveštaji i Analitika</h3>
-                <p>Detaljni uvidi u vaše poslovanje</p>
+                <h3>Reports and Analytics</h3>
+                <p>Detailed insights into your business</p>
                 <ul>
-                    <li>Prodajni izveštaji</li>
+                    <li>Sales reports</li>
                     <li>Finansijska analiza</li>
                     <li>Grafikoni i statistike</li>
-                    <li>Export u različite formate</li>
+                    <li>Export in different formats</li>
                 </ul>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">⚙️</div>
                 <h3>Prilagodljiva Konfiguracija</h3>
-                <p>Prilagodite sistem vašim potrebama</p>
+                <p>Customize the system to your needs</p>
                 <ul>
                     <li>Branding opcije</li>
                     <li>Konfiguracija email-a</li>
                     <li>Valuta i timezone</li>
-                    <li>Korisničke postavke</li>
+                    <li>User settings</li>
                 </ul>
             </div>
         </div>
@@ -358,7 +358,7 @@
 
     <!-- Stats Section -->
     <section class="stats">
-        <h2 style="margin-bottom: 1rem; font-size: 2.5rem;">Zašto izabrati nas?</h2>
+        <h2 style="margin-bottom: 1rem; font-size: 2.5rem;">Why choose us?</h2>
         <p style="margin-bottom: 2rem; font-size: 1.2rem; opacity: 0.9;">Brojke govore same za sebe</p>
         <div class="stats-grid">
             <div class="stat-item">
@@ -371,7 +371,7 @@
             </div>
             <div class="stat-item">
                 <h3>∞</h3>
-                <p>Narudžbina</p>
+                <p>Order</p>
             </div>
             <div class="stat-item">
                 <h3>⚡</h3>
@@ -382,14 +382,14 @@
 
     <!-- CTA Section -->
     <section class="cta">
-        <h2>Spremni da počnete?</h2>
-        <p>Registrujte se danas i počnite da upravljate svojim poslovanjem profesionalnije</p>
+        <h2>Ready to get started?</h2>
+        <p>Register today i start managing svojim businessm profesionalnije</p>
         <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;">Kreiraj nalog besplatno</a>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2024-2026 {{ config.business.name if config and config.business else 'Latice sa Pričom' }}. Sva prava zadržana.</p>
+        <p>&copy; 2024-2026 {{ config.business.name if config and config.business else 'Simple ERP' }}. All rights reserved.</p>
         <p style="margin-top: 0.5rem;">Verzija {{ config.version if config and config.version else '1.0.0' }}</p>
     </footer>
 </body>

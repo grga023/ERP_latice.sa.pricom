@@ -82,7 +82,7 @@ if (!orderId) {
 async function loadOrder() {
     const res = await fetch(`/api/order/${orderId}`);
     if (!res.ok) {
-        alert('Porudžbina nije pronađena!');
+        alert('Order not found!');
         window.location.href = '/new-orders';
         return;
     }
@@ -125,14 +125,14 @@ form.addEventListener('submit', async (e) => {
         });
         
         if (response.ok) {
-            alert('Porudžbina je uspešno ažurirana!');
+            alert('Order successfully updated!');
             window.location.href = '/new-orders';
         } else {
-            alert('Greška pri ažuriranju porudžbine.');
+            alert('Error updating order.');
         }
     } catch (err) {
         console.error(err);
-        alert('Greška pri konektovanju na server.');
+        alert('Error connecting to server.');
     }
 });
 
@@ -141,39 +141,39 @@ function cancelEdit() {
 }
 
 function deleteOrder() {
-    if (confirm('Da li ste sigurni da želite da obrišete ovu porudžbinu?')) {
+    if (confirm('Are you sure you want to delete this order?')) {
         fetch(`/api/delete_order/${orderId}`, { method: 'DELETE' })
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    alert('Porudžbina je obrisana!');
+                    alert('Order deleted!');
                     window.location.href = '/new-orders';
                 } else {
-                    alert(data.error || 'Greška pri brisanju porudžbine.');
+                    alert(data.error || 'Error deleting order.');
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Greška pri konektovanju na server.');
+                alert('Error connecting to server.');
             });
     }
 }
 
 function returnToLager() {
-    if (confirm('Da li ste sigurni da želite da vratite ovu porudžbinu na lager?')) {
+    if (confirm('Are you sure you want to return this order to inventory?')) {
         fetch(`/api/return_to_lager/${orderId}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    alert('Porudžbina je vraćena na lager!');
+                    alert('Order returned to inventory!');
                     window.location.href = '/new-orders';
                 } else {
-                    alert(data.error || 'Greška pri vraćanju porudžbine na lager.');
+                    alert(data.error || 'Error returning order to inventory.');
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert('Greška pri konektovanju na server.');
+                alert('Error connecting to server.');
             });
     }
 }
