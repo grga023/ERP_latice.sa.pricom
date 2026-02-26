@@ -89,8 +89,7 @@ def create_app():
 
     @app.context_processor
     def inject_config():
-        config_file = os.paauth_bp)  # Auth mora biti prvi!
-    app.register_blueprint(th.join(DATA_DIR, 'config.json')
+        cconfig_file = os.path.join(DATA_DIR, 'config.json')
         config = {}
         if os.path.exists(config_file):
             try:
