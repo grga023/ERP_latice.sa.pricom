@@ -49,7 +49,7 @@ def add_inventory():
 
         # Validate required fields
         if not form_data.get('name'):
-            return jsonify({'error': 'Naziv je obavezan'}), 400
+            return jsonify({'error': 'Name is required'}), 400
         
         try:
             price = float(form_data.get('price', 0))
@@ -75,7 +75,7 @@ def add_inventory():
     except Exception as e:
         db.session.rollback()
         print(f"Error adding inventory item: {str(e)}")
-        return jsonify({'error': f'Greška pri dodavanju artikla: {str(e)}'}), 500
+        return jsonify({'error': f'Error adding inventory item: {str(e)}'}), 500
 
 
 @lager_bp.route('/api/inventory/<int:item_id>', methods=['DELETE'])
@@ -86,7 +86,7 @@ def delete_inventory(item_id):
     try:
         item = db.session.get(LagerItem, item_id)
         if not item:
-            return jsonify({'error': 'Artikal nije pronađen'}), 404
+            return jsonify({'error': 'Item not found'}), 404
         db.session.delete(item)
         db.session.commit()
         return jsonify({'ok': True})
@@ -104,13 +104,13 @@ def increase_quantity(item_id):
     try:
         item = db.session.get(LagerItem, item_id)
         if not item:
-            return jsonify({'error': 'Artikal nije pronađen'}), 404
+            return jsonify({'error': 'Item not found'}), 404
         
         data = request.get_json()
         increase_by = int(data.get('quantity', 0))
         
         if increase_by <= 0:
-            return jsonify({'error': 'Količina mora biti veća od 0'}), 400
+            return jsonify({'error': 'Quantity must be greater than 0'}), 400
         
         item.quantity += increase_by
         db.session.commit()

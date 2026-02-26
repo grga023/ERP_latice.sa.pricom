@@ -161,7 +161,7 @@ def create_app():
 
 
 def main():
-    parser = argparse.ArgumentParser(description='ERP Latice sa Pričom Server')
+    parser = argparse.ArgumentParser(description='Simple ERP Server')
     parser.add_argument('-p', '--port', type=int, default=None, help='Port (default: 8000)')
     parser.add_argument('-H', '--host', type=str, default='0.0.0.0', help='Host (default: 0.0.0.0)')
     parser.add_argument('-d', '--debug', action='store_true', help='Debug mode')

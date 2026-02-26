@@ -60,7 +60,7 @@ def get_all_orders():
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
         print(f"Error getting all orders: {str(e)}")
-        return jsonify({'error': f'Greška pri učitavanju porudžbina: {str(e)}'}), 500
+        return jsonify({'error': f'Error loading orders: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders/new', methods=['GET'])
@@ -71,7 +71,7 @@ def get_new_orders():
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
         print(f"Error getting new orders: {str(e)}")
-        return jsonify({'error': f'Greška pri učitavanju novih porudžbina: {str(e)}'}), 500
+        return jsonify({'error': f'Error loading new orders: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders/for_delivery', methods=['GET'])
@@ -82,7 +82,7 @@ def get_delivery_orders():
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
         print(f"Error getting delivery orders: {str(e)}")
-        return jsonify({'error': f'Greška pri učitavanju porudžbina za dostavu: {str(e)}'}), 500
+        return jsonify({'error': f'Error loading delivery orders: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders/realized', methods=['GET'])
@@ -93,7 +93,7 @@ def get_realized_orders():
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
         print(f"Error getting realized orders: {str(e)}")
-        return jsonify({'error': f'Greška pri učitavanju realizovanih porudžbina: {str(e)}'}), 500
+        return jsonify({'error': f'Error loading realized orders: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/orders', methods=['POST'])
@@ -109,14 +109,14 @@ def create_order():
 
         # Validate required fields
         if not form_data.get('name'):
-            return jsonify({'error': 'Naziv je obavezan'}), 400
+            return jsonify({'error': 'Name is required'}), 400
         if not form_data.get('customer'):
-            return jsonify({'error': 'Kupac je obavezan'}), 400
+            return jsonify({'error': 'Customer is required'}), 400
         
         try:
             price = float(form_data.get('price', 0))
         except (ValueError, TypeError):
-            return jsonify({'error': 'Cena mora biti broj'}), 400
+            return jsonify({'error': 'Price must be a number'}), 400
         
         try:
             quantity = int(form_data.get('quantity', 1))
@@ -141,7 +141,7 @@ def create_order():
     except Exception as e:
         db.session.rollback()
         print(f"Error creating order: {str(e)}")
-        return jsonify({'error': f'Greška pri kreiranju porudžbine: {str(e)}'}), 500
+        return jsonify({'error': f'Error creating order: {str(e)}'}), 500
 
 
 @orders_bp.route('/api/update_status', methods=['POST'])
@@ -150,7 +150,7 @@ def update_status():
     data = request.get_json()
     order = db.session.get(Order, data['id'])
     if not order:
-        return jsonify({'error': 'Porudžbina nije pronađena'}), 404
+        return jsonify({'error': 'Order not found'}), 404
 
     if 'paid' in data:
         order.paid = data['paid']
@@ -164,7 +164,7 @@ def update_status():
 def get_order(order_id):
     order = db.session.get(Order, order_id)
     if not order:
-        return jsonify({'error': 'Porudžbina nije pronađena'}), 404
+        return jsonify({'error': 'Order not found'}), 404
     return jsonify(order.to_dict())
 
 
@@ -173,7 +173,7 @@ def get_order(order_id):
 def delete_order(order_id):
     order = db.session.get(Order, order_id)
     if not order:
-        return jsonify({'error': 'Porudžbina nije pronađena'}), 404
+        return jsonify({'error': 'Order not found'}), 404
     db.session.delete(order)
     db.session.commit()
     return jsonify({'ok': True})
@@ -183,7 +183,7 @@ def delete_order(order_id):
 def update_order(order_id):
     order = db.session.get(Order, order_id)
     if not order:
-        return jsonify({'error': 'Porudžbina nije pronađena'}), 404
+        return jsonify({'error': 'Order not found'}), 404
 
     form_data = request.form
     order.name = form_data.get('name', order.name)

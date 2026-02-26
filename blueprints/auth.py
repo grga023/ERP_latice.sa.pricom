@@ -1,5 +1,5 @@
 """
-Auth Blueprint - Autentifikacija korisnika
+Auth Blueprint - User Authentication
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
@@ -12,7 +12,7 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/')
 def landing():
-    """Landing page - prikazuje se ako korisnik nije ulogovan"""
+    """Landing page - shown if user is not logged in"""
     if current_user.is_authenticated:
         return redirect(url_for('orders.dashboard'))
     return render_template('landing.html')
@@ -20,7 +20,7 @@ def landing():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Login stranica"""
+    """Login page"""
     if current_user.is_authenticated:
         return redirect(url_for('orders.index'))
     
@@ -35,7 +35,7 @@ def login():
             next_page = request.args.get('next')
             return redirect(next_page if next_page else url_for('orders.dashboard'))
         else:
-            flash('Pogrešno korisničko ime ili lozinka!', 'error')
+            flash('Incorrect username or password!', 'error')
     
     return render_template('login.html')
 
@@ -43,14 +43,14 @@ def login():
 @auth_bp.route('/logout')
 @login_required
 def logout():
-    """Logout korisnika"""
+    """Logout user"""
     logout_user()
     return redirect(url_for('auth.landing'))
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    """Registracija novog korisnika"""
+    """Register new user"""
     if current_user.is_authenticated:
         return redirect(url_for('orders.index'))
     
@@ -60,25 +60,25 @@ def register():
         password = request.form.get('password')
         password_confirm = request.form.get('password_confirm')
         
-        # Validacija
+        # Validation
         if not username or not email or not password:
-            flash('Sva polja su obavezna!', 'error')
+            flash('All fields are required!', 'error')
             return render_template('register.html')
         
         if password != password_confirm:
-            flash('Lozinke se ne podudaraju!', 'error')
+            flash('Passwords do not match!', 'error')
             return render_template('register.html')
         
         # Check if user already exists
         if User.query.filter_by(username=username).first():
-            flash('Korisničko ime već postoji!', 'error')
+            flash('Username already exists!', 'error')
             return render_template('register.html')
         
         if User.query.filter_by(email=email).first():
-            flash('Email već postoji!', 'error')
+            flash('Email already exists!', 'error')
             return render_template('register.html')
         
-        # Kreiraj novog korisnika
+        # Create new user
         user = User(
             username=username,
             email=email,
@@ -86,14 +86,14 @@ def register():
         )
         user.set_password(password)
         
-        # Prvi korisnik je automatski admin
+        # First user is automatically admin
         if User.query.count() == 0:
             user.is_admin = True
         
         db.session.add(user)
         db.session.commit()
         
-        flash('Registracija uspešna! Možete se ulogovati.', 'success')
+        flash('Registration successful! You can now login.', 'success')
         return redirect(url_for('auth.login'))
     
     return render_template('register.html')
@@ -102,5 +102,5 @@ def register():
 @auth_bp.route('/api/user/profile')
 @login_required
 def user_profile():
-    """API endpoint za user profile"""
+    """API endpoint for user profile"""
     return jsonify(current_user.to_dict())
