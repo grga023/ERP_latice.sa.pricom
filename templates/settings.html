@@ -1,30 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Podešavanja{% endblock %}
+{% block title %}Settings{% endblock %}
 
 {% block content %}
 <div class="container">
-<h1>⚙ Podešavanja</h1>
+<h1>⚙ Settings</h1>
 
 <!-- ═══════════════════════════════════════════════
-     EMAIL NOTIFIKACIJE (tvoj originalni deo)
+     EMAIL NOTIFICATIONS
      ═══════════════════════════════════════════════ -->
 <div class="settings-card">
-    <h2>📧 Email notifikacije</h2>
-    <p class="settings-desc">Primaćeš email obaveštenje kada porudžbina ima rok u narednih N dana. Koristiš Gmail sa App Password-om.</p>
+    <h2>📧 Email Notifications</h2>
+    <p class="settings-desc">You will receive email notifications when an order has a deadline within the next N days. Use Gmail with App Password.</p>
 
     <form id="emailForm" class="settings-form">
         <div class="form-field">
-            <label>Notifikacije:</label>
+            <label>Notifications:</label>
             <select id="emailEnabled">
-                <option value="false">Isključeno</option>
-                <option value="true">Uključeno</option>
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
             </select>
         </div>
 
         <div class="form-field">
-            <label>Gmail za slanje:</label>
-            <input type="email" id="senderEmail" placeholder="tvoj.email@gmail.com" required>
+            <label>Gmail for sending:</label>
+            <input type="email" id="senderEmail" placeholder="your.email@gmail.com" required>
         </div>
 
         <div class="form-field">
@@ -34,20 +34,20 @@
         </div>
 
         <div class="form-field">
-            <label>Primaoc (email):</label>
+            <label>Recipient (email):</label>
             <input type="text" id="receiverEmail" placeholder="email1@gmail.com, email2@gmail.com" required>
-            <small style="color: var(--text-secondary);">Više adresa razdvoji zarezom</small>
+            <small style="color: var(--text-secondary);">Separate multiple addresses with commas</small>
         </div>
 
         <div class="form-field">
-            <label>Dana pre roka:</label>
+            <label>Days before deadline:</label>
             <input type="number" id="daysBefore" min="1" max="14" value="2">
         </div>
 
         <div class="settings-buttons">
-            <button type="submit">💾 Sačuvaj</button>
+            <button type="submit">💾 Save</button>
             <button type="button" onclick="testEmail()">📨 Test Email</button>
-            <button type="button" onclick="triggerCheck()">🔔 Proveri sad</button>
+            <button type="button" onclick="triggerCheck()">🔔 Check Now</button>
         </div>
     </form>
 
@@ -58,7 +58,7 @@
      PODEŠAVANJA BIZNISA
      ═══════════════════════════════════════════════ -->
 <div class="settings-card" style="margin-top: 30px;">
-    <h2>🏢 Informacije o biznisu</h2>
+    <h2>🏢 Business information</h2>
     <p class="settings-desc">Osnovne informacije koje se prikazuju u aplikaciji.</p>
 
     <form id="businessForm" class="settings-form">
@@ -104,7 +104,7 @@
      REGIONALNA PODEŠAVANJA
      ═══════════════════════════════════════════════ -->
 <div class="settings-card" style="margin-top: 30px;">
-    <h2>🌍 Regionalna podešavanja</h2>
+    <h2>🌐 Regional Settings</h2>
     <p class="settings-desc">Valuta i vremenska zona.</p>
 
     <form id="localeForm" class="settings-form">
@@ -249,10 +249,10 @@ async function loadEmailConfig() {
         document.getElementById('receiverEmail').value = config.receiver_email || '';
         document.getElementById('daysBefore').value = config.days_before || 2;
         if (config.has_password) {
-            document.getElementById('passwordHint').textContent = '✅ Password je sačuvan. Ostavi prazno ako ne menjaš.';
+            document.getElementById('passwordHint').textContent = '✅ Password is saved. Leave empty if you are not changing it.';
         }
     } catch (err) {
-        console.error('Greška pri učitavanju email config:', err);
+        console.error('Error loading email config:', err);
     }
 }
 
@@ -274,11 +274,11 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
             body: JSON.stringify(data)
         });
         if (res.ok) {
-            showStatus('emailStatusMsg', 'Podešavanja su sačuvana!', true);
+            showStatus('emailStatusMsg', 'Settings saved!', true);
             document.getElementById('appPassword').value = '';
             loadEmailConfig();
         } else {
-            showStatus('emailStatusMsg', 'Greška pri čuvanju.', false);
+            showStatus('emailStatusMsg', 'Error saving.', false);
         }
     } catch (err) {
         showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
@@ -290,8 +290,8 @@ async function testEmail() {
     try {
         const res = await fetch('/api/test_email', { method: 'POST' });
         const data = await res.json();
-        if (data.ok) showStatus('emailStatusMsg', '✅ Test email je uspešno poslat!', true);
-        else showStatus('emailStatusMsg', '❌ Greška: ' + (data.error || 'Neuspelo slanje.'), false);
+        if (data.ok) showStatus('emailStatusMsg', '✅ Test email sent successfully!', true);
+        else showStatus('emailStatusMsg', '❌ Error: ' + (data.error || 'Failed to send.'), false);
     } catch (err) {
         showStatus('emailStatusMsg', 'Greška pri konekciji.', false);
     }
@@ -378,7 +378,7 @@ document.getElementById('businessForm').addEventListener('submit', async (e) => 
     };
     
     if (await saveConfig()) {
-        showStatus('businessStatusMsg', '✅ Informacije o biznisu sačuvane!', true);
+        showStatus('businessStatusMsg', '✅ Business information sačuvane!', true);
     } else {
         showStatus('businessStatusMsg', '❌ Greška pri čuvanju.', false);
     }
