@@ -33,16 +33,16 @@ done
 
 # Ako branch nije prosleđen kao argument, pokušaj detektovati
 if [ -z "$CURRENT_BRANCH" ]; then
-    # Pokušaj da pronađeš najnoviji tag sa "_stable" u imenu
+    # Pokušaj da pronađeš najnoviji tag sa "_stabile" u imenu
     if command -v git &>/dev/null; then
-        STABLE_TAG=$(git ls-remote --tags "$GIT_REPO" | grep "_stable" | tail -1 | awk '{print $2}' | sed 's|refs/tags/||' | sed 's/\^{}//' 2>/dev/null || echo "")
+        STABLE_TAG=$(git ls-remote --tags "$GIT_REPO" | grep "_stabile" | tail -1 | awk '{print $2}' | sed 's|refs/tags/||' | sed 's/\^{}//' 2>/dev/null || echo "")
         if [ -n "$STABLE_TAG" ]; then
             CURRENT_BRANCH="$STABLE_TAG"
         else
-            CURRENT_BRANCH="main"
+            CURRENT_BRANCH="master"
         fi
     else
-        CURRENT_BRANCH="main"
+        CURRENT_BRANCH="master"
     fi
 fi
 
@@ -57,7 +57,7 @@ echo -e "${CYAN}Instalacija Simple ERP Tracking - Branch/Tag: ${CURRENT_BRANCH}$
 #    bash <(curl -sSL https://raw.githubusercontent.com/grga023/ERP_latice.sa.pricom/installation/install.sh)
 #
 # 2. DOWNLOAD MODE - sa custom grane/tag-a:
-#    bash <(curl -sSL https://raw.githubusercontent.com/grga023/ERP_latice.sa.pricom/installation/install.sh) -b v1.0.0_stable
+#    bash <(curl -sSL https://raw.githubusercontent.com/grga023/ERP_latice.sa.pricom/installation/install.sh) -b v3.0_stabile
 #
 # 3. LOKALNI MODE (izvršava se iz kloniranog repozitorijuma):
 #    git clone https://github.com/grga023/ERP_latice.sa.pricom.git
