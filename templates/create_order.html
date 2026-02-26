@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Kreiranje Porudžbine{% endblock %}
+{% block title %}Create Order{% endblock %}
 
 {% block head_extra %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -9,8 +9,8 @@
 
 {% block content %}
 <div class="page-header mb-4">
-  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">➕ Kreiranje Porudžbine</h1>
-  <p style="color: #4a4a4a; font-size: 1.1rem;">Dodajte novu porudžbinu u sistem</p>
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">➕ Create Order</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Add a new order to the system</p>
 </div>
 
 <!-- Stats Cards (Optional - uncomment when stats API is ready) -->
@@ -19,22 +19,22 @@
   <div class="stat-card">
     <div class="stat-icon">📋</div>
     <div class="stat-value">24</div>
-    <div class="stat-label">Nove Porudžbine</div>
+    <div class="stat-label">New Orders</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">🚚</div>
     <div class="stat-value">12</div>
-    <div class="stat-label">Za Dostavu</div>
+    <div class="stat-label">For Delivery</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">✅</div>
     <div class="stat-value">156</div>
-    <div class="stat-label">Realizovano</div>
+    <div class="stat-label">Completed</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">💰</div>
     <div class="stat-value">45.2k</div>
-    <div class="stat-label">Ukupna Zarada</div>
+    <div class="stat-label">Total Revenue</div>
   </div>
 </div>
 -->
@@ -42,19 +42,19 @@
 <!-- Main Form Card -->
 <div class="form-container fade-in">
   <div class="card-header mb-4">
-    <h2 class="card-title">➕ Nova Porudžbina</h2>
+    <h2 class="card-title">➕ New Order</h2>
   </div>
 
   <form id="orderForm" enctype="multipart/form-data">
-    <!-- Row 1: Naziv i Cena -->
+    <!-- Row 1: Name and Price -->
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Naziv proizvoda *</label>
-        <input type="text" name="name" class="form-input" placeholder="Unesite name proizvoda" required>
+        <label class="form-label">Product name *</label>
+        <input type="text" name="name" class="form-input" placeholder="Enter product name" required>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Cena (po jedinici) *</label>
+        <label class="form-label">Price (per unit) *</label>
         <input type="number" name="price" step="0.01" class="form-input" placeholder="0.00" required>
       </div>
     </div>
@@ -62,22 +62,22 @@
     <!-- Row 2: Paid and Customer -->
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Plaćeno</label>
+        <label class="form-label">Paid</label>
         <select name="paid" class="form-select">
-          <option value="false">❌ Ne</option>
-          <option value="true">✅ Da</option>
+          <option value="false">❌ No</option>
+          <option value="true">✅ Yes</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label class="form-label" style="font-weight: 700;">Kupac *</label>
-        <input type="text" name="customer" class="form-input" placeholder="Ime kupca" required>
+        <label class="form-label" style="font-weight: 700;">Customer *</label>
+        <input type="text" name="customer" class="form-input" placeholder="Customer name" required>
       </div>
     </div>
 
-    <!-- Row 3: Datum -->
+    <!-- Row 3: Delivery Date -->
     <div class="form-group">
-      <label class="form-label">Datum isporuke *</label>
+      <label class="form-label">Delivery date *</label>
       <div style="overflow: hidden; width: 100%; max-width: 100%;">
         <input type="date" id="datepicker" name="date" class="form-input" required style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0; font-size: 14px;">
       </div>
@@ -85,41 +85,41 @@
 
     <!-- Combinations of color and quantity -->
     <div class="form-group">
-      <label class="form-label">Količina i boje</label>
+      <label class="form-label">Quantity and colors</label>
       <div id="kombinacije-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
         <div class="kombinacija-row">
-          <input type="number" class="quantity form-input" min="1" value="1" placeholder="Količina" required>
-          <input type="text" class="color form-input" value="razno" placeholder="Boja" required>
+          <input type="number" class="quantity form-input" min="1" value="1" placeholder="Quantity" required>
+          <input type="text" class="color form-input" value="various" placeholder="Color" required>
           <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
-          <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
+          <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Add</button>
         </div>
       </div>
     </div>
 
-    <!-- Dodatna poruka -->
+    <!-- Additional notes -->
     <div class="form-group">
-      <label class="form-label">Dodatne napomene</label>
-      <textarea id="customMessage" name="customMessage" class="form-textarea" placeholder="Unesite dodatne detalje, napomene ili specijalne zahteve..."></textarea>
+      <label class="form-label">Additional notes</label>
+      <textarea id="customMessage" name="customMessage" class="form-textarea" placeholder="Enter additional details, notes or special requests..."></textarea>
     </div>
 
     <!-- Hidden field for formatted description -->
     <input type="hidden" name="description" id="descriptionField">
 
-    <!-- Slika Upload -->
+    <!-- Product Image Upload -->
     <div class="form-group">
-      <label class="form-label">Slika proizvoda</label>
+      <label class="form-label">Product image</label>
       <div id="pasteArea" class="image-upload" style="position: relative;">
         <input type="file" id="fileInput" name="image" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
-        <p style="margin: 0; font-weight: 500; color: var(--gray);">📎 Kliknite da odaberete ili pritisnite CTRL+V</p>
+        <p style="margin: 0; font-weight: 500; color: var(--gray);">📎 Click to select or press CTRL+V</p>
       </div>
-      <img id="preview" class="image-preview mt-3" alt="Preview slike" style="display: none;">
+      <img id="preview" class="image-preview mt-3" alt="Image preview" style="display: none;">
     </div>
 
     <!-- Submit Button -->
     <div class="btn-group mt-4">
       <button type="submit" class="btn btn-primary btn-lg w-full">
         <span>✨</span>
-        <span>Dodaj Porudžbinu</span>
+        <span>Add Order</span>
       </button>
     </div>
   </form>
@@ -130,25 +130,25 @@
   <a href="/dashboard" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
     <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Dashboard</h3>
-    <p style="color: var(--gray); margin: 0;">Vrati se na dashboard</p>
+    <p style=\"color: var(--gray); margin: 0;\">Return to dashboard</p>
   </a>
 
   <a href="/new-orders" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
-    <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Nove Porudžbine</h3>
-    <p style="color: var(--gray); margin: 0;">Pregledaj nove porudžbine</p>
+    <h3 class=\"gradient-text\" style=\"margin-bottom: 0.5rem;\">New Orders</h3>
+    <p style=\"color: var(--gray); margin: 0;\">View new orders</p>
   </a>
 
   <a href="/for-delivery" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">🚚</div>
-    <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Za Dostavu</h3>
-    <p style="color: var(--gray); margin: 0;">Pogledaj porudžbine za dostavu</p>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem;">For Delivery</h3>
+    <p style="color: var(--gray); margin: 0;">View delivery orders</p>
   </a>
 
   <a href="/inventory" class="card text-center" style="text-decoration: none; color: inherit;">
     <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
-    <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Lager</h3>
-    <p style="color: var(--gray); margin: 0;">Upravljaj zalihama</p>
+    <h3 class="gradient-text" style="margin-bottom: 0.5rem;">Inventory</h3>
+    <p style="color: var(--gray); margin: 0;">Manage stock</p>
   </a>
 </div>
 
@@ -236,7 +236,7 @@ function formatCombinations() {
   
   const customMessage = document.getElementById('customMessage').value.trim();
   if (customMessage) {
-    formatted += 'Detalji: ' + customMessage + '\r\n';
+    formatted += 'Details: ' + customMessage + '\r\n';
   }
   
   document.querySelector('#descriptionField').value = formatted;
@@ -287,7 +287,7 @@ form.addEventListener('submit', async (e) => {
   try {
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span>⏳</span><span>Dodavanje...</span>';
+    submitBtn.innerHTML = '<span>⏳</span><span>Adding...</span>';
 
     const response = await fetch('/api/orders', {
       method: 'POST',
@@ -296,41 +296,41 @@ form.addEventListener('submit', async (e) => {
 
     if (response.ok) {
       // Success animation
-      submitBtn.innerHTML = '<span>✅</span><span>Uspešno!</span>';
+      submitBtn.innerHTML = '<span>✅</span><span>Success!</span>';
       setTimeout(() => {
-        alert('Porudžbina je uspešno dodana!');
+        alert('Order has been successfully added!');
         form.reset();
         preview.style.display = 'none';
-        // Reset kombinacije
+        // Reset quantities
         document.getElementById('kombinacije-container').innerHTML = `
           <div class="kombinacija-row">
-            <input type="number" class="quantity form-input" min="1" value="1" placeholder="Količina" required>
-            <input type="text" class="color form-input" value="razno" placeholder="Boja" required>
+            <input type="number" class="quantity form-input" min="1" value="1" placeholder="Quantity" required>
+            <input type="text" class="color form-input" value="various" placeholder="Color" required>
             <button type="button" class="btn btn-danger btn-sm btn-remove" onclick="removeCombination(this)">×</button>
-            <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Dodaj</button>
+            <button type="button" class="btn btn-success btn-sm btn-add" onclick="addCombination()">+ Add</button>
           </div>
         `;
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span>✨</span><span>Dodaj Porudžbinu</span>';
+        submitBtn.innerHTML = '<span>✨</span><span>Add Order</span>';
       }, 1000);
     } else {
       const errorData = await response.json();
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span>❌</span><span>Pokušaj ponovo</span>';
+      submitBtn.innerHTML = '<span>❌</span><span>Try again</span>';
       setTimeout(() => {
-        submitBtn.innerHTML = '<span>✨</span><span>Dodaj Porudžbinu</span>';
+        submitBtn.innerHTML = '<span>✨</span><span>Add Order</span>';
       }, 2000);
-      alert('Greška pri dodavanju porudžbine: ' + (errorData.error || 'Nepoznata greška'));
+      alert('Error adding order: ' + (errorData.error || 'Unknown error'));
     }
   } catch (err) {
     console.error(err);
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<span>❌</span><span>Pokušaj ponovo</span>';
+    submitBtn.innerHTML = '<span>❌</span><span>Try again</span>';
     setTimeout(() => {
-      submitBtn.innerHTML = '<span>✨</span><span>Dodaj Porudžbinu</span>';
+      submitBtn.innerHTML = '<span>✨</span><span>Add Order</span>';
     }, 2000);
-    alert('Greška pri konektovanju na server: ' + err.message);
+    alert('Error connecting to server: ' + err.message);
   }
 });
 
