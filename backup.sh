@@ -11,14 +11,14 @@ CONFIG_FILE="$SCRIPT_DIR/.erp.conf"
 if [ -f "$CONFIG_FILE" ]; then
     source "$CONFIG_FILE"
 else
-    echo "GREŠKA: Config fajl nije pronađen: $CONFIG_FILE"
+    echo "ERROR: Config file not found: $CONFIG_FILE"
     exit 1
 fi
 
 LOG_DIR="$DATA_DIR/logs"
 LOG_FILE="$LOG_DIR/backup.log"
 
-# Kreiraj logs dir ako ne postoji
+# Create logs dir if it doesn't exist
 mkdir -p "$LOG_DIR"
 
 echo "=== Backup started: $(date) ===" >> "$LOG_FILE"
