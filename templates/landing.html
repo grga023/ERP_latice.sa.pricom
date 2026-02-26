@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config.business.name if config and config.business else 'Latice sa Pričom' }} - ERP Sistem</title>
+    <title>{{ config.business.name if config and config.business else 'Simple ERP' }} - ERP System</title>
     <style>
         * {
             margin: 0;
@@ -256,77 +256,77 @@
     <!-- Navbar -->
     <nav class="navbar">
         <a href="/" class="logo">
-            {{ config.business.shortName if config and config.business else 'Latice sa Pričom' }}
+            {{ config.business.shortName if config and config.business else 'Simple ERP' }}
         </a>
         <div class="nav-buttons">
-            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Prijavi se</a>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Registruj se</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Sign In</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Register</a>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <section class="hero">
-        <h1>Upravljajte svojim poslom lakše nego ikad</h1>
-        <p>Kompletan ERP sistem za upravljanje narudžbinama, skladištem i klijentima. Sve na jednom mestu, jednostavno i efikasno.</p>
+        <h1>Manage your business easier than ever</h1>
+        <p>Complete ERP system for managing orders, inventory and clients. Everything in one place, simple and efficient.</p>
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Počni besplatno</a>
-            <a href="#features" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Saznaj više</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Start for free</a>
+            <a href="#features" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Learn more</a>
         </div>
     </section>
 
     <!-- Features Section -->
     <section class="features" id="features">
         <div class="features-header">
-            <h2>Sve što vam treba na jednom mestu</h2>
-            <p>Naš ERP sistem vam omogućava potpunu kontrolu nad vašim poslovanjem</p>
+            <h2>Everything you need in one place</h2>
+            <p>Our ERP system gives you complete control over your business</p>
         </div>
 
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">📦</div>
-                <h3>Upravljanje Narudžbinama</h3>
-                <p>Brzo i jednostavno dodavanje, praćenje i upravljanje narudžbinama</p>
+                <h3>Order Management</h3>
+                <p>Quick and simple adding, tracking and order management</p>
                 <ul>
-                    <li>Kreiranje novih narudžbina</li>
-                    <li>Praćenje statusa dostave</li>
-                    <li>Evidencija plaćanja</li>
-                    <li>Detaljna istorija</li>
+                    <li>Create new orders</li>
+                    <li>Track delivery status</li>
+                    <li>Payment records</li>
+                    <li>Detailed history</li>
                 </ul>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">🏭</div>
-                <h3>Skladišno Poslovanje</h3>
-                <p>Potpuna kontrola nad zalihama i inventarom</p>
+                <h3>Inventory Management</h3>
+                <p>Complete control over stock and inventory</p>
                 <ul>
-                    <li>Praćenje stanja zaliha</li>
-                    <li>Lokacije proizvoda</li>
-                    <li>Automatska sinkronizacija</li>
-                    <li>Upozorenja o niskim zalihama</li>
+                    <li>Track stock levels</li>
+                    <li>Product locations</li>
+                    <li>Automatic synchronization</li>
+                    <li>Low stock alerts</li>
                 </ul>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">👥</div>
-                <h3>Evidencija Klijenata</h3>
-                <p>Kompletna baza podataka o kupcima</p>
+                <h3>Customer Records</h3>
+                <p>Complete customer database</p>
                 <ul>
-                    <li>Kontakt informacije</li>
-                    <li>Istorija kupovina</li>
-                    <li>Analiza ponašanja</li>
-                    <li>Personalizovana komunikacija</li>
+                    <li>Contact information</li>
+                    <li>Purchase history</li>
+                    <li>Behavior analysis</li>
+                    <li>Personalized communication</li>
                 </ul>
             </div>
 
             <div class="feature-card">
                 <div class="feature-icon">📧</div>
-                <h3>Email Notifikacije</h3>
-                <p>Automatsko obaveštavanje o važnim događajima</p>
+                <h3>Email Notifications</h3>
+                <p>Automatic notifications for important events</p>
                 <ul>
-                    <li>Nadolazeće dostave</li>
-                    <li>Niske zalihe</li>
-                    <li>Nova porudžbina</li>
-                    <li>Prilagodljivi šabloni</li>
+                    <li>Upcoming deliveries</li>
+                    <li>Low stock</li>
+                    <li>New order</li>
+                    <li>Customizable templates</li>
                 </ul>
             </div>
 
