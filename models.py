@@ -45,7 +45,7 @@ class Order(db.Model):
     description = db.Column(db.Text, default='')
     image = db.Column(db.String(300), default='')
     status = db.Column(db.String(20), nullable=False, default='new')
-    lager_id = db.Column(db.Integer, db.ForeignKey('lager.id'), nullable=True)
+    inventory_id = db.Column(db.Integer, db.ForeignKey('inventory.id'), nullable=True)
 
     def to_dict(self):
         return {
@@ -60,12 +60,12 @@ class Order(db.Model):
             'description': self.description,
             'image': self.image,
             'status': self.status,
-            'lager_id': self.lager_id
+            'inventory_id': self.inventory_id
         }
 
 
-class LagerItem(db.Model):
-    __tablename__ = 'lager'
+class InventoryItem(db.Model):
+    __tablename__ = 'inventory'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
