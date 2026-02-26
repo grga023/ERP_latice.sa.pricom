@@ -224,6 +224,161 @@ def cmd_port(args):
     else:
         print("Restartuj servis ručno sa: erp restart")
 
+def cmd_backup(args):
+    """Pokreni backup ručno"""
+    backup_script = SCRIPT_DIR / "backup.sh"
+    
+    if not backup_script.exists():
+        print(f"GREŠKA: Backup skripta nije pronađena: {backup_script}")
+        sys.exit(1)
+    
+    print("Pokretanje backup-a...")
+    print(f"  INSTALL_DIR: {CONFIG.get('INSTALL_DIR', 'N/A')}")
+    print(f"  DATA_DIR:    {CONFIG.get('DATA_DIR', 'N/A')}")
+    print("")
+    
+    if args.verbose:
+        result = subprocess.run(["bash", str(backup_script)])
+    else:
+        result = subprocess.run(["bash", str(backup_script)], capture_output=True)
+    
+    if result.returncode == 0:
+        print("✓ Backup uspešno završen.")
+        log_file = Path(CONFIG.get('DATA_DIR', '')) / "logs" / "backup.log"
+        print(f"  Log: {log_file}")
+    else:
+        print("✗ Backup nije uspeo.")
+        if not args.verbose:
+            print("Pokreni sa -v za više detalja.")
+            # Prikaži error ako postoji
+            if result.stderr:
+                print(f"\nGreška:\n{result.stderr.decode()}")
+        sys.exit(1)
+
+def cmd_health(args):
+    """Proveri health status servera"""
+    import urllib.request
+    import urllib.error
+    
+    port = CONFIG.get('PORT', '8000')
+    url = f"http://localhost:{port}/health"
+    
+    try:
+        with urllib.request.urlopen(url, timeout=5) as response:
+            print(f"✓ Server je ZDRAV")
+            print(f"  URL: {url}")
+            print(f"  Status: {response.status}")
+            if args.verbose:
+                print(f"  Response: {response.read().decode()}")
+    except urllib.error.URLError as e:
+        print(f"✗ Server nije dostupan")
+        print(f"  URL: {url}")
+        print(f"  Greška: {e.reason}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"✗ Greška: {e}")
+        sys.exit(1)
+
+
+def cmd_info(args):
+    """Prikaži sve informacije o instalaciji"""
+    print("ERP Latice sa Pričom - Info")
+    print("=" * 50)
+    print(f"\n📁 Putanje:")
+    print(f"   Instalacija:  {CONFIG.get('INSTALL_DIR', 'N/A')}")
+    print(f"   Data:         {CONFIG.get('DATA_DIR', 'N/A')}")
+    print(f"   Slike:        {CONFIG.get('IMG_DIR', 'N/A')}")
+    
+    print(f"\n🌐 Server:")
+    print(f"   Host:         {CONFIG.get('HOST', '0.0.0.0')}")
+    print(f"   Port:         {CONFIG.get('PORT', '8000')}")
+    print(f"   URL:          http://localhost:{CONFIG.get('PORT', '8000')}")
+    
+    print(f"\n📋 Verzija:")
+    print(f"   Verzija:      {CONFIG.get('VERSION', 'N/A')}")
+    print(f"   Instalirano:  {CONFIG.get('INSTALLED_DATE', 'N/A')}")
+    
+    # Disk usage
+    data_dir = CONFIG.get('DATA_DIR', '')
+    if data_dir and os.path.exists(data_dir):
+        result = subprocess.run(['du', '-sh', data_dir], capture_output=True, text=True)
+        if result.returncode == 0:
+            size = result.stdout.split()[0]
+            print(f"\n💾 Disk:")
+            print(f"   Data folder:  {size}")
+    
+    # Cron status
+    print(f"\n⏰ Backup:")
+    result = subprocess.run(['crontab', '-l'], capture_output=True, text=True)
+    if 'backup.sh' in result.stdout:
+        print(f"   Cron:         ✓ Aktivan (3:00 AM)")
+    else:
+        print(f"   Cron:         ✗ Nije podešen")
+
+
+def cmd_update(args):
+    """Ažuriraj aplikaciju iz git-a"""
+    install_dir = SCRIPT_DIR
+    
+    print("Ažuriranje ERP aplikacije...")
+    
+    # Zaustavi servis
+    print("  Zaustavljanje servisa...")
+    subprocess.run(["sudo", "systemctl", "stop", "erp-latice"], stderr=subprocess.DEVNULL)
+    
+    # Git pull
+    print("  Preuzimanje ažuriranja...")
+    result = subprocess.run(["git", "pull"], cwd=str(install_dir), capture_output=True, text=True)
+    
+    if result.returncode != 0:
+        print(f"✗ Git pull nije uspeo: {result.stderr}")
+        subprocess.run(["sudo", "systemctl", "start", "erp-latice"])
+        sys.exit(1)
+    
+    print(result.stdout)
+    
+    # Ažuriraj dependencies
+    print("  Ažuriranje Python paketa...")
+    venv_pip = install_dir / "venv" / "bin" / "pip"
+    req_file = install_dir / "requirements.txt"
+    if req_file.exists():
+        subprocess.run([str(venv_pip), "install", "-r", str(req_file)], capture_output=not args.verbose)
+    
+    # Pokreni servis
+    print("  Pokretanje servisa...")
+    subprocess.run(["sudo", "systemctl", "start", "erp-latice"])
+    
+    print("✓ Ažuriranje završeno.")
+
+
+def cmd_db(args):
+    """Database operacije"""
+    data_dir = Path(CONFIG.get('DATA_DIR', ''))
+    db_file = data_dir / 'erp.db'
+    
+    if args.action == 'info':
+        if db_file.exists():
+            size = db_file.stat().st_size / (1024 * 1024)  # MB
+            print(f"Database: {db_file}")
+            print(f"Veličina: {size:.2f} MB")
+        else:
+            print("Database ne postoji.")
+    
+    elif args.action == 'backup':
+        if db_file.exists():
+            backup_file = data_dir / f"erp_backup_{subprocess.run(['date', '+%Y%m%d_%H%M%S'], capture_output=True, text=True).stdout.strip()}.db"
+            subprocess.run(['cp', str(db_file), str(backup_file)])
+            print(f"✓ Backup kreiran: {backup_file}")
+        else:
+            print("Database ne postoji.")
+    
+    elif args.action == 'vacuum':
+        print("Optimizacija baze...")
+        venv_python = SCRIPT_DIR / "venv" / "bin" / "python"
+        subprocess.run([
+            str(venv_python), '-c',
+            f"import sqlite3; c=sqlite3.connect('{db_file}'); c.execute('VACUUM'); c.close(); print('✓ VACUUM završen')"
+        ])
 
 def main():
     parser = argparse.ArgumentParser(
@@ -231,15 +386,17 @@ def main():
         description='ERP Latice sa Pričom - CLI',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Primeri:
-  erp status          Proveri status aplikacije i servisa
-  erp start           Pokreni kao systemd servis
-  erp start -f        Pokreni u terminalu (foreground)
-  erp stop            Zaustavi servis
-  erp restart         Restartuj servis
-  erp logs -f         Prati aplikacijske logove
-  erp logs -s -f      Prati systemd journal
-  erp config --edit   Edituj konfiguraciju
+            Primeri:
+            erp status          Proveri status aplikacije i servisa
+            erp start           Pokreni kao systemd servis
+            erp start -f        Pokreni u terminalu (foreground)
+            erp stop            Zaustavi servis
+            erp restart         Restartuj servis
+            erp logs -f         Prati aplikacijske logove
+            erp config --edit   Edituj konfiguraciju
+            erp health          Proveri da li server radi
+            erp backup          Ručni backup
+            erp update          Ažuriraj iz git-a
         """
     )
     
@@ -247,6 +404,13 @@ Primeri:
     
     # status
     subparsers.add_parser('status', help='Proveri status')
+    
+    # info
+    subparsers.add_parser('info', help='Prikaži sve informacije')
+    
+    # health
+    health_parser = subparsers.add_parser('health', help='Proveri health servera')
+    health_parser.add_argument('-v', '--verbose', action='store_true', help='Prikaži response')
     
     # start
     start_parser = subparsers.add_parser('start', help='Pokreni aplikaciju')
@@ -272,37 +436,54 @@ Primeri:
     config_parser.add_argument('--show', action='store_true', help='Prikaži config fajl')
     config_parser.add_argument('--edit', action='store_true', help='Edituj config')
     
+    # port
+    port_parser = subparsers.add_parser('port', help='Prikaži ili promeni port')
+    port_parser.add_argument('port', nargs='?', help='Novi port (npr. 9000)')
+    
+    # backup
+    backup_parser = subparsers.add_parser('backup', help='Pokreni backup ručno')
+    backup_parser.add_argument('-v', '--verbose', action='store_true', help='Prikaži detalje')
+    
+    # update
+    update_parser = subparsers.add_parser('update', help='Ažuriraj aplikaciju iz git-a')
+    update_parser.add_argument('-v', '--verbose', action='store_true', help='Prikaži detalje')
+    
+    # db
+    db_parser = subparsers.add_parser('db', help='Database operacije')
+    db_parser.add_argument('action', choices=['info', 'backup', 'vacuum'], 
+                           help='info/backup/vacuum')
+    
     # enable/disable autostart
     subparsers.add_parser('enable', help='Uključi autostart na boot')
     subparsers.add_parser('disable', help='Isključi autostart')
     
     # uninstall
     subparsers.add_parser('uninstall', help='Deinstaliraj aplikaciju')
-
-    # port
-    port_parser = subparsers.add_parser('port', help='Prikaži ili promeni port')
-    port_parser.add_argument('port', nargs='?', help='Novi port (npr. 9000)')
     
     args = parser.parse_args()
     
     commands = {
         'status': cmd_status,
+        'info': cmd_info,
+        'health': cmd_health,
         'start': cmd_start,
         'stop': cmd_stop,
         'restart': cmd_restart,
         'config': cmd_config,
+        'port': cmd_port,
         'logs': cmd_logs,
+        'backup': cmd_backup,
+        'update': cmd_update,
+        'db': cmd_db,
         'enable': cmd_enable,
         'disable': cmd_disable,
         'uninstall': cmd_uninstall,
-        'port': cmd_port,
     }
     
     if args.command:
         commands[args.command](args)
     else:
         parser.print_help()
-
 
 if __name__ == '__main__':
     main()

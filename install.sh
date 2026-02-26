@@ -174,6 +174,46 @@ sudo systemctl enable erp-latice.service
 
 echo -e "${GREEN}Servis 'erp-latice' kreiran i uključen za autostart.${NC}"
 
+# ═══════════════════════════════════════════════
+# Kreiranje backup cron job-a
+# ═══════════════════════════════════════════════
+echo -e "${GREEN}[8/8]${NC} Kreiranje backup cron job-a..."
+
+# Kopiraj backup skriptu i postavi executable
+sudo chmod +x "$INSTALL_DIR/backup.sh"
+
+# Kreiraj logs direktorijum
+mkdir -p "$DATA_DIR/logs"
+
+# Dodaj u crontab (ukloni stari ako postoji, dodaj novi)
+CRON_JOB="0 3 * * * $INSTALL_DIR/backup.sh"
+(crontab -l 2>/dev/null | grep -v "backup.sh"; echo "$CRON_JOB") | crontab -
+
+echo -e "${GREEN}Backup zakazan za 3:00 AM svaki dan.${NC}"
+
+# ═══════════════════════════════════════════════
+# Provera Git konfiguracije za backup
+# ═══════════════════════════════════════════════
+echo -e "${YELLOW}[9/9]${NC} Provera Git konfiguracije..."
+
+if [ -d "$DATA_DIR/.git" ]; then
+    echo -e "${GREEN}Git repo već postoji u DATA_DIR.${NC}"
+else
+    echo -e "${YELLOW}Git repo ne postoji u DATA_DIR.${NC}"
+    read -p "Inicijalizovati git repo u $DATA_DIR? [Y/n]: " INIT_GIT
+    INIT_GIT="${INIT_GIT:-Y}"
+    if [[ "$INIT_GIT" =~ ^[Yy]$ ]]; then
+        cd "$DATA_DIR"
+        git init
+        read -p "Git remote URL (ostaviti prazno za preskočiti): " GIT_REMOTE
+        if [ -n "$GIT_REMOTE" ]; then
+            git remote add origin "$GIT_REMOTE"
+            echo -e "${GREEN}Git remote dodat.${NC}"
+        fi
+    fi
+fi
+
+
 echo ""
 echo -e "${GREEN}════════════════════════════════════════${NC}"
 echo -e "${GREEN}   Instalacija uspešno završena!${NC}"
@@ -191,4 +231,12 @@ echo "  erp logs -f       - Prati logove"
 echo "  erp config        - Prikaži konfiguraciju"
 echo "  erp config --edit - Izmeni konfiguraciju"
 echo "  erp port 9000     - Promeni port"
+echo ""
+echo ""
+echo -e "${YELLOW}Healthcheck:${NC}"
+echo "  curl http://localhost:$PORT/health"
+echo ""
+echo -e "${YELLOW}Backup:${NC}"
+echo "  erp backup        - Ručni backup"
+echo "  Automatski backup: svaki dan u 3:00 AM"
 echo ""

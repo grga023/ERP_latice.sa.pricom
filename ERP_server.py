@@ -99,6 +99,12 @@ def create_app():
     def server_error(e):
         return jsonify({'error': 'Greška na serveru', 'status': 500}), 500
 
+    # ─── Health Check ─────────────────────────────────────────
+    @app.route('/health')
+    def health_check():
+        """Health check endpoint"""
+        return jsonify({'status': 'healthy','version': '1.0.0','database': 'connected'})
+
     return app
 
 
