@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Realizovane porudžbine{% endblock %}
+{% block title %}Completed Orders{% endblock %}
 
 {% block content %}
 <div class="page-header mb-4">
-  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">✅ Realizovane Porudžbine</h1>
-  <p style="color: #4a4a4a; font-size: 1.1rem;">Sve porudžbine koje su uspešno završene</p>
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">✅ Completed Orders</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">All orders that have been successfully completed</p>
 </div>
 
 <!-- Stats Cards -->
@@ -13,12 +13,12 @@
   <div class="stat-card">
     <div class="stat-icon">💰</div>
     <div class="stat-value" id="totalSum">0.00</div>
-    <div class="stat-label">Ukupna Zarada</div>
+    <div class="stat-label">Total Revenue</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">📦</div>
     <div class="stat-value" id="totalCount">0</div>
-    <div class="stat-label">Broj Porudžbina</div>
+    <div class="stat-label">Order Count</div>
   </div>
 </div>
 
@@ -26,14 +26,14 @@
   <table id="shippingTable" class="modern-table">
     <thead>
       <tr>
-        <th>Naziv</th>
-        <th>Cena</th>
-        <th>Plaćeno</th>
-        <th>Kupac</th>
-        <th>Datum</th>
-        <th>Opis</th>
-        <th>Slika</th>
-        <th>Akcija</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Paid</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Image</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -43,26 +43,26 @@
 
 {% block scripts %}
 <script>
-function formatOpis(description) {
+function formatDescription(description) {
     if (!description || description === '-') return '-';
     const lines = description.split(/\r\n|\n/).filter(l => l.trim());
-    let kolLines = [];
-    let detalji = [];
-    let inDetalji = false;
+    let quantityLines = [];
+    let details = [];
+    let inDetails = false;
     for (const line of lines) {
-        if (line.startsWith('Detalji:')) {
-            inDetalji = true;
-            detalji.push(line.replace('Detalji:', '').trim());
-        } else if (inDetalji) {
-            detalji.push(line);
+        if (line.startsWith('Details:')) {
+            inDetails = true;
+            details.push(line.replace('Details:', '').trim());
+        } else if (inDetails) {
+            details.push(line);
         } else {
             const m = line.match(/^(\d+)\s+(.+)/);
-            kolLines.push(m ? m[1] + ' x ' + m[2] : line);
+            quantityLines.push(m ? m[1] + ' x ' + m[2] : line);
         }
     }
     let html = '';
-    if (kolLines.length) html += '<strong>Količina:</strong><br>' + kolLines.join('<br>');
-    if (detalji.length) html += (html ? '<br>' : '') + '<strong>Detalji:</strong><br>' + detalji.join('<br>');
+    if (quantityLines.length) html += '<strong>Quantity:</strong><br>' + quantityLines.join('<br>');
+    if (details.length) html += (html ? '<br>' : '') + '<strong>Details:</strong><br>' + details.join('<br>');
     return html || '-';
 }
 async function loadToBeShipped() {
@@ -79,14 +79,14 @@ async function loadToBeShipped() {
     orders.forEach(order => {
         const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td data-label="Naziv"><strong>${order.name}</strong></td>
-                <td data-label="Cena"><strong>${order.price} RSD</strong></td>
-                <td data-label="Plaćeno">${order.paid ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
-                <td data-label="Kupac"><strong>${order.customer}</strong></td>
-                <td data-label="Datum">${order.date || '-'}</td>
-                <td data-label="Opis" class="td-description">${formatOpis(order.description)}</td>
-                <td data-label="Slika">${order.image ? `<img src="/images/${order.image}" />` : '-'}</td>
-                <td data-label="Akcija"><button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button></td>
+                <td data-label="Name"><strong>${order.name}</strong></td>
+                <td data-label="Price"><strong>${order.price} RSD</strong></td>
+                <td data-label="Paid">${order.paid ? '<span class="badge badge-paid">Paid</span>' : '<span class="badge badge-unpaid">Not paid</span>'}</td>
+                <td data-label="Customer"><strong>${order.customer}</strong></td>
+                <td data-label="Date">${order.date || '-'}</td>
+                <td data-label="Description" class="td-description">${formatDescription(order.description)}</td>
+                <td data-label="Image">${order.image ? `<img src="/images/${order.image}" />` : '-'}</td>
+                <td data-label="Action"><button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Edit</button></td>
             `;
             tbody.appendChild(tr);
     });
