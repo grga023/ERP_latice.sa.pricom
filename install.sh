@@ -10,9 +10,9 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # ═══════════════════════════════════════════════
-# GLOBALNE VARIJABLE
+# GLOBAL VARIABLES
 # ═══════════════════════════════════════════════
-# Zameni "your-username" sa stvarnim GitHub korisničkim imenom
+# Replace with your actual GitHub username
 GIT_REPO="https://github.com/grga023/Simple_ERP.git"
 
 # Detektuj branch ili tag
@@ -31,9 +31,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Ako branch nije prosleđen kao argument, pokušaj detektovati
+# If branch is not provided as argument, try to detect
 if [ -z "$CURRENT_BRANCH" ]; then
-    # Pokušaj da pronađeš najnoviji tag sa "_stabile" u imenu
+    # Try to find latest tag with "_stabile" in name
     if command -v git &>/dev/null; then
         STABLE_TAG=$(git ls-remote --tags "$GIT_REPO" | grep "_stabile" | awk '{print $2}' | sed 's|refs/tags/||' | sed 's/\^{}//' | sort -V | tail -1 2>/dev/null || echo "")
         if [ -n "$STABLE_TAG" ]; then
@@ -49,21 +49,21 @@ fi
 echo -e "${CYAN}Instalacija Simple ERP Tracking - Branch/Tag: ${CURRENT_BRANCH}${NC}"
 
 # ═══════════════════════════════════════════════
-# INFORMACIJE ZA STANDALONE MODOVE
+# STANDALONE MODE INFORMATION
 # ═══════════════════════════════════════════════
-# Ovaj skript se može koristiti na dva načina:
+# This script can be used in two ways:
 #
-# 1. DOWNLOAD MODE - sa grane 'installation' (preporučeno):
+# 1. DOWNLOAD MODE - from 'installation' branch (recommended):
 #    bash <(curl -sSL https://raw.githubusercontent.com/grga023/ERP_latice.sa.pricom/installation/install.sh)
 #
-# 2. DOWNLOAD MODE - sa custom grane/tag-a:
+# 2. DOWNLOAD MODE - from custom branch/tag:
 #    bash <(curl -sSL https://raw.githubusercontent.com/grga023/ERP_latice.sa.pricom/installation/install.sh) -b v3.0_stabile
 #
-# 3. LOKALNI MODE (izvršava se iz kloniranog repozitorijuma):
+# 3. LOCAL MODE (executed from cloned repository):
 #    git clone https://github.com/grga023/ERP_latice.sa.pricom.git
 #    cd ERP_latice.sa.pricom
 #    ./install.sh
-#    ili sa specifičnom granom:
+#    or with specific branch:
 #    ./install.sh -b develop
 #
 # ═══════════════════════════════════════════════
@@ -75,7 +75,7 @@ echo "╚═══════════════════════�
 echo -e "${NC}"
 
 # ═══════════════════════════════════════════════
-# Provera i instalacija sistemskih zavisnosti
+# Check and install system dependencies
 # ═══════════════════════════════════════════════
 echo -e "${YELLOW}[0/10]${NC} Provera sistemskih zavisnosti..."
 
@@ -137,7 +137,7 @@ TIMEZONE="${TIMEZONE:-Europe/Belgrade}"
 echo ""
 
 # ═══════════════════════════════════════════════
-# Tehnička konfiguracija
+# Technical configuration
 # ═══════════════════════════════════════════════
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${CYAN}        TEHNIČKA KONFIGURACIJA          ${NC}"
@@ -199,22 +199,22 @@ if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
 fi
 
 # ═══════════════════════════════════════════════
-# Instalacija
+# Installation
 # ═══════════════════════════════════════════════
 
-# Kopiranje fajlova
+# Copy files
 echo -e "${GREEN}[2/10]${NC} Preuzimanje fajlova..."
 
-# Detektuj gdje je script pokrenut
+# Detect where script is executed
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_SOURCE="${BASH_SOURCE[0]}"
 
-# Ako je script pokrenut iz /tmp ili pipe-a (npr `bash <(curl ...)`), trebamo da kloniramo
+# If script is executed from /tmp or pipe (e.g. `bash <(curl ...)`), we need to clone
 if [[ "$SCRIPT_SOURCE" == "/dev/stdin" ]] || [[ "$SCRIPT_DIR" == "/tmp"* ]] || [[ ! -d "$SCRIPT_DIR/.git" && ! -f "$SCRIPT_DIR/ERP_server.py" ]]; then
     TEMP_CLONE_DIR=$(mktemp -d)
     echo -e "${CYAN}Preuzimam repository ($CURRENT_BRANCH)...${NC}"
     
-    # Pokušaj sa git clone prvi put
+    # Try git clone first
     if command -v git &>/dev/null; then
         read -p "Git branch/tag [$CURRENT_BRANCH]: " BRANCH_INPUT
         CURRENT_BRANCH="${BRANCH_INPUT:-$CURRENT_BRANCH}"
@@ -231,8 +231,8 @@ if [[ "$SCRIPT_SOURCE" == "/dev/stdin" ]] || [[ "$SCRIPT_DIR" == "/tmp"* ]] || [
         exit 1
     fi
 else
-    # Pokrenut iz lokalnog direktorijuma sa filovima
-    # Detektuj granu iz lokalnog git repozitorijuma
+    # Executed from local directory with files
+    # Detect branch from local git repository
     LOCAL_BRANCH=$(cd "$SCRIPT_DIR" && git branch --show-current 2>/dev/null || echo "")
     if [ -n "$LOCAL_BRANCH" ]; then
         CURRENT_BRANCH="$LOCAL_BRANCH"
@@ -251,22 +251,22 @@ else
     sudo rm -rf "$INSTALL_DIR"
     sudo cp -r "$SCRIPT_DIR" "$INSTALL_DIR"
     
-    # Ako je ".git" direktorijum, kopiraj ga sa a posebnom dozvolom
+    # If ".git" directory exists, copy it with special permissions
     if [ -d "$SCRIPT_DIR/.git" ]; then
         sudo cp -r "$SCRIPT_DIR/.git" "$INSTALL_DIR/" 2>/dev/null || true
     fi
 fi
 
-# Očisti temp clone ako je pravi
+# Clean temp clone if it's real
 if [ -n "$TEMP_CLONE_DIR" ] && [ -d "$TEMP_CLONE_DIR" ]; then
     rm -rf "$TEMP_CLONE_DIR"
 fi
 
-# Postavi vlasnika na trenutnog usera
+# Set owner to current user
 echo -e "${GREEN}[3/10]${NC} Postavljanje permisija..."
 sudo chown -R $USER:$USER "$INSTALL_DIR"
 
-# Ukloni postojeće data/img ako postoje, napravi symlinkove
+# Remove existing data/img if they exist, create symlinks
 echo -e "${GREEN}[4/10]${NC} Kreiranje symlinkova..."
 rm -rf "$INSTALL_DIR/data" 2>/dev/null || true
 rm -rf "$INSTALL_DIR/images" 2>/dev/null || true
@@ -286,7 +286,7 @@ else
     echo -e "${YELLOW}UPOZORENJE: requirements.txt nije pronađen${NC}"
 fi
 
-# Kreiranje CLI komande
+# Create CLI command
 echo -e "${GREEN}[7/10]${NC} Instalacija 'erp' komande..."
 
 sudo tee /usr/local/bin/erp > /dev/null << 'WRAPPER'
@@ -299,7 +299,7 @@ WRAPPER
 sudo sed -i "s|__INSTALL_DIR__|$INSTALL_DIR|g" /usr/local/bin/erp
 sudo chmod +x /usr/local/bin/erp
 
-# Sačuvaj konfiguraciju
+# Save configuration
 echo -e "${GREEN}[8/10]${NC} Čuvanje konfiguracije..."
 
 tee "$INSTALL_DIR/.erp.conf" > /dev/null << EOF
@@ -365,7 +365,7 @@ tee "$DATA_DIR/config.json" > /dev/null << EOF
 EOF
 
 # ═══════════════════════════════════════════════
-# Kreiranje systemd servisa
+# Create systemd service
 # ═══════════════════════════════════════════════
 echo -e "${GREEN}[9/10]${NC} Kreiranje systemd servisa..."
 
@@ -394,7 +394,7 @@ sudo systemctl enable erp.service
 echo -e "${GREEN}Servis 'erp' kreiran i uključen za autostart.${NC}"
 
 # ═══════════════════════════════════════════════
-# Kreiranje backup cron job-a
+# Create backup cron job
 # ═══════════════════════════════════════════════
 echo -e "${GREEN}[10/10]${NC} Kreiranje backup cron job-a..."
 
@@ -417,7 +417,7 @@ else
 fi
 
 # ═══════════════════════════════════════════════
-# Provera Git konfiguracije za backup
+# Check Git configuration for backup
 # ═══════════════════════════════════════════════
 echo ""
 echo -e "${CYAN}Git backup konfiguracija...${NC}"
@@ -439,7 +439,7 @@ else
 fi
 
 # ═══════════════════════════════════════════════
-# Završna poruka
+# Final message
 # ═══════════════════════════════════════════════
 echo ""
 echo -e "${GREEN}════════════════════════════════════════════════${NC}"

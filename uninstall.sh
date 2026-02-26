@@ -4,7 +4,7 @@ set -e
 echo "ERP Latice - Deinstalacija"
 echo ""
 
-# Učitaj config ako postoji
+# Load config if exists
 if [ -f "/opt/erp-latice/.erp.conf" ]; then
     source "/opt/erp-latice/.erp.conf"
 fi

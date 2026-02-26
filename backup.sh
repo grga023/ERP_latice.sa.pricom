@@ -3,11 +3,11 @@
 
 set -e
 
-# Nađi config fajl (skripta je u INSTALL_DIR)
+# Find config file (script is in INSTALL_DIR)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/.erp.conf"
 
-# Učitaj konfiguraciju
+# Load configuration
 if [ -f "$CONFIG_FILE" ]; then
     source "$CONFIG_FILE"
 else
