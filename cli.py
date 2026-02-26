@@ -345,16 +345,82 @@ def cmd_update(args):
     print("  Zaustavljanje servisa...")
     subprocess.run(["sudo", "systemctl", "stop", "erp"], stderr=subprocess.DEVNULL)
     
-    # Git pull
-    print("  Preuzimanje ažuriranja...")
-    result = subprocess.run(["sudo", "git", "pull"], cwd=str(install_dir), capture_output=True, text=True)
-    
-    if result.returncode != 0:
-        print(f"✗ Git pull nije uspeo: {result.stderr}")
-        subprocess.run(["sudo", "systemctl", "start", "erp"])
-        sys.exit(1)
-    
-    print(result.stdout)
+    # Ako je specifikovan branch, koristi branch
+    if hasattr(args, 'branch') and args.branch:
+        print(f"  Ažuriram na branch: {args.branch}")
+        result = subprocess.run(["sudo", "git", "fetch", "origin"], cwd=str(install_dir), 
+                              capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"✗ Git fetch nije uspeo: {result.stderr}")
+            subprocess.run(["sudo", "systemctl", "start", "erp"])
+            sys.exit(1)
+        
+        result = subprocess.run(["sudo", "git", "checkout", args.branch], cwd=str(install_dir), 
+                              capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"✗ Nije moguće preći na branch {args.branch}: {result.stderr}")
+            subprocess.run(["sudo", "systemctl", "start", "erp"])
+            sys.exit(1)
+        
+        result = subprocess.run(["sudo", "git", "pull", "origin", args.branch], cwd=str(install_dir), 
+                              capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"✗ Git pull nije uspeo: {result.stderr}")
+            subprocess.run(["sudo", "systemctl", "start", "erp"])
+            sys.exit(1)
+        print(result.stdout)
+    else:
+        # Koristi stabilne tagove (default)
+        print("  Pronalazim najnoviji stabilni tag...")
+        
+        # Fetch tags
+        subprocess.run(["sudo", "git", "fetch", "--tags", "origin"], cwd=str(install_dir), 
+                      capture_output=True, text=True)
+        
+        # Dobavi trenutni tag
+        result = subprocess.run(["git", "describe", "--tags", "--exact-match"], 
+                              cwd=str(install_dir), capture_output=True, text=True)
+        current_tag = result.stdout.strip() if result.returncode == 0 else None
+        
+        # Dobavi sve stabilne tagove
+        result = subprocess.run(["git", "tag", "-l", "*_stabile"], cwd=str(install_dir), 
+                              capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"✗ Nije moguće dohvatiti tagove: {result.stderr}")
+            subprocess.run(["sudo", "systemctl", "start", "erp"])
+            sys.exit(1)
+        
+        stable_tags = sorted([t.strip() for t in result.stdout.strip().split('\n') if t.strip()])
+        
+        if not stable_tags:
+            print("✗ Nema dostupnih stabilnih tagova (_stabile)")
+            subprocess.run(["sudo", "systemctl", "start", "erp"])
+            sys.exit(1)
+        
+        # Pronađi najnoviji tag
+        latest_tag = stable_tags[-1]
+        
+        if current_tag:
+            print(f"  Trenutna verzija: {current_tag}")
+            if current_tag == latest_tag:
+                print(f"✓ Već ste na najnovijoj stabilnoj verziji: {latest_tag}")
+                subprocess.run(["sudo", "systemctl", "start", "erp"])
+                return
+        else:
+            print(f"  Trenutno niste na tag-u")
+        
+        print(f"  Ažuriram na najnoviji stabilni tag: {latest_tag}")
+        
+        # Checkout na najnoviji stabilni tag
+        result = subprocess.run(["sudo", "git", "checkout", latest_tag], cwd=str(install_dir), 
+                              capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            print(f"✗ Checkout na {latest_tag} nije uspeo: {result.stderr}")
+            subprocess.run(["sudo", "systemctl", "start", "erp"])
+            sys.exit(1)
+        
+        print(f"✓ Prebačeno na verziju: {latest_tag}")
     
     # Ažuriraj dependencies
     print("  Ažuriranje Python paketa...")
@@ -466,6 +532,7 @@ def main():
     # update
     update_parser = subparsers.add_parser('update', help='Ažuriraj aplikaciju iz git-a')
     update_parser.add_argument('-v', '--verbose', action='store_true', help='Prikaži detalje')
+    update_parser.add_argument('-b', '--branch', help='Specifikuj branch (default: koristi stabilne tagove)')
     
     # db
     db_parser = subparsers.add_parser('db', help='Database operacije')
