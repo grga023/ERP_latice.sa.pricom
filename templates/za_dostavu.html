@@ -63,7 +63,7 @@ async function loadToBeShipped() {
                 <td data-label="Naziv"><strong>${order.naziv}</strong></td>
                 <td data-label="Cena"><strong>${order.cena} RSD</strong></td>
                 <td data-label="Plaćeno">${order.placeno ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
-                <td data-label="Kupac">${order.kupac}</td>
+                <td data-label="Kupac"><strong>${order.kupac}</strong></td>
                 <td data-label="Datum">${order.datum || '-'}</td>
                 <td data-label="Opis" class="td-opis">${formatOpis(order.opis)}</td>
                 <td data-label="Slika">${order.slika ? `<img src="/images/${order.slika}" />` : '-'}</td>

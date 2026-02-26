@@ -880,9 +880,10 @@ body.modern-body {
   input[type="date"] {
     max-width: 100%;
     min-width: 0;
-    padding: 0.75rem 0.875rem;
+    padding: 0.5rem 0.625rem !important;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 14px !important;
   }
   
   /* Kombinacije mobile layout */
