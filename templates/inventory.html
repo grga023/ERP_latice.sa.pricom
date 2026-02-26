@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}Lager{% endblock %}
+{% block title %}Inventory{% endblock %}
 
 {% block content %}
 <div class="page-header mb-4">
-  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">📦 Lager</h1>
-  <p style="color: #4a4a4a; font-size: 1.1rem;">Upravljanje zalihama i artiklima</p>
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">📦 Inventory</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Manage inventory and items</p>
 </div>
 
 <!-- Add Lager Item Form -->
 <div class="form-container mb-5 fade-in">
   <div class="card-header mb-4">
-    <h2 class="card-title">➕ Dodaj Novi Artikal</h2>
+    <h2 class="card-title">➕ Add New Item</h2>
   </div>
 
 <form id="lagerForm" enctype="multipart/form-data">
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Name *</label>
-        <input type="text" name="name" class="form-input" placeholder="Name artikla" required>
+        <input type="text" name="name" class="form-input" placeholder="Item name" required>
       </div>
 
       <div class="form-group">
@@ -30,7 +30,7 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Color *</label>
-        <input type="text" name="color" class="form-input" placeholder="npr. crvena, plava" required>
+        <input type="text" name="color" class="form-input" placeholder="e.g. red, blue" required>
       </div>
 
       <div class="form-group">
@@ -48,33 +48,33 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Slika</label>
+      <label class="form-label">Image</label>
       <div id="pasteArea" class="image-upload" style="position: relative;">
         <input type="file" id="fileInput" name="image" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
-        <p style="margin: 0; font-weight: 500; color: var(--gray);">📎 Kliknite da odaberete ili pritisnite CTRL+V</p>
+        <p style="margin: 0; font-weight: 500; color: var(--gray);">📎 Click to select or press CTRL+V</p>
       </div>
-      <img id="preview" class="image-preview mt-3" alt="Preview slike" style="display: none;">
+      <img id="preview" class="image-preview mt-3" alt="Image preview" style="display: none;">
     </div>
 
     <div class="btn-group mt-4">
       <button type="submit" class="btn btn-primary btn-lg w-full">
         <span>✨</span>
-        <span>Dodaj u Lager</span>
+        <span>Add to Inventory</span>
       </button>
     </div>
 </form>
 </div>
 
-<!-- Lager Table -->
+<!-- Inventory Table -->
 <div class="page-header mb-3">
-  <h2 style="font-size: 2rem; font-weight: 700; color: #1a1a1a;">Pregled Lagera</h2>
+  <h2 style="font-size: 2rem; font-weight: 700; color: #1a1a1a;">Inventory Overview</h2>
 </div>
 
 <div class="table-container fade-in">
   <table id="lagerTable" class="modern-table">
     <thead>
       <tr>
-        <th>Slika</th>
+        <th>Image</th>
         <th>Name</th>
         <th>Price</th>
         <th>Color</th>
@@ -109,7 +109,7 @@
               <input type="number" id="increaseAmount" min="1" value="1" class="form-input" required autofocus>
             </div>
             
-            <button type="submit" class="btn btn-primary w-full mt-3">Potvrdi</button>
+            <button type="submit" class="btn btn-primary w-full mt-3">Confirm</button>
         </form>
     </div>
 </div>
@@ -124,7 +124,7 @@
         </div>
         
         <div class="modal-preview mb-4" style="display: flex; gap: 1rem; padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
-            <img id="modalImg" src="" alt="Slika artikla" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);">
+            <img id="modalImg" src="" alt="Item image" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);">
             <div style="flex: 1;">
                 <strong id="modalName" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
                 <span id="modalPrice" style="display: block; color: var(--primary); font-weight: 600; margin-bottom: 0.25rem;"></span>
@@ -141,8 +141,8 @@
             <input type="hidden" id="modalLagerStock">
 
             <div class="form-group">
-              <label class="form-label" style="font-weight: 700;">Kupac</label>
-              <input type="text" id="modalKupac" class="form-input" placeholder="Ime kupca" required>
+              <label class="form-label" style="font-weight: 700;">Customer</label>
+              <input type="text" id="modalKupac" class="form-input" placeholder="Customer Name" required>
             </div>
 
             <div class="form-row">
@@ -152,7 +152,7 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Datum</label>
+                <label class="form-label">Date</label>
                 <div style="overflow: hidden; width: 100%; max-width: 100%;">
                   <input type="date" id="modalDatum" class="form-input" required style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0; font-size: 14px;">
                 </div>
@@ -162,14 +162,14 @@
             <div class="form-group">
               <label class="form-label">Paid</label>
               <select id="modalPlaceno" class="form-select">
-                <option value="false">Ne</option>
-                <option value="true">Da</option>
+                <option value="false">No</option>
+                <option value="true">Yes</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Dodatna poruka</label>
-              <textarea id="modalOpis" class="form-input" rows="3" placeholder="Dodatne napomene..."></textarea>
+              <label class="form-label">Additional notes</label>
+              <textarea id="modalOpis" class="form-input" rows="3" placeholder="Additional notes..."></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary w-full mt-3">🚀 Create Order</button>
@@ -233,7 +233,7 @@ async function loadLager() {
         const escapedSlika = (item.image || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
         
         tr.innerHTML = `
-            <td data-label="Slika">${item.image ? '<img src="/images/' + item.image + '" style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);" />' : '<span style="color: var(--gray);">-</span>'}</td>
+            <td data-label="Image">${item.image ? '<img src="/images/' + item.image + '" style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);" />' : '<span style="color: var(--gray);">-</span>'}</td>
             <td data-label="Name"><strong>${item.name}</strong></td>
             <td data-label="Price"><span style="color: var(--primary); font-weight: 600;">${item.price} RSD</span></td>
             <td data-label="Color">${item.color}</td>
@@ -242,7 +242,7 @@ async function loadLager() {
             <td data-label="Action">
                 <div class="btn-group">
                     <button onclick="openOrderModal(${item.id}, '${escapedName}', ${item.price}, '${escapedColor}', '${escapedSlika}', ${item.quantity || 0})" class="btn btn-primary btn-sm">🛍️ Order</button>
-                    <button onclick="openIncreaseModal(${item.id}, '${escapedName}', ${item.quantity || 0})" class="btn btn-secondary btn-sm">➕ Dodaj</button>
+                    <button onclick="openIncreaseModal(${item.id}, '${escapedName}', ${item.quantity || 0})" class="btn btn-secondary btn-sm">➕ Add</button>
                     <button onclick="deleteLager(${item.id})" class="btn btn-danger btn-sm">🗑️</button>
                 </div>
             </td>
@@ -296,7 +296,7 @@ loadLager();
 function openIncreaseModal(itemId, name, currentQty) {
     document.getElementById('increaseItemId').value = itemId;
     document.getElementById('increaseName').textContent = name;
-    document.getElementById('increaseCurrentQty').textContent = 'Trenutna quantity: ' + currentQty;
+    document.getElementById('increaseCurrentQty').textContent = 'Current quantity: ' + currentQty;
     document.getElementById('increaseAmount').value = 1;
     document.getElementById('increaseModal').classList.add('active');
     setTimeout(() => document.getElementById('increaseAmount').focus(), 100);
@@ -330,7 +330,7 @@ document.getElementById('increaseQuantityForm').addEventListener('submit', async
         });
         if (res.ok) {
             const data = await res.json();
-            alert('Quantity was successfully updated! Nova quantity: ' + data.new_quantity);
+            alert('Quantity was successfully updated! New quantity: ' + data.new_quantity);
             closeIncreaseModal();
             loadLager();
         } else {
@@ -375,11 +375,11 @@ function openOrderModal(lagerId, name, price, color, image, stock) {
         document.querySelector('.modal-preview').after(warn);
     }
     if (stock <= 0) {
-        warn.textContent = '⚠️ Product unavailable in inventory! You can create an order ali se quantity won't be deducted.';
+        warn.textContent = '⚠️ Product unavailable in inventory! You can create an order but quantity won\'t be deducted.';
         warn.className = 'stock-warning stock-warning-red';
         warn.style.display = 'block';
     } else {
-        warn.textContent = '📦 Na lageru: ' + stock;
+        warn.textContent = '📦 In stock: ' + stock;
         warn.className = 'stock-warning';
         warn.style.display = 'block';
     }
@@ -420,9 +420,9 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
     const descriptionText = document.getElementById('modalOpis').value.trim();
 
     // Build formatted description: "quantity color\nDetails: description"
-    let formattedOpis = quantity + ' ' + (color || 'Razno') + '\r\n';
+    let formattedOpis = quantity + ' ' + (color || 'Various') + '\r\n';
     if (descriptionText) {
-        formattedOpis += 'Detalji: ' + descriptionText + '\r\n';
+        formattedOpis += 'Details: ' + descriptionText + '\r\n';
     }
 
     const data = {
