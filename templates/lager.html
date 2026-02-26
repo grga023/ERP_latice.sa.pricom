@@ -123,7 +123,7 @@
           <h2 class="card-title">🛍️ Kreiraj Porudžbinu</h2>
         </div>
         
-        <div class="mb-4" style="display: flex; gap: 1rem; padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
+        <div class="modal-preview mb-4" style="display: flex; gap: 1rem; padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
             <img id="modalImg" src="" alt="Slika artikla" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);">
             <div style="flex: 1;">
                 <strong id="modalNaziv" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
@@ -167,7 +167,7 @@
 
             <div class="form-group">
               <label class="form-label">Dodatna poruka</label>
-              <textarea id="modalOpis" class="form-textarea" rows="3" placeholder="Dodatne napomene..."></textarea>
+              <textarea id="modalOpis" class="form-input" rows="3" placeholder="Dodatne napomene..."></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary w-full mt-3">🚀 Kreiraj Porudžbinu</button>
@@ -373,12 +373,13 @@ function openOrderModal(lagerId, naziv, cena, boja, slika, stock) {
         document.querySelector('.modal-preview').after(warn);
     }
     if (stock <= 0) {
-        warn.textContent = '\u26A0\uFE0F Proizvod nedostupan na lageru! Možete kreirati porudžbinu ali se količina neće oduzeti.';
+        warn.textContent = '⚠️ Proizvod nedostupan na lageru! Možete kreirati porudžbinu ali se količina neće oduzeti.';
+        warn.className = 'stock-warning stock-warning-red';
         warn.style.display = 'block';
     } else {
-        warn.textContent = 'Na lageru: ' + stock;
+        warn.textContent = '📦 Na lageru: ' + stock;
+        warn.className = 'stock-warning';
         warn.style.display = 'block';
-        warn.classList.remove('stock-warning-red');
     }
     document.getElementById('orderModal').classList.add('active');
 }

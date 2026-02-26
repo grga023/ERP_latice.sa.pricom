@@ -1045,3 +1045,24 @@ body.modern-body {
   color: var(--gradient-start); /* Fallback for browsers that don't support background-clip */
   font-weight: 700;
 }
+
+/* ─────────────────────────────────
+   ⚠️ STOCK WARNING
+   ───────────────────────────────── */
+.stock-warning {
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.stock-warning-red {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
