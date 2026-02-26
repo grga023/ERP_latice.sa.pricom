@@ -1,10 +1,10 @@
-# Latice sa Pričom - ERP System
+# Simple ERP - Business Management System
 
 A complete ERP application system for managing orders, inventory (warehouse), and business configuration.
 
 ## 📋 Project Overview
 
-**Latice sa Pričom** is a Flask-based ERP system designed for small and medium-sized enterprises. It provides management for:
+**Simple ERP** is a Flask-based ERP system designed for small and medium-sized enterprises. It provides management for:
 - 📦 **Orders** - Create, track, and manage order status
 - 🏭 **Inventory (Warehouse)** - Track and manage stock levels
 - 📧 **Email Notifications** - Automated notification sending
@@ -59,11 +59,11 @@ ERP_latice.sa.pricom/
 │   ├── base.html           # Base template
 │   ├── index.html          # Home page
 │   ├── edit.html           # Edit items
-│   ├── lager.html          # Inventory overview
-│   ├── porudzbenice.html   # All orders
-│   ├── realizovano.html    # Completed orders
-│   ├── za_dostavu.html     # Orders for delivery
-│   ├── podesavanja.html    # Settings
+│   ├── inventory.html      # Inventory overview
+│   ├── new_orders.html     # New orders
+│   ├── realized.html       # Completed orders
+│   ├── for_delivery.html   # Orders for delivery
+│   ├── settings.html       # Settings
 │   └── config.html         # Configuration
 │
 ├── static/                 # Static assets
@@ -160,26 +160,26 @@ The application uses an SQLite database with the following models:
 
 ### Order
 - `id` - Unique identifier
-- `naziv` - Product name
-- `cena` - Price
-- `placeno` - Payment status
-- `kupac` - Customer name
-- `datum` - Order date
-- `kolicina` - Quantity
-- `boja` - Color
-- `opis` - Description
-- `slika` - Product image
+- `name` - Product name
+- `price` - Price
+- `paid` - Payment status
+- `customer` - Customer name
+- `date` - Order date
+- `quantity` - Quantity
+- `color` - Color
+- `description` - Description
+- `image` - Product image
 - `status` - Order status (new, in_progress, completed, delivered)
-- `lager_id` - Link to warehouse
+- `inventory_id` - Link to warehouse
 
-### LagerItem (Warehouse Item)
+### InventoryItem (Warehouse Item)
 - `id` - Unique identifier
-- `naziv` - Product name
-- `cena` - Price per unit
-- `boja` - Color
-- `kolicina` - Available quantity
-- `lokacija` - Warehouse location
-- `slika` - Product image
+- `name` - Product name
+- `price` - Price per unit
+- `color` - Color
+- `quantity` - Available quantity
+- `location` - Warehouse location
+- `image` - Product image
 
 ## 🔒 Security
 
@@ -257,7 +257,7 @@ For questions or issues, please:
 
 ---
 
-**© 2024-2026 Latice sa Pričom - ERP System**
+**© 2024-2026 Simple ERP - Business Management System**
 
 All rights reserved. This project was developed for internal use.
 
@@ -273,4 +273,4 @@ All rights reserved. This project was developed for internal use.
 - **Support:** Available
 - **Security Updates:** Regularly applied
 
-Thank you for using Latice sa Pričom - ERP System!
+Thank you for using Simple ERP - Business Management System!
