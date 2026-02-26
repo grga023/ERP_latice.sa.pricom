@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Latice sa pričom ERP - Flask Application
+Simple ERP - Flask Application
+Crafted Doilies Business Management System
 """
 
 import os
@@ -20,7 +21,7 @@ from blueprints.auth import auth_bp
 
 
 def load_erp_config():
-    """Učitaj konfiguraciju iz .erp.conf"""
+    """Load configuration from .erp.conf file"""
     config = {}
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.erp.conf')
     if os.path.exists(config_file):
@@ -114,7 +115,7 @@ def create_app():
 
     @app.route('/api/config')
     def get_config():
-        """Vraća frontend konfiguraciju"""
+        """Returns frontend configuration"""
         config_file = os.path.join(DATA_DIR, 'config.json')
         if os.path.exists(config_file):
             with open(config_file) as f:
@@ -126,7 +127,7 @@ def create_app():
 
     @app.route('/api/config', methods=['POST'])
     def save_config():
-        """Sačuvaj frontend konfiguraciju"""
+        """Save frontend configuration"""
         config_file = os.path.join(DATA_DIR, 'config.json')
         data = request.get_json()
         with open(config_file, 'w') as f:
@@ -136,19 +137,19 @@ def create_app():
     # ─── Central Error Handlers ────────────────────────────────
     @app.errorhandler(400)
     def bad_request(e):
-        return jsonify({'error': 'Neispravan zahtev', 'status': 400}), 400
+        return jsonify({'error': 'Bad request', 'status': 400}), 400
 
     @app.errorhandler(404)
     def not_found(e):
-        return jsonify({'error': 'Resurs nije pronađen', 'status': 404}), 404
+        return jsonify({'error': 'Resource not found', 'status': 404}), 404
 
     @app.errorhandler(405)
     def method_not_allowed(e):
-        return jsonify({'error': 'Metoda nije dozvoljena', 'status': 405}), 405
+        return jsonify({'error': 'Method not allowed', 'status': 405}), 405
 
     @app.errorhandler(500)
     def server_error(e):
-        return jsonify({'error': 'Greška na serveru', 'status': 500}), 500
+        return jsonify({'error': 'Server error', 'status': 500}), 500
 
     # ─── Health Check ─────────────────────────────────────────
     @app.route('/health')
@@ -166,10 +167,10 @@ def main():
     parser.add_argument('-d', '--debug', action='store_true', help='Debug mode')
     args = parser.parse_args()
 
-    # Učitaj config
+    # Load config
     erp_config = load_erp_config()
     
-    # Prioritet: CLI argument > config fajl > default
+    # Priority: CLI argument > config file > default
     port = args.port or int(erp_config.get('PORT', 8000))
     host = args.host or erp_config.get('HOST', '0.0.0.0')
     debug = args.debug or erp_config.get('DEBUG', 'false').lower() == 'true'

@@ -1,5 +1,5 @@
 """
-Auth Blueprint - Autentifikacija korisnika
+Auth Blueprint - User authentication
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
@@ -12,7 +12,7 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/')
 def landing():
-    """Landing page - prikazuje se ako korisnik nije ulogovan"""
+    """Landing page - displayed if user not logged in"""
     if current_user.is_authenticated:
         return redirect(url_for('orders.dashboard'))
     return render_template('landing.html')
@@ -20,7 +20,7 @@ def landing():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Login stranica"""
+    """Login page"""
     if current_user.is_authenticated:
         return redirect(url_for('orders.index'))
     
@@ -43,14 +43,14 @@ def login():
 @auth_bp.route('/logout')
 @login_required
 def logout():
-    """Logout korisnika"""
+    """User logout"""
     logout_user()
     return redirect(url_for('auth.landing'))
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    """Registracija novog korisnika"""
+    """Register new user"""
     if current_user.is_authenticated:
         return redirect(url_for('orders.index'))
     
@@ -60,7 +60,7 @@ def register():
         password = request.form.get('password')
         password_confirm = request.form.get('password_confirm')
         
-        # Validacija
+        # Validation
         if not username or not email or not password:
             flash('Sva polja su obavezna!', 'error')
             return render_template('register.html')
@@ -69,7 +69,7 @@ def register():
             flash('Lozinke se ne podudaraju!', 'error')
             return render_template('register.html')
         
-        # Provera da li korisnik već postoji
+        # Check if user already exists
         if User.query.filter_by(username=username).first():
             flash('Korisničko ime već postoji!', 'error')
             return render_template('register.html')
@@ -78,7 +78,7 @@ def register():
             flash('Email već postoji!', 'error')
             return render_template('register.html')
         
-        # Kreiraj novog korisnika
+        # Create new user
         user = User(
             username=username,
             email=email,

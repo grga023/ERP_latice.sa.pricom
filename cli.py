@@ -9,7 +9,7 @@ import subprocess
 import argparse
 from pathlib import Path
 
-# Učitaj konfiguraciju
+# Load configuration
 SCRIPT_DIR = Path(__file__).parent.resolve()
 CONFIG_FILE = SCRIPT_DIR / ".erp.conf"
 
@@ -26,9 +26,9 @@ def load_config():
 CONFIG = load_config()
 
 def cmd_start(args):
-    """Pokreni aplikaciju"""
+    """Start application"""
     if args.foreground:
-        # Pokreni direktno u terminalu
+        # Start direktno u terminalu
         main_script = SCRIPT_DIR / "ERP_server.py"
         venv_python = SCRIPT_DIR / "venv" / "bin" / "python"
         
@@ -42,23 +42,23 @@ def cmd_start(args):
             print(f"GREŠKA: Glavni skript nije pronađen: {main_script}")
             sys.exit(1)
     else:
-        # Pokreni kao servis
+        # Start kao servis
         subprocess.run(["sudo", "systemctl", "start", "erp"])
         print("ERP servis pokrenut.")
         cmd_status(args)
 
 def cmd_stop(args):
-    """Zaustavi servis"""
+    """Stop service"""
     subprocess.run(["sudo", "systemctl", "stop", "erp"])
     print("ERP servis zaustavljen.")
 
 def cmd_restart(args):
-    """Restartuj servis"""
+    """Restart service"""
     subprocess.run(["sudo", "systemctl", "restart", "erp"])
     print("ERP servis restartovan.")
 
 def cmd_status(args):
-    """Proveri status aplikacije"""
+    """Check application status"""
     print("ERP Latice sa Pričom - Status")
     print("=" * 40)
     print(f"Instalacija: {CONFIG.get('INSTALL_DIR', 'N/A')}")
@@ -66,7 +66,7 @@ def cmd_status(args):
     print(f"Img dir:     {CONFIG.get('IMG_DIR', 'N/A')}")
     print(f"Verzija:     {CONFIG.get('VERSION', 'N/A')}")
     
-    # Proveri symlinkove
+    # Check symlinkove
     data_link = SCRIPT_DIR / "data"
     img_link = SCRIPT_DIR / "img"
     
@@ -74,12 +74,12 @@ def cmd_status(args):
     print(f"  data: {'✓ OK' if data_link.is_symlink() else '✗ NEDOSTAJE'}")
     print(f"  img:  {'✓ OK' if img_link.is_symlink() else '✗ NEDOSTAJE'}")
     
-    # Proveri servis status
+    # Check servis status
     print(f"\nServis status:")
     subprocess.run(["systemctl", "status", "erp", "--no-pager", "-l"])
 
 def cmd_logs(args):
-    """Prikaži logove"""
+    """Display logs"""
     if args.service:
         # Systemd journal logovi
         cmd = ["sudo", "journalctl", "-u", "erp", "-n", str(args.lines)]
@@ -98,7 +98,7 @@ def cmd_logs(args):
             print("Log fajl ne postoji.")
 
 def cmd_config(args):
-    """Prikaži ili izmeni konfiguraciju"""
+    """Display or modify configuration"""
     if args.show:
         if CONFIG_FILE.exists():
             with open(CONFIG_FILE) as f:
@@ -117,18 +117,18 @@ def cmd_config(args):
         print("\nKoristi --show za sirovi config ili --edit za editovanje.")
 
 def cmd_enable(args):
-    """Uključi autostart"""
+    """Enable autostart"""
     subprocess.run(["sudo", "systemctl", "enable", "erp"])
     print("Autostart uključen.")
 
 def cmd_disable(args):
-    """Isključi autostart"""
+    """Disable autostart"""
     subprocess.run(["sudo", "systemctl", "disable", "erp"])
     print("Autostart isključen.")
 
 def cmd_uninstall(args):
-    """Deinstaliraj aplikaciju"""
-    print("ERP Latice - Deinstalacija")
+    """Uninstall application"""
+    print("ERP Latice - Uninstallation")
     print("=" * 40)
     print(f"Instalacija: {CONFIG.get('INSTALL_DIR', 'N/A')}")
     print(f"Data dir:    {CONFIG.get('DATA_DIR', 'N/A')} (NEĆE biti obrisano)")
@@ -137,43 +137,43 @@ def cmd_uninstall(args):
     
     confirm = input("Da li ste sigurni da želite da deinstalirate? [y/N]: ")
     if confirm.lower() == 'y':
-        print("\nDeinstalacija u toku...")
+        print("\nUninstallation u toku...")
         
-        # Zaustavi servis
+        # Stop service
         print("  - Zaustavljanje servisa...")
         subprocess.run(["sudo", "systemctl", "stop", "erp"], stderr=subprocess.DEVNULL)
         subprocess.run(["sudo", "systemctl", "disable", "erp"], stderr=subprocess.DEVNULL)
         
-        # Obriši servis fajl
+        # Delete service file
         print("  - Brisanje servis fajla...")
         subprocess.run(["sudo", "rm", "-f", "/etc/systemd/system/erp.service"])
         subprocess.run(["sudo", "systemctl", "daemon-reload"])
         
-        # Obriši CLI komandu
+        # Delete CLI command
         print("  - Brisanje 'erp' komande...")
         subprocess.run(["sudo", "rm", "-f", "/usr/local/bin/erp"])
         
-        # Obriši instalaciju
+        # Delete installation
         install_dir = CONFIG.get('INSTALL_DIR', '')
         if install_dir and os.path.exists(install_dir):
             print(f"  - Brisanje instalacije: {install_dir}")
             subprocess.run(["sudo", "rm", "-rf", install_dir])
         
-        print("\n✓ Deinstalacija završena.")
+        print("\n✓ Uninstallation završena.")
         print(f"  Data i img folderi su sačuvani.")
     else:
-        print("Deinstalacija otkazana.")
+        print("Uninstallation otkazana.")
 
 def cmd_port(args):
-    """Promeni port"""
+    """Change port"""
     new_port = args.port
     
     if not new_port:
-        # Samo prikaži trenutni port
+        # Only display current port
         print(f"Trenutni port: {CONFIG.get('PORT', '8000')}")
         return
     
-    # Validiraj port
+    # Validate port
     try:
         port_int = int(new_port)
         if port_int < 1 or port_int > 65535:
@@ -182,7 +182,7 @@ def cmd_port(args):
         print(f"GREŠKA: Nevažeći port: {new_port}")
         sys.exit(1)
     
-    # Ažuriraj config fajl
+    # Update config file
     config_lines = []
     port_found = False
     
@@ -204,7 +204,7 @@ def cmd_port(args):
     
     print(f"Port promenjen na: {new_port}")
     
-    # Ažuriraj systemd servis
+    # Update systemd service
     print("Ažuriranje systemd servisa...")
     
     service_file = "/etc/systemd/system/erp.service"
@@ -222,10 +222,10 @@ def cmd_port(args):
         subprocess.run(["sudo", "systemctl", "restart", "erp"])
         print("Servis restartovan.")
     else:
-        print("Restartuj servis ručno sa: erp restart")
+        print("Restart service ručno sa: erp restart")
 
 def cmd_backup(args):
-    """Pokreni backup ručno"""
+    """Run backup manually"""
     backup_script = SCRIPT_DIR / "backup.sh"
     
     if not backup_script.exists():
@@ -249,14 +249,14 @@ def cmd_backup(args):
     else:
         print("✗ Backup nije uspeo.")
         if not args.verbose:
-            print("Pokreni sa -v za više detalja.")
-            # Prikaži error ako postoji
+            print("Start sa -v za više detalja.")
+            # Display error ako postoji
             if result.stderr:
                 print(f"\nGreška:\n{result.stderr.decode()}")
         sys.exit(1)
 
 def cmd_health(args):
-    """Proveri health status servera"""
+    """Check server health status"""
     import urllib.request
     import urllib.error
     
@@ -281,7 +281,7 @@ def cmd_health(args):
 
 
 def cmd_info(args):
-    """Prikaži sve informacije o instalaciji"""
+    """Display all installation info"""
     print("ERP Latice sa Pričom - Info")
     print("=" * 50)
     print(f"\n📁 Putanje:")
@@ -317,12 +317,12 @@ def cmd_info(args):
 
 
 def cmd_update(args):
-    """Ažuriraj aplikaciju iz git-a"""
+    """Update application from git"""
     install_dir = SCRIPT_DIR
     
     print("Ažuriranje ERP aplikacije...")
     
-    # Proveri da li je git repo
+    # Check da li je git repo
     git_dir = install_dir / ".git"
     if not git_dir.exists():
         print(f"✗ {install_dir} nije git repozitorijum.")
@@ -341,7 +341,7 @@ def cmd_update(args):
         print(f"     sudo git reset --hard origin/master")
         sys.exit(1)
     
-    # Zaustavi servis
+    # Stop service
     print("  Zaustavljanje servisa...")
     subprocess.run(["sudo", "systemctl", "stop", "erp"], stderr=subprocess.DEVNULL)
     
@@ -397,7 +397,7 @@ def cmd_update(args):
             subprocess.run(["sudo", "systemctl", "start", "erp"])
             sys.exit(1)
         
-        # Pronađi najnoviji tag
+        # Find latest tag
         latest_tag = stable_tags[-1]
         
         if current_tag:
@@ -422,7 +422,7 @@ def cmd_update(args):
         
         print(f"✓ Prebačeno na verziju: {latest_tag}")
     
-    # Ažuriraj dependencies
+    # Update dependencies
     print("  Ažuriranje Python paketa...")
     venv_pip = install_dir / "venv" / "bin" / "pip"
     req_file = install_dir / "requirements.txt"
@@ -430,7 +430,7 @@ def cmd_update(args):
         subprocess.run(["sudo", str(venv_pip), "install", "-r", str(req_file)], 
                       capture_output=not args.verbose)
     
-    # Pokreni servis
+    # Start servis
     print("  Pokretanje servisa...")
     subprocess.run(["sudo", "systemctl", "start", "erp"])
     
@@ -472,66 +472,66 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
             Primeri:
-            erp status          Proveri status aplikacije i servisa
-            erp start           Pokreni kao systemd servis
-            erp start -f        Pokreni u terminalu (foreground)
-            erp stop            Zaustavi servis
-            erp restart         Restartuj servis
+            erp status          Check application status i servisa
+            erp start           Start kao systemd servis
+            erp start -f        Start u terminalu (foreground)
+            erp stop            Stop service
+            erp restart         Restart service
             erp logs -f         Prati aplikacijske logove
             erp config --edit   Edituj konfiguraciju
-            erp health          Proveri da li server radi
+            erp health          Check da li server radi
             erp backup          Ručni backup
-            erp update          Ažuriraj iz git-a
+            erp update          Update iz git-a
         """
     )
     
     subparsers = parser.add_subparsers(dest='command', help='Dostupne komande')
     
     # status
-    subparsers.add_parser('status', help='Proveri status')
+    subparsers.add_parser('status', help='Check status')
     
     # info
-    subparsers.add_parser('info', help='Prikaži sve informacije')
+    subparsers.add_parser('info', help='Display sve informacije')
     
     # health
-    health_parser = subparsers.add_parser('health', help='Proveri health servera')
-    health_parser.add_argument('-v', '--verbose', action='store_true', help='Prikaži response')
+    health_parser = subparsers.add_parser('health', help='Check health servera')
+    health_parser.add_argument('-v', '--verbose', action='store_true', help='Display response')
     
     # start
-    start_parser = subparsers.add_parser('start', help='Pokreni aplikaciju')
+    start_parser = subparsers.add_parser('start', help='Start application')
     start_parser.add_argument('-f', '--foreground', action='store_true', 
-                               help='Pokreni u foreground modu (ne kao servis)')
+                               help='Start u foreground modu (ne kao servis)')
     start_parser.add_argument('extra', nargs='*', help='Dodatni argumenti')
     
     # stop
-    subparsers.add_parser('stop', help='Zaustavi servis')
+    subparsers.add_parser('stop', help='Stop service')
     
     # restart
-    subparsers.add_parser('restart', help='Restartuj servis')
+    subparsers.add_parser('restart', help='Restart service')
     
     # logs
-    logs_parser = subparsers.add_parser('logs', help='Prikaži logove')
+    logs_parser = subparsers.add_parser('logs', help='Display logs')
     logs_parser.add_argument('-f', '--follow', action='store_true', help='Prati log')
     logs_parser.add_argument('-n', '--lines', type=int, default=50, help='Broj linija')
     logs_parser.add_argument('-s', '--service', action='store_true', 
-                              help='Prikaži systemd journal umesto app loga')
+                              help='Display systemd journal umesto app loga')
     
     # config
     config_parser = subparsers.add_parser('config', help='Konfiguracija')
-    config_parser.add_argument('--show', action='store_true', help='Prikaži config fajl')
+    config_parser.add_argument('--show', action='store_true', help='Display config fajl')
     config_parser.add_argument('--edit', action='store_true', help='Edituj config')
     
     # port
-    port_parser = subparsers.add_parser('port', help='Prikaži ili promeni port')
+    port_parser = subparsers.add_parser('port', help='Display ili promeni port')
     port_parser.add_argument('port', nargs='?', help='Novi port (npr. 9000)')
     
     # backup
-    backup_parser = subparsers.add_parser('backup', help='Pokreni backup ručno')
-    backup_parser.add_argument('-v', '--verbose', action='store_true', help='Prikaži detalje')
+    backup_parser = subparsers.add_parser('backup', help='Run backup manually')
+    backup_parser.add_argument('-v', '--verbose', action='store_true', help='Display detalje')
     
     # update
-    update_parser = subparsers.add_parser('update', help='Ažuriraj aplikaciju iz git-a')
-    update_parser.add_argument('-v', '--verbose', action='store_true', help='Prikaži detalje')
+    update_parser = subparsers.add_parser('update', help='Update application from git')
+    update_parser.add_argument('-v', '--verbose', action='store_true', help='Display detalje')
     update_parser.add_argument('-b', '--branch', help='Specifikuj branch (default: koristi stabilne tagove)')
     
     # db
@@ -540,11 +540,11 @@ def main():
                            help='info/backup/vacuum')
     
     # enable/disable autostart
-    subparsers.add_parser('enable', help='Uključi autostart na boot')
-    subparsers.add_parser('disable', help='Isključi autostart')
+    subparsers.add_parser('enable', help='Enable autostart na boot')
+    subparsers.add_parser('disable', help='Disable autostart')
     
     # uninstall
-    subparsers.add_parser('uninstall', help='Deinstaliraj aplikaciju')
+    subparsers.add_parser('uninstall', help='Uninstall application')
     
     args = parser.parse_args()
     
