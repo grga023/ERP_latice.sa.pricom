@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.business.name if config and config.business else 'Latice sa Pričom' }} - ERP Sistem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 6rem 5% 4rem;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.95;
+        }
+
+        .features {
+            background: white;
+            padding: 5rem 5%;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .features-header h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .features-header p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 2.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .feature-card ul li {
+            padding: 0.5rem 0;
+            color: #555;
+        }
+
+        .feature-card ul li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 5%;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            max-width: 1000px;
+            margin: 2rem auto 0;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .cta {
+            background: white;
+            padding: 5rem 5%;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 3rem 5%;
+            text-align: center;
+        }
+
+        .footer p {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            {{ config.business.shortName if config and config.business else 'Latice sa Pričom' }}
+        </a>
+        <div class="nav-buttons">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Prijavi se</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Registruj se</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Upravljajte svojim poslom lakše nego ikad</h1>
+        <p>Kompletan ERP sistem za upravljanje narudžbinama, skladištem i klijentima. Sve na jednom mestu, jednostavno i efikasno.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Počni besplatno</a>
+            <a href="#features" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Saznaj više</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-header">
+            <h2>Sve što vam treba na jednom mestu</h2>
+            <p>Naš ERP sistem vam omogućava potpunu kontrolu nad vašim poslovanjem</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <h3>Upravljanje Narudžbinama</h3>
+                <p>Brzo i jednostavno dodavanje, praćenje i upravljanje narudžbinama</p>
+                <ul>
+                    <li>Kreiranje novih narudžbina</li>
+                    <li>Praćenje statusa dostave</li>
+                    <li>Evidencija plaćanja</li>
+                    <li>Detaljna istorija</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🏭</div>
+                <h3>Skladišno Poslovanje</h3>
+                <p>Potpuna kontrola nad zalihama i inventarom</p>
+                <ul>
+                    <li>Praćenje stanja zaliha</li>
+                    <li>Lokacije proizvoda</li>
+                    <li>Automatska sinkronizacija</li>
+                    <li>Upozorenja o niskim zalihama</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Evidencija Klijenata</h3>
+                <p>Kompletna baza podataka o kupcima</p>
+                <ul>
+                    <li>Kontakt informacije</li>
+                    <li>Istorija kupovina</li>
+                    <li>Analiza ponašanja</li>
+                    <li>Personalizovana komunikacija</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📧</div>
+                <h3>Email Notifikacije</h3>
+                <p>Automatsko obaveštavanje o važnim događajima</p>
+                <ul>
+                    <li>Nadolazeće dostave</li>
+                    <li>Niske zalihe</li>
+                    <li>Nova porudžbina</li>
+                    <li>Prilagodljivi šabloni</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Izveštaji i Analitika</h3>
+                <p>Detaljni uvidi u vaše poslovanje</p>
+                <ul>
+                    <li>Prodajni izveštaji</li>
+                    <li>Finansijska analiza</li>
+                    <li>Grafikoni i statistike</li>
+                    <li>Export u različite formate</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3>Prilagodljiva Konfiguracija</h3>
+                <p>Prilagodite sistem vašim potrebama</p>
+                <ul>
+                    <li>Branding opcije</li>
+                    <li>Konfiguracija email-a</li>
+                    <li>Valuta i timezone</li>
+                    <li>Korisničke postavke</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <h2 style="margin-bottom: 1rem; font-size: 2.5rem;">Zašto izabrati nas?</h2>
+        <p style="margin-bottom: 2rem; font-size: 1.2rem; opacity: 0.9;">Brojke govore same za sebe</p>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>100%</h3>
+                <p>Besplatno</p>
+            </div>
+            <div class="stat-item">
+                <h3>24/7</h3>
+                <p>Dostupnost</p>
+            </div>
+            <div class="stat-item">
+                <h3>∞</h3>
+                <p>Narudžbina</p>
+            </div>
+            <div class="stat-item">
+                <h3>⚡</h3>
+                <p>Brzo</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <h2>Spremni da počnete?</h2>
+        <p>Registrujte se danas i počnite da upravljate svojim poslovanjem profesionalnije</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;">Kreiraj nalog besplatno</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024-2026 {{ config.business.name if config and config.business else 'Latice sa Pričom' }}. Sva prava zadržana.</p>
+        <p style="margin-top: 0.5rem;">Verzija {{ config.version if config and config.version else '1.0.0' }}</p>
+    </footer>
+</body>
+</html>

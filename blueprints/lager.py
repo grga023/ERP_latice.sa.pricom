@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, current_app
+from flask_login import login_required
 import time
 import os
 from models import db, LagerItem
@@ -9,7 +10,9 @@ lager_bp = Blueprint('lager', __name__)
 # ─── Page Route ────────────────────────────────────────────────
 
 @lager_bp.route('/lager')
+@login_required
 @lager_bp.route('/lager.html')
+@login_required
 def lager_page():
     return render_template('lager.html')
 
@@ -17,12 +20,14 @@ def lager_page():
 # ─── API Routes ────────────────────────────────────────────────
 
 @lager_bp.route('/api/lager', methods=['GET'])
+@login_required
 def get_lager():
     items = LagerItem.query.all()
     return jsonify([i.to_dict() for i in items])
 
 
 @lager_bp.route('/api/lager', methods=['POST'])
+@login_required
 def add_lager():
     try:
         o = request.form
@@ -64,6 +69,7 @@ def add_lager():
 
 
 @lager_bp.route('/api/lager/<int:item_id>', methods=['DELETE'])
+@login_required
 def delete_lager(item_id):
     item = db.session.get(LagerItem, item_id)
     if not item:
@@ -74,6 +80,7 @@ def delete_lager(item_id):
 
 
 @lager_bp.route('/api/lager/<int:item_id>/increase_quantity', methods=['POST'])
+@login_required
 def increase_quantity(item_id):
     item = db.session.get(LagerItem, item_id)
     if not item:

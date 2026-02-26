@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, current_app
+from flask_login import login_required
 import time
 import os
 from models import db, Order, LagerItem
@@ -9,31 +10,41 @@ orders_bp = Blueprint('orders', __name__)
 # ─── Page Routes ───────────────────────────────────────────────
 
 @orders_bp.route('/')
+@login_required
 @orders_bp.route('/index.html')
+@login_required
 def index():
     return render_template('index.html')
 
 
 @orders_bp.route('/porudzbenice')
+@login_required
 @orders_bp.route('/porudzbenice.html')
+@login_required
 def porudzbenice():
     return render_template('porudzbenice.html')
 
 
 @orders_bp.route('/realizovano')
+@login_required
 @orders_bp.route('/realizovano.html')
+@login_required
 def realizovano():
     return render_template('realizovano.html')
 
 
 @orders_bp.route('/za-dostavu')
+@login_required
 @orders_bp.route('/za_daostavu.html')
+@login_required
 def za_dostavu():
     return render_template('za_dostavu.html')
 
 
 @orders_bp.route('/edit')
+@login_required
 @orders_bp.route('/edit.html')
+@login_required
 def edit():
     return render_template('edit.html')
 
@@ -41,6 +52,7 @@ def edit():
 # ─── API Routes ────────────────────────────────────────────────
 
 @orders_bp.route('/api/orders', methods=['GET'])
+@login_required
 def get_all_orders():
     try:
         orders = Order.query.all()
@@ -51,6 +63,7 @@ def get_all_orders():
 
 
 @orders_bp.route('/api/orders/new', methods=['GET'])
+@login_required
 def get_new_orders():
     try:
         orders = Order.query.filter_by(status='new').all()
@@ -61,6 +74,7 @@ def get_new_orders():
 
 
 @orders_bp.route('/api/orders/for_delivery', methods=['GET'])
+@login_required
 def get_delivery_orders():
     try:
         orders = Order.query.filter_by(status='for_delivery').all()
@@ -71,6 +85,7 @@ def get_delivery_orders():
 
 
 @orders_bp.route('/api/orders/realized', methods=['GET'])
+@login_required
 def get_realized_orders():
     try:
         orders = Order.query.filter_by(status='realized').all()
@@ -81,6 +96,7 @@ def get_realized_orders():
 
 
 @orders_bp.route('/api/orders', methods=['POST'])
+@login_required
 def create_order():
     try:
         o = request.form
@@ -128,6 +144,7 @@ def create_order():
 
 
 @orders_bp.route('/api/update_status', methods=['POST'])
+@login_required
 def update_status():
     data = request.get_json()
     order = db.session.get(Order, data['id'])
@@ -142,6 +159,7 @@ def update_status():
 
 
 @orders_bp.route('/api/order/<int:order_id>', methods=['GET'])
+@login_required
 def get_order(order_id):
     order = db.session.get(Order, order_id)
     if not order:
@@ -150,6 +168,7 @@ def get_order(order_id):
 
 
 @orders_bp.route('/api/delete_order/<int:order_id>', methods=['DELETE'])
+@login_required
 def delete_order(order_id):
     order = db.session.get(Order, order_id)
     if not order:
@@ -159,6 +178,7 @@ def delete_order(order_id):
     return jsonify({'ok': True})
 
 @orders_bp.route('/api/update_order/<int:order_id>', methods=['POST'])
+@login_required
 def update_order(order_id):
     order = db.session.get(Order, order_id)
     if not order:
@@ -183,6 +203,7 @@ def update_order(order_id):
 
 
 @orders_bp.route('/api/order_from_lager', methods=['POST'])
+@login_required
 def order_from_lager():
     o = request.get_json()
     order_qty = int(o.get('kolicina', 1))
@@ -213,6 +234,7 @@ def order_from_lager():
 
 # return_to_lager
 @orders_bp.route('/api/return_to_lager/<int:order_id>', methods=['POST'])
+@login_required
 def return_to_lager(order_id):
     order = db.session.get(Order, order_id)
     if not order:
