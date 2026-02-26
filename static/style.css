@@ -735,6 +735,34 @@ body.modern-body {
 }
 
 /* ─────────────────────────────────
+   🎨 KOMBINACIJE LAYOUT
+   ───────────────────────────────── */
+.kombinacija-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.kombinacija-row .kolicina {
+  flex: 0 0 120px;
+}
+
+.kombinacija-row .boja {
+  flex: 1;
+}
+
+.kombinacija-row .btn-remove {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.875rem;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.kombinacija-row .btn-add {
+  flex: 0 0 auto;
+}
+
+/* ─────────────────────────────────
    📱 RESPONSIVE DESIGN
    ───────────────────────────────── */
 @media (max-width: 968px) {
@@ -828,6 +856,31 @@ body.modern-body {
   .modern-table td {
     padding: 0.75rem;
     font-size: 0.875rem;
+  }
+  
+  /* Kombinacije mobile layout */
+  .kombinacija-row {
+    flex-wrap: wrap;
+  }
+  
+  .kombinacija-row .kolicina {
+    flex: 0 0 35%;
+  }
+  
+  .kombinacija-row .boja {
+    flex: 0 0 50%;
+  }
+  
+  .kombinacija-row .btn-remove {
+    flex: 0 0 10%;
+    padding: 0.5rem;
+    min-width: 36px;
+  }
+  
+  .kombinacija-row .btn-add {
+    flex: 0 0 100%;
+    width: 100%;
+    margin-top: 0.5rem;
   }
 }
 
