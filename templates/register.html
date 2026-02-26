@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registracija - {{ config.business.name if config and config.business else 'ERP Sistem' }}</title>
+    <title>Register - {{ config.business.name if config and config.business else 'ERP System' }}</title>
     <style>
         * {
             margin: 0;
@@ -188,12 +188,12 @@
 <body>
     <div class="register-container">
         <div class="logo">
-            <h1>🚀 Kreirajte nalog</h1>
-            <p>Start using the ERP system danas</p>
+            <h1>🚀 Create Account</h1>
+            <p>Start using the ERP system today</p>
         </div>
 
         <div class="info-box">
-            <p><strong>💡 Prvi korisnik automatski postaje administrator!</strong></p>
+            <p><strong>💡 The first user automatically becomes an administrator!</strong></p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -211,12 +211,12 @@
             </div>
 
             <div class="form-group">
-                <label for="email">Email adresa</label>
+                <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" required>
             </div>
 
             <div class="form-group">
-                <label for="password">Lozinka</label>
+                <label for="password">Password</label>
                 <input type="password" id="password" name="password" required minlength="6">
                 <div class="password-strength">
                     <div class="password-strength-bar" id="strength-bar"></div>
@@ -224,17 +224,17 @@
             </div>
 
             <div class="form-group">
-                <label for="password_confirm">Potvrdite lozinku</label>
+                <label for="password_confirm">Confirm Password</label>
                 <input type="password" id="password_confirm" name="password_confirm" required minlength="6">
             </div>
 
-            <button type="submit" class="btn">Registruj se</button>
+            <button type="submit" class="btn">Sign Up</button>
         </form>
 
-        <div class="divider">ili</div>
+        <div class="divider">or</div>
 
         <div class="links">
-            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a></p>
             <p style="margin-top: 1rem;"><a href="{{ url_for('auth.landing') }}">← Back to home</a></p>
         </div>
     </div>

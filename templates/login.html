@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prijava - {{ config.business.name if config and config.business else 'ERP Sistem' }}</title>
+    <title>Login - {{ config.business.name if config and config.business else 'ERP System' }}</title>
     <style>
         * {
             margin: 0;
@@ -161,7 +161,7 @@
     <div class="login-container">
         <div class="logo">
             <h1>👋 Welcome back</h1>
-            <p>Login to your nalog</p>
+            <p>Sign in to your account</p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -179,17 +179,17 @@
             </div>
 
             <div class="form-group">
-                <label for="password">Lozinka</label>
+                <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
 
-            <button type="submit" class="btn">Prijavi se</button>
+            <button type="submit" class="btn">Sign In</button>
         </form>
 
-        <div class="divider">ili</div>
+        <div class="divider">or</div>
 
         <div class="links">
-            <p>Nemate nalog? <a href="{{ url_for('auth.register') }}">Register</a></p>
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Sign Up</a></p>
             <p style="margin-top: 1rem;"><a href="{{ url_for('auth.landing') }}">← Back to home</a></p>
         </div>
     </div>
