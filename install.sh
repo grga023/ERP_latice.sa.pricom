@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 # GLOBALNE VARIJABLE
 # ═══════════════════════════════════════════════
 # Zameni "your-username" sa stvarnim GitHub korisničkim imenom
-GIT_REPO="https://github.com/grga023/ERP_latice.sa.pricom.git"
+GIT_REPO="https://github.com/grga023/Simple_ERP.git"
 
 # Detektuj branch ili tag
 CURRENT_BRANCH=""
