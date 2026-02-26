@@ -5,6 +5,7 @@ Latice sa pričom ERP - Flask Application
 
 import os
 import logging
+import json
 import threading
 import sqlite3
 import argparse
@@ -72,6 +73,18 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+
+    @app.context_processor
+    def inject_config():
+        config_file = os.path.join(DATA_DIR, 'config.json')
+        config = {}
+        if os.path.exists(config_file):
+            try:
+                with open(config_file) as f:
+                    config = json.load(f)
+            except:
+                pass
+        return {'config': config}
 
     # ─── Register Blueprints ───────────────────────────────────
     app.register_blueprint(orders_bp)
