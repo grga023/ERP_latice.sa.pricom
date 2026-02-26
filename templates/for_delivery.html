@@ -1,25 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Za dostavu{% endblock %}
+{% block title %}For Delivery{% endblock %}
 
 {% block content %}
 <div class="page-header mb-4">
-  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">🚚 Za Dostavu</h1>
-  <p style="color: #4a4a4a; font-size: 1.1rem;">Porudžbine spremne za isporuku</p>
+  <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a1a1a;">🚚 For Delivery</h1>
+  <p style="color: #4a4a4a; font-size: 1.1rem;">Orders ready for shipment</p>
 </div>
 
 <div class="table-container fade-in">
   <table id="shippingTable" class="modern-table">
     <thead>
       <tr>
-        <th>Naziv</th>
-        <th>Cena</th>
-        <th>Plaćeno</th>
-        <th>Kupac</th>
-        <th>Datum</th>
-        <th>Opis</th>
-        <th>Slika</th>
-        <th>Akcija</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Paid</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Image</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -29,26 +29,26 @@
 
 {% block scripts %}
 <script>
-function formatOpis(description) {
+function formatDescription(description) {
     if (!description || description === '-') return '-';
     const lines = description.split(/\r\n|\n/).filter(l => l.trim());
-    let kolLines = [];
-    let detalji = [];
-    let inDetalji = false;
+    let quantityLines = [];
+    let details = [];
+    let inDetails = false;
     for (const line of lines) {
-        if (line.startsWith('Detalji:')) {
-            inDetalji = true;
-            detalji.push(line.replace('Detalji:', '').trim());
-        } else if (inDetalji) {
-            detalji.push(line);
+        if (line.startsWith('Details:')) {
+            inDetails = true;
+            details.push(line.replace('Details:', '').trim());
+        } else if (inDetails) {
+            details.push(line);
         } else {
             const m = line.match(/^(\d+)\s+(.+)/);
-            kolLines.push(m ? m[1] + ' x ' + m[2] : line);
+            quantityLines.push(m ? m[1] + ' x ' + m[2] : line);
         }
     }
     let html = '';
-    if (kolLines.length) html += '<strong>Količina:</strong><br>' + kolLines.join('<br>');
-    if (detalji.length) html += (html ? '<br>' : '') + '<strong>Detalji:</strong><br>' + detalji.join('<br>');
+    if (quantityLines.length) html += '<strong>Quantity:</strong><br>' + quantityLines.join('<br>');
+    if (details.length) html += (html ? '<br>' : '') + '<strong>Details:</strong><br>' + details.join('<br>');
     return html || '-';
 }
 async function loadToBeShipped() {
@@ -60,17 +60,17 @@ async function loadToBeShipped() {
     orders.forEach(order => {
         const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td data-label="Naziv"><strong>${order.name}</strong></td>
-                <td data-label="Cena"><strong>${order.price} RSD</strong></td>
-                <td data-label="Plaćeno">${order.paid ? '<span class="badge badge-paid">Plaćeno</span>' : '<span class="badge badge-unpaid">Nije plaćeno</span>'}</td>
-                <td data-label="Kupac"><strong>${order.customer}</strong></td>
-                <td data-label="Datum">${order.date || '-'}</td>
-                <td data-label="Opis" class="td-description">${formatOpis(order.description)}</td>
-                <td data-label="Slika">${order.image ? `<img src="/images/${order.image}" />` : '-'}</td>
-                <td data-label="Akcija">
+                <td data-label="Name"><strong>${order.name}</strong></td>
+                <td data-label="Price"><strong>${order.price} RSD</strong></td>
+                <td data-label="Paid">${order.paid ? '<span class="badge badge-paid">Paid</span>' : '<span class="badge badge-unpaid">Not paid</span>'}</td>
+                <td data-label="Customer"><strong>${order.customer}</strong></td>
+                <td data-label="Date">${order.date || '-'}</td>
+                <td data-label="Description" class="td-description">${formatDescription(order.description)}</td>
+                <td data-label="Image">${order.image ? `<img src="/images/${order.image}" />` : '-'}</td>
+                <td data-label="Action">
                     <div class="btn-group">
-                        <button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button>
-                        <button class="btn btn-sm btn-success" onclick="realized(${order.id})">✅ Realizovano</button>
+                        <button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Edit</button>
+                        <button class="btn btn-sm btn-success" onclick="realized(${order.id})">✅ Completed</button>
                     </div>
                 </td>
             `;
@@ -86,10 +86,10 @@ async function realized(id) {
             body: JSON.stringify({id: id, status:'realized'})
         });
         if(res.ok) loadToBeShipped();
-        else alert('Greška pri ažuriranju statusa.');
+        else alert('Error updating status.');
     } catch(err) {
         console.error(err);
-        alert('Greška pri konektovanju na server.');
+        alert('Error connecting to server.');
     }
 }
 
