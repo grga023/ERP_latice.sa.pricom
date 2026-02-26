@@ -17,19 +17,19 @@
 <form id="lagerForm" enctype="multipart/form-data">
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Naziv *</label>
-        <input type="text" name="name" class="form-input" placeholder="Naziv artikla" required>
+        <label class="form-label">Name *</label>
+        <input type="text" name="name" class="form-input" placeholder="Name artikla" required>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Cena *</label>
+        <label class="form-label">Price *</label>
         <input type="number" name="price" step="0.01" class="form-input" placeholder="0.00" required>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Boja *</label>
+        <label class="form-label">Color *</label>
         <input type="text" name="color" class="form-input" placeholder="npr. crvena, plava" required>
       </div>
 
@@ -40,7 +40,7 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Lokacija</label>
+      <label class="form-label">Location</label>
       <select name="location" class="form-select">
         <option value="Kuća">Kuća</option>
         <option value="Teodora">Teodora</option>
@@ -75,12 +75,12 @@
     <thead>
       <tr>
         <th>Slika</th>
-        <th>Naziv</th>
-        <th>Cena</th>
-        <th>Boja</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Color</th>
         <th>Količina</th>
-        <th>Lokacija</th>
-        <th>Akcija</th>
+        <th>Location</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -97,7 +97,7 @@
         </div>
         
         <div class="mb-3" style="padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
-            <strong id="increaseNaziv" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
+            <strong id="increaseName" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
             <span id="increaseCurrentQty" style="color: var(--gray);"></span>
         </div>
         
@@ -126,16 +126,16 @@
         <div class="modal-preview mb-4" style="display: flex; gap: 1rem; padding: 1rem; background: var(--glass-bg); border-radius: var(--radius-lg); border: 1px solid var(--glass-border);">
             <img id="modalImg" src="" alt="Slika artikla" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);">
             <div style="flex: 1;">
-                <strong id="modalNaziv" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
-                <span id="modalCena" style="display: block; color: var(--primary); font-weight: 600; margin-bottom: 0.25rem;"></span>
-                <span id="modalBoja" style="display: block; color: var(--gray);"></span>
+                <strong id="modalName" style="display: block; font-size: 1.1rem; margin-bottom: 0.5rem;"></strong>
+                <span id="modalPrice" style="display: block; color: var(--primary); font-weight: 600; margin-bottom: 0.25rem;"></span>
+                <span id="modalColor" style="display: block; color: var(--gray);"></span>
             </div>
         </div>
         
         <form id="orderFromLagerForm">
-            <input type="hidden" id="modalLagerNaziv">
-            <input type="hidden" id="modalLagerCena">
-            <input type="hidden" id="modalLagerBoja">
+            <input type="hidden" id="modalLagerName">
+            <input type="hidden" id="modalLagerPrice">
+            <input type="hidden" id="modalLagerColor">
             <input type="hidden" id="modalLagerSlika">
             <input type="hidden" id="modalLagerId">
             <input type="hidden" id="modalLagerStock">
@@ -228,21 +228,21 @@ async function loadLager() {
         if (outOfStock) tr.style.opacity = '0.6';
         
         // Escape special characters for safe HTML insertion
-        const escapedNaziv = (item.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
-        const escapedBoja = (item.color || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const escapedName = (item.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const escapedColor = (item.color || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
         const escapedSlika = (item.image || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
         
         tr.innerHTML = `
             <td data-label="Slika">${item.image ? '<img src="/images/' + item.image + '" style="width: 60px; height: 60px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);" />' : '<span style="color: var(--gray);">-</span>'}</td>
-            <td data-label="Naziv"><strong>${item.name}</strong></td>
-            <td data-label="Cena"><span style="color: var(--primary); font-weight: 600;">${item.price} RSD</span></td>
-            <td data-label="Boja">${item.color}</td>
+            <td data-label="Name"><strong>${item.name}</strong></td>
+            <td data-label="Price"><span style="color: var(--primary); font-weight: 600;">${item.price} RSD</span></td>
+            <td data-label="Color">${item.color}</td>
             <td data-label="Količina">${outOfStock ? '<span class="badge badge-danger">Nedostupno</span>' : '<span class="badge badge-success">' + item.quantity + '</span>'}</td>
-            <td data-label="Lokacija">${item.location || '-'}</td>
-            <td data-label="Akcija">
+            <td data-label="Location">${item.location || '-'}</td>
+            <td data-label="Action">
                 <div class="btn-group">
-                    <button onclick="openOrderModal(${item.id}, '${escapedNaziv}', ${item.price}, '${escapedBoja}', '${escapedSlika}', ${item.quantity || 0})" class="btn btn-primary btn-sm">🛍️ Porudžbina</button>
-                    <button onclick="openIncreaseModal(${item.id}, '${escapedNaziv}', ${item.quantity || 0})" class="btn btn-secondary btn-sm">➕ Dodaj</button>
+                    <button onclick="openOrderModal(${item.id}, '${escapedName}', ${item.price}, '${escapedColor}', '${escapedSlika}', ${item.quantity || 0})" class="btn btn-primary btn-sm">🛍️ Porudžbina</button>
+                    <button onclick="openIncreaseModal(${item.id}, '${escapedName}', ${item.quantity || 0})" class="btn btn-secondary btn-sm">➕ Dodaj</button>
                     <button onclick="deleteLager(${item.id})" class="btn btn-danger btn-sm">🗑️</button>
                 </div>
             </td>
@@ -295,7 +295,7 @@ loadLager();
 // --- Increase Quantity Modal ---
 function openIncreaseModal(itemId, name, currentQty) {
     document.getElementById('increaseItemId').value = itemId;
-    document.getElementById('increaseNaziv').textContent = name;
+    document.getElementById('increaseName').textContent = name;
     document.getElementById('increaseCurrentQty').textContent = 'Trenutna količina: ' + currentQty;
     document.getElementById('increaseAmount').value = 1;
     document.getElementById('increaseModal').classList.add('active');
@@ -352,12 +352,12 @@ function openOrderModal(lagerId, name, price, color, image, stock) {
         imgElement.src = '';
         imgElement.style.display = 'none';
     }
-    document.getElementById('modalNaziv').textContent = name;
-    document.getElementById('modalCena').textContent = 'Cena: ' + price;
-    document.getElementById('modalBoja').textContent = 'Boja: ' + color;
-    document.getElementById('modalLagerNaziv').value = name;
-    document.getElementById('modalLagerCena').value = price;
-    document.getElementById('modalLagerBoja').value = color;
+    document.getElementById('modalName').textContent = name;
+    document.getElementById('modalPrice').textContent = 'Price: ' + price;
+    document.getElementById('modalColor').textContent = 'Color: ' + color;
+    document.getElementById('modalLagerName').value = name;
+    document.getElementById('modalLagerPrice').value = price;
+    document.getElementById('modalLagerColor').value = color;
     document.getElementById('modalLagerSlika').value = image;
     document.getElementById('modalLagerId').value = lagerId;
     document.getElementById('modalLagerStock').value = stock;
@@ -413,10 +413,10 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
         dateValue = day + '.' + month + '.' + year;
     }
 
-    const baseCena = parseFloat(document.getElementById('modalLagerCena').value);
+    const basePrice = parseFloat(document.getElementById('modalLagerPrice').value);
     const quantity = parseInt(document.getElementById('modalKolicina').value) || 1;
-    const totalCena = (baseCena * quantity).toFixed(2);
-    const color = document.getElementById('modalLagerBoja').value;
+    const totalPrice = (basePrice * quantity).toFixed(2);
+    const color = document.getElementById('modalLagerColor').value;
     const descriptionText = document.getElementById('modalOpis').value.trim();
 
     // Build formatted description: "quantity color\nDetails: description"
@@ -426,8 +426,8 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
     }
 
     const data = {
-        name: document.getElementById('modalLagerNaziv').value,
-        price: totalCena,
+        name: document.getElementById('modalLagerName').value,
+        price: totalPrice,
         color: color,
         image: document.getElementById('modalLagerSlika').value,
         customer: document.getElementById('modalKupac').value,
