@@ -208,11 +208,11 @@ def update_order(order_id):
 def order_from_lager():
     data = request.get_json()
     order_qty = int(data.get('quantity', 1))
-    lager_id = int(data.get('lager_id', 0)) if data.get('lager_id') else None
+    inventory_id = int(data.get('lager_id', 0)) if data.get('lager_id') else None
 
-    # Subtract quantity from lager (minimum 0)
-    if lager_id:
-        item = db.session.get(InventoryItem, int(lager_id))
+    # Subtract quantity from inventory (minimum 0)
+    if inventory_id:
+        item = db.session.get(InventoryItem, int(inventory_id))
         if item:
             item.quantity = max(0, item.quantity - order_qty)
 
@@ -227,7 +227,7 @@ def order_from_lager():
         description=data.get('description', ''),
         image=data.get('image', ''),
         status='new',
-        lager_id=lager_id if lager_id else None
+        inventory_id=inventory_id if inventory_id else None
     )
     db.session.add(order)
     db.session.commit()
@@ -241,12 +241,12 @@ def return_to_lager(order_id):
     if not order:
         return jsonify({'error': 'Order not found'}), 404
     
-    if not order.lager_id:
-        return jsonify({'error': 'Order has no lager_id'}), 404
+    if not order.inventory_id:
+        return jsonify({'error': 'Order has no inventory_id'}), 404
     
-    item = db.session.get(InventoryItem, int(order.lager_id))
+    item = db.session.get(InventoryItem, int(order.inventory_id))
     if not item:
-        return jsonify({'error': 'Lager item not found'}), 404
+        return jsonify({'error': 'Inventory item not found'}), 404
     
     # Return the order quantity back to lager
     item.quantity += order.quantity
