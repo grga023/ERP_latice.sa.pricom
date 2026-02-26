@@ -551,6 +551,13 @@ body.modern-body {
   max-height: 60px;
   border-radius: var(--radius-sm);
   object-fit: cover;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.modern-table td img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ─────────────────────────────────
@@ -885,6 +892,63 @@ body.modern-body {
 
 .modal-overlay.active {
   display: block;
+}
+
+/* ─────────────────────────────────
+   🖼️ LIGHTBOX FOR IMAGES
+   ───────────────────────────────── */
+.lightbox-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease;
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox-overlay.active {
+  display: flex;
+}
+
+.lightbox-overlay img {
+  max-width: 90%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  color: var(--white);
+  font-size: 3rem;
+  font-weight: 300;
+  cursor: pointer;
+  z-index: 10001;
+  transition: var(--transition-fast);
+  line-height: 1;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.lightbox-close:hover {
+  transform: rotate(90deg) scale(1.1);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ─────────────────────────────────
