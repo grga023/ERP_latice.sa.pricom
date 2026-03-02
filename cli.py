@@ -68,7 +68,7 @@ def cmd_status(args):
     
     # Proveri symlinkove
     data_link = SCRIPT_DIR / "data"
-    img_link = SCRIPT_DIR / "img"
+    img_link = SCRIPT_DIR / "images"
     
     print(f"\nSymlinkovi:")
     print(f"  data: {'✓ OK' if data_link.is_symlink() else '✗ NEDOSTAJE'}")
@@ -465,6 +465,48 @@ def cmd_db(args):
             f"import sqlite3; c=sqlite3.connect('{db_file}'); c.execute('VACUUM'); c.close(); print('✓ VACUUM završen')"
         ])
 
+def cmd_reset_users(args):
+    """Obriši sve korisnike i kreiraj novog admina"""
+    confirm = input("Ovo će obrisati sve korisnike. Nastavi? [y/N]: ").strip().lower()
+    if confirm != 'y':
+        print("Reset korisnika otkazan.")
+        return
+
+    try:
+        from datetime import datetime
+        import secrets
+        import string
+        from ERP_server import create_app
+        from models import db, User
+
+        app = create_app()
+        with app.app_context():
+            User.query.delete()
+            db.session.commit()
+
+            username = 'admin'
+            password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(8))
+
+            user = User(
+                username=username,
+                email='admin@local',
+                is_admin=True,
+                password_change_required=True,
+                created_at=datetime.now().isoformat()
+            )
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+
+            print("✓ Korisnici resetovani.")
+            print("Admin kredencijali:")
+            print(f"  Username: {username}")
+            print(f"  Password: {password}")
+            print("  (Lozinka mora biti promenjena pri prvoj prijavi)")
+    except Exception as e:
+        print(f"✗ Greška: {e}")
+        sys.exit(1)
+
 def main():
     parser = argparse.ArgumentParser(
         prog='erp',
@@ -538,6 +580,9 @@ def main():
     db_parser = subparsers.add_parser('db', help='Database operacije')
     db_parser.add_argument('action', choices=['info', 'backup', 'vacuum'], 
                            help='info/backup/vacuum')
+
+    # reset-users
+    subparsers.add_parser('reset-users', help='Obriši sve korisnike i kreiraj admina')
     
     # enable/disable autostart
     subparsers.add_parser('enable', help='Uključi autostart na boot')
@@ -561,6 +606,7 @@ def main():
         'backup': cmd_backup,
         'update': cmd_update,
         'db': cmd_db,
+        'reset-users': cmd_reset_users,
         'enable': cmd_enable,
         'disable': cmd_disable,
         'uninstall': cmd_uninstall,
