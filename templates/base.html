@@ -17,6 +17,72 @@
 </head>
 <body class="modern-body">
 
+<!-- Edit Order Modal (Global) -->
+<div id="editOrderModal" class="modal-overlay">
+  <div class="card" style="max-width: 700px; margin: 60px auto; position: relative;">
+    <span class="modal-close" onclick="closeEditModal()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: var(--gray); transition: color 0.2s;">&times;</span>
+    
+    <div class="card-header mb-3">
+      <h2 class="card-title">✏️ Izmeni Porudžbinu</h2>
+    </div>
+    
+    <div class="card-body">
+      <form id="editOrderForm" onsubmit="event.preventDefault(); saveEditedOrder();">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Naziv</label>
+            <input type="text" id="editName" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cena (RSD)</label>
+            <input type="number" id="editPrice" step="0.01" class="form-input" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Kupac</label>
+            <input type="text" id="editCustomer" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plaćeno</label>
+            <select id="editPaid" class="form-select">
+              <option value="false">Ne</option>
+              <option value="true">Da</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Količina</label>
+            <input type="number" id="editQuantity" min="1" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Boja</label>
+            <input type="text" id="editColor" class="form-input">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Datum</label>
+          <input type="date" id="editDate" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Opis</label>
+          <textarea id="editDescription" class="form-input" rows="3"></textarea>
+        </div>
+        
+        <div class="btn-group mt-4">
+          <button type="submit" class="btn btn-primary btw-lg">💾 Spremi Izmene</button>
+          <button type="button" onclick="closeEditModal()" class="btn btn-secondary btn-lg">❌ Otkaži</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- Modern Glassmorphism Navigation -->
 <nav class="modern-navbar">
   <div class="navbar-container">
@@ -121,6 +187,111 @@ document.addEventListener('DOMContentLoaded', function() {
       link.classList.add('active');
     }
   });
+});
+
+// ─── Global Edit Modal ───
+let currentEditOrderId = null;
+let editModalRefreshFunction = null;
+
+async function openEditModal(orderId, refreshFunction) {
+    currentEditOrderId = orderId;
+    editModalRefreshFunction = refreshFunction;
+    
+    const modal = document.getElementById('editOrderModal');
+    if (!modal) return;
+    
+    modal.classList.add('active');
+    
+    try {
+        const res = await fetch(`/api/order/${orderId}`);
+        if (!res.ok) {
+            alert('Porudžbina nije pronađena!');
+            return;
+        }
+        const order = await res.json();
+        
+        // Populate form
+        document.getElementById('editName').value = order.name || '';
+        document.getElementById('editPrice').value = order.price || '';
+        document.getElementById('editPaid').value = order.paid ? 'true' : 'false';
+        document.getElementById('editCustomer').value = order.customer || '';
+        document.getElementById('editQuantity').value = order.quantity || 1;
+        document.getElementById('editColor').value = order.color || '';
+        document.getElementById('editDescription').value = order.description || '';
+        
+        // Convert date from DD.MM.YYYY to YYYY-MM-DD
+        if (order.date) {
+            const [day, month, year] = order.date.split('.');
+            const htmlDate = `${year}-${month}-${day}`;
+            document.getElementById('editDate').value = htmlDate;
+        }
+        
+        document.getElementById('editDate').focus();
+    } catch (err) {
+        console.error(err);
+        alert('Greška pri učitavanju porudžbine.');
+        modal.classList.remove('active');
+    }
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editOrderModal');
+    if (modal) modal.classList.remove('active');
+    currentEditOrderId = null;
+    editModalRefreshFunction = null;
+}
+
+async function saveEditedOrder() {
+    if (!currentEditOrderId) return;
+    
+    const formData = new FormData();
+    formData.append('name', document.getElementById('editName').value);
+    formData.append('price', document.getElementById('editPrice').value);
+    formData.append('paid', document.getElementById('editPaid').value);
+    formData.append('customer', document.getElementById('editCustomer').value);
+    formData.append('quantity', document.getElementById('editQuantity').value);
+    formData.append('color', document.getElementById('editColor').value);
+    formData.append('description', document.getElementById('editDescription').value);
+    
+    // Convert date from YYYY-MM-DD to DD.MM.YYYY
+    let dateValue = document.getElementById('editDate').value;
+    if (dateValue) {
+        const [year, month, day] = dateValue.split('-');
+        dateValue = `${day}.${month}.${year}`;
+    }
+    formData.append('date', dateValue);
+    
+    try {
+        const res = await fetch(`/api/update_order/${currentEditOrderId}`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (res.ok) {
+            alert('Porudžbina je uspešno ažurirana!');
+            closeEditModal();
+            
+            // Refresh the current page's data
+            if (editModalRefreshFunction && typeof editModalRefreshFunction === 'function') {
+                editModalRefreshFunction();
+            }
+        } else {
+            alert('Greška pri ažuriranju porudžbine.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Greška pri konektovanju na server.');
+    }
+}
+
+// Close modal on overlay click
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('editOrderModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeEditModal();
+        });
+    }
 });
 </script>
 

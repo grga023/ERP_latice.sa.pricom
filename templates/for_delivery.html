@@ -86,7 +86,7 @@ async function loadToBeShipped() {
                 <td data-label="Slika">${order.image ? `<img src="/images/${order.image}" />` : '-'}</td>
                 <td data-label="Akcija">
                     <div class="btn-group">
-                        <button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button>
+                        <button class="btn btn-sm btn-secondary" onclick="openEditModal(${order.id}, loadToBeShipped)">✏️ Izmeni</button>
                         <button class="btn btn-sm btn-success" onclick="realized(${order.id}, ${order.paid})">✅ Realizovano</button>
                     </div>
                 </td>
@@ -147,6 +147,7 @@ async function sendRealized(id, paid) {
 }
 
 function editOrder(id) {
+    // Legacy function - redirect to edit page for compatibility
     window.location.href = `/edit?id=${id}`;
 }
 
