@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify, render_template, current_app
+import logging
 from flask_login import login_required
 import time
 import os
 from models import db, LagerItem
 
 lager_bp = Blueprint('lager', __name__)
+logger = logging.getLogger(__name__)
 
 
 # ─── Page Route ────────────────────────────────────────────────
@@ -63,7 +65,7 @@ def add_inventory():
         return jsonify({'ok': True})
     except Exception as e:
         db.session.rollback()
-        print(f"Error adding inventory item: {str(e)}")
+        logger.exception("Error adding inventory item")
         return jsonify({'error': f'Greška pri dodavanju artikla: {str(e)}'}), 500
 
 

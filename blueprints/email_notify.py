@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import logging
 from flask_login import login_required
 import smtplib
 import time
@@ -8,6 +9,7 @@ from datetime import datetime, timedelta
 from models import db, Order, EmailConfig, NotificationLog
 
 email_bp = Blueprint('email', __name__)
+logger = logging.getLogger(__name__)
 
 
 # ─── Helper Functions ──────────────────────────────────────────
@@ -43,7 +45,7 @@ def send_email(subject, body, config):
             server.send_message(msg)
         return True
     except Exception as e:
-        print(f'[EMAIL ERROR] {e}')
+        logger.exception("Email send failed")
         return False
 
 
@@ -102,7 +104,7 @@ def notification_scheduler(app):
             with app.app_context():
                 check_and_notify()
         except Exception as e:
-            print(f'[SCHEDULER ERROR] {e}')
+            logger.exception("Scheduler error")
         time.sleep(3600 * 23)
 
 

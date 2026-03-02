@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify, render_template, current_app
+import logging
 from flask_login import login_required
 import time
 import os
 from models import db, Order, LagerItem
 
 orders_bp = Blueprint('orders', __name__)
+logger = logging.getLogger(__name__)
 
 
 # ─── Page Routes ───────────────────────────────────────────────
@@ -59,7 +61,7 @@ def get_all_orders():
         orders = Order.query.all()
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
-        print(f"Error getting all orders: {str(e)}")
+        logger.exception("Error getting all orders")
         return jsonify({'error': f'Greška pri učitavanju porudžbina: {str(e)}'}), 500
 
 
@@ -70,7 +72,7 @@ def get_new_orders():
         orders = Order.query.filter_by(status='new').all()
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
-        print(f"Error getting new orders: {str(e)}")
+        logger.exception("Error getting new orders")
         return jsonify({'error': f'Greška pri učitavanju novih porudžbina: {str(e)}'}), 500
 
 
@@ -81,7 +83,7 @@ def get_delivery_orders():
         orders = Order.query.filter_by(status='for_delivery').all()
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
-        print(f"Error getting delivery orders: {str(e)}")
+        logger.exception("Error getting delivery orders")
         return jsonify({'error': f'Greška pri učitavanju porudžbina za dostavu: {str(e)}'}), 500
 
 
@@ -92,7 +94,7 @@ def get_realized_orders():
         orders = Order.query.filter_by(status='realized').all()
         return jsonify([o.to_dict() for o in orders])
     except Exception as e:
-        print(f"Error getting realized orders: {str(e)}")
+        logger.exception("Error getting realized orders")
         return jsonify({'error': f'Greška pri učitavanju realizovanih porudžbina: {str(e)}'}), 500
 
 
@@ -140,7 +142,7 @@ def create_order():
         return jsonify({'ok': True})
     except Exception as e:
         db.session.rollback()
-        print(f"Error creating order: {str(e)}")
+        logger.exception("Error creating order")
         return jsonify({'error': f'Greška pri kreiranju porudžbine: {str(e)}'}), 500
 
 

@@ -59,7 +59,11 @@ def configure_logging(app, level):
 
     app.logger.handlers = []
     app.logger.propagate = True
-    logging.getLogger('werkzeug').setLevel(level)
+
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.handlers = []
+    werkzeug_logger.propagate = False
+    werkzeug_logger.setLevel(logging.CRITICAL)
 
 
 def create_app():
@@ -186,7 +190,7 @@ def main():
     t = threading.Thread(target=notification_scheduler, args=(app,), daemon=True)
     t.start()
 
-    print(f"Starting ERP server on {host}:{port}")
+    app.logger.info("Starting ERP server on %s:%s", host, port)
     app.run(host=host, port=port, debug=debug)
 
 
