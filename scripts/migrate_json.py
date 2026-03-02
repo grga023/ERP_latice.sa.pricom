@@ -17,6 +17,14 @@ The original JSON files are NOT deleted (kept as backup).
 import json
 import os
 import sys
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 # Ensure we can import from the project root
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,18 +41,24 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')
 def load_json(filename):
     """Load a JSON file from the data directory, return empty list/dict on failure."""
     filepath = os.path.join(DATA_DIR, filename)
+    logger.debug(f"Loading JSON file: {filepath}")
     if not os.path.exists(filepath):
+        logger.warning(f"JSON file not found: {filename}")
         return []
     try:
         with open(filepath, encoding='utf-8') as f:
-            return json.load(f)
+            data = json.load(f)
+        logger.info(f"Successfully loaded {filename}")
+        return data
     except (json.JSONDecodeError, IOError) as e:
         print(f'  [WARNING] Could not read {filename}: {e}')
+        logger.error(f"Could not read {filename}: {e}", exc_info=True)
         return []
 
 
 def migrate_orders():
     """Migrate orders from all 3 JSON files."""
+    logger.info("Starting orders migration from JSON files...")
     count = 0
     for filename, status in [
         ('new_ord.json', 'new'),
@@ -54,6 +68,7 @@ def migrate_orders():
         orders = load_json(filename)
         if not orders:
             print(f'  {filename}: 0 orders (empty or missing)')
+            logger.debug(f"{filename}: No orders to migrate")
             continue
 
         for o in orders:
@@ -74,15 +89,19 @@ def migrate_orders():
             count += 1
 
         print(f'  {filename}: {len(orders)} orders migrated as "{status}"')
+        logger.info(f"Migrated {len(orders)} orders from {filename} with status '{status}'")
 
+    logger.info(f"Total orders migrated: {count}")
     return count
 
 
 def migrate_lager():
     """Migrate lager items from lager.json."""
+    logger.info("Starting lager migration from JSON...")
     items = load_json('lager.json')
     if not items:
         print('  lager.json: 0 items (empty or missing)')
+        logger.debug("No lager items to migrate")
         return 0
 
     for item in items:
@@ -97,14 +116,17 @@ def migrate_lager():
         db.session.add(lager_item)
 
     print(f'  lager.json: {len(items)} items migrated')
+    logger.info(f"Migrated {len(items)} lager items")
     return len(items)
 
 
 def migrate_email_config():
     """Migrate email config from email_config.json."""
+    logger.info("Starting email config migration...")
     config_data = load_json('email_config.json')
     if not config_data:
         print('  email_config.json: not found or empty, skipping')
+        logger.debug("No email config to migrate")
         return
 
     # email_config.json is a dict, not a list
@@ -118,15 +140,19 @@ def migrate_email_config():
         )
         db.session.add(config)
         print('  email_config.json: migrated')
+        logger.info("Email config migrated successfully")
     else:
         print('  email_config.json: unexpected format, skipping')
+        logger.warning(f"Email config has unexpected format: {type(config_data)}")
 
 
 def migrate_notifications():
     """Migrate notification log from notified.json."""
+    logger.info("Starting notification log migration...")
     notified = load_json('notified.json')
     if not notified:
         print('  notified.json: not found or empty, skipping')
+        logger.debug("No notifications to migrate")
         return
 
     count = 0
@@ -138,9 +164,11 @@ def migrate_notifications():
                 count += 1
 
     print(f'  notified.json: {count} notification keys migrated')
+    logger.info(f"Migrated {count} notification keys")
 
 
 def main():
+    logger.info("Starting JSON to SQLite migration")
     print('=' * 50)
     print('JSON → SQLite Migration')
     print('=' * 50)
@@ -151,19 +179,26 @@ def main():
         # Check if database already has data
         existing_orders = Order.query.count()
         existing_lager = LagerItem.query.count()
+        logger.info(f"Current database state: {existing_orders} orders, {existing_lager} lager items")
+        
         if existing_orders > 0 or existing_lager > 0:
             print(f'\n  Database already has data ({existing_orders} orders, {existing_lager} lager items).')
+            logger.warning("Database contains existing data")
             answer = input('  Overwrite? (y/N): ').strip().lower()
+            logger.debug(f"User overwrite choice: {answer}")
             if answer != 'y':
                 print('  Migration cancelled.')
+                logger.info("Migration cancelled by user")
                 return
             # Clear existing data
+            logger.info("Clearing existing data...")
             NotificationLog.query.delete()
             EmailConfig.query.delete()
             LagerItem.query.delete()
             Order.query.delete()
             db.session.commit()
             print('  Existing data cleared.\n')
+            logger.info("Existing data cleared successfully")
 
         print('\nMigrating orders...')
         order_count = migrate_orders()
@@ -178,7 +213,13 @@ def main():
         migrate_notifications()
 
         # Commit all changes
-        db.session.commit()
+        try:
+            db.session.commit()
+            logger.info("All migrations committed to database")
+        except Exception as e:
+            logger.error(f"Failed to commit migrations: {e}", exc_info=True)
+            db.session.rollback()
+            raise
 
         print('\n' + '=' * 50)
         print(f'Migration complete!')
@@ -187,6 +228,7 @@ def main():
         print(f'  Database: {os.path.join(DATA_DIR, "erp.db")}')
         print(f'\nOriginal JSON files are preserved in data/ as backup.')
         print('=' * 50)
+        logger.info(f"Migration completed: {order_count} orders, {lager_count} lager items")
 
 
 if __name__ == '__main__':

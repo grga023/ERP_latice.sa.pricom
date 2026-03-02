@@ -26,12 +26,22 @@ def load_erp_config():
     """Učitaj konfiguraciju iz .erp.conf"""
     config = {}
     config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.erp.conf')
+    logger = logging.getLogger(__name__)
+    
     if os.path.exists(config_file):
-        with open(config_file) as f:
-            for line in f:
-                if '=' in line and not line.strip().startswith('#'):
-                    key, value = line.strip().split('=', 1)
-                    config[key] = value
+        logger.info(f"Loading ERP configuration from {config_file}")
+        try:
+            with open(config_file) as f:
+                for line in f:
+                    if '=' in line and not line.strip().startswith('#'):
+                        key, value = line.strip().split('=', 1)
+                        config[key] = value
+            logger.info(f"Configuration loaded successfully with {len(config)} entries")
+        except Exception as e:
+            logger.error(f"Error loading configuration file: {e}", exc_info=True)
+            raise
+    else:
+        logger.warning(f"Configuration file not found: {config_file}")
     return config
 
 
@@ -41,7 +51,7 @@ def configure_logging(app, level):
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(log_dir, 'erp.log')
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     stream_handler = logging.StreamHandler(sys.stdout)
     stream_handler.setLevel(level)
@@ -65,16 +75,26 @@ def configure_logging(app, level):
     werkzeug_logger.handlers = []
     werkzeug_logger.propagate = False
     werkzeug_logger.setLevel(logging.CRITICAL)
+    
+    root_logger.info(f"Logging configured: level={logging.getLevelName(level)}, log_file={log_file}")
 
 
 def create_app():
     """Application factory pattern."""
+    logger = logging.getLogger(__name__)
+    logger.info("Creating Flask application...")
+    
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DATA_DIR = os.path.join(BASE_DIR, 'data')
     IMAGES_DIR = os.path.join(BASE_DIR, 'images')
 
+    logger.debug(f"BASE_DIR: {BASE_DIR}")
+    logger.debug(f"DATA_DIR: {DATA_DIR}")
+    logger.debug(f"IMAGES_DIR: {IMAGES_DIR}")
+
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(IMAGES_DIR, exist_ok=True)
+    logger.info(f"Directories initialized: data={DATA_DIR}, images={IMAGES_DIR}")
 
     app = Flask(
         __name__,
@@ -84,8 +104,10 @@ def create_app():
 
     # ─── Configuration ─────────────────────────────────────────
     db_file = os.path.join(DATA_DIR, 'erp.db')
+    logger.info(f"Database file: {db_file}")
     
     def get_sqlite_connection():
+        logger.debug("Creating SQLite connection with optimized settings")
         conn = sqlite3.connect(db_file, check_same_thread=False)
         conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA synchronous=OFF")
@@ -103,9 +125,11 @@ def create_app():
     app.config['SECRET_KEY'] = 'latice-sa-pricom-erp-secret'
 
     # ─── Initialize Extensions ─────────────────────────────────
+    logger.info("Initializing database...")
     db.init_app(app)
     
     # Flask-Login setup
+    logger.info("Initializing Flask-Login...")
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -114,10 +138,17 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        user = User.query.get(int(user_id))
+        if user:
+            logger.debug(f"User loaded: {user.username} (ID: {user_id})")
+        else:
+            logger.warning(f"User not found: ID={user_id}")
+        return user
 
     with app.app_context():
+        logger.info("Creating database tables...")
         db.create_all()
+        logger.info("Database tables created successfully")
 
     @app.context_processor
     def inject_config():
@@ -127,17 +158,21 @@ def create_app():
             try:
                 with open(config_file) as f:
                     config = json.load(f)
-            except:
+                logger.debug("Config injected into template context")
+            except Exception as e:
+                logger.error(f"Error loading config for template injection: {e}")
                 pass
         return {'config': config}
 
     # ─── Register Blueprints ───────────────────────────────────
     # Auth blueprint must be first (handles landing page at '/')
+    logger.info("Registering blueprints...")
     app.register_blueprint(auth_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(lager_bp)
     app.register_blueprint(email_bp)
     app.register_blueprint(config_bp)
+    logger.info("All blueprints registered successfully")
 
     # ─── Serve Uploaded Images ─────────────────────────────────
     @app.route('/images/<path:filename>')
@@ -147,26 +182,32 @@ def create_app():
     # ─── Central Error Handlers ────────────────────────────────
     @app.errorhandler(400)
     def bad_request(e):
+        logger.warning(f"Bad request (400): {e}")
         return jsonify({'error': 'Neispravan zahtev', 'status': 400}), 400
 
     @app.errorhandler(404)
     def not_found(e):
+        logger.debug(f"Not found (404): {e}")
         return jsonify({'error': 'Resurs nije pronađen', 'status': 404}), 404
 
     @app.errorhandler(405)
     def method_not_allowed(e):
+        logger.warning(f"Method not allowed (405): {e}")
         return jsonify({'error': 'Metoda nije dozvoljena', 'status': 405}), 405
 
     @app.errorhandler(500)
     def server_error(e):
+        logger.error(f"Internal server error (500): {e}", exc_info=True)
         return jsonify({'error': 'Greška na serveru', 'status': 500}), 500
 
     # ─── Health Check ─────────────────────────────────────────
     @app.route('/health')
     def health_check():
         """Health check endpoint"""
+        logger.debug("Health check requested")
         return jsonify({'status': 'healthy','version': '1.0.0','database': 'connected'})
 
+    logger.info("Flask application created successfully")
     return app
 
 
@@ -178,23 +219,43 @@ def main():
     args = parser.parse_args()
 
     # Učitaj config
-    erp_config = load_erp_config()
+    logger = logging.getLogger(__name__)
+    logger.info("Starting ERP server initialization...")
+    
+    try:
+        erp_config = load_erp_config()
+    except Exception as e:
+        print(f"ERROR: Failed to load configuration: {e}")
+        sys.exit(1)
     
     # Prioritet: CLI argument > config fajl > default
     port = args.port or int(erp_config.get('PORT', 8000))
     host = args.host or erp_config.get('HOST', '0.0.0.0')
     debug = args.debug or erp_config.get('DEBUG', 'false').lower() == 'true'
 
-    app = create_app()
+    logger.info(f"Configuration loaded: host={host}, port={port}, debug={debug}")
+    
+    try:
+        app = create_app()
+    except Exception as e:
+        print(f"ERROR: Failed to create application: {e}")
+        sys.exit(1)
+        
     configure_logging(app, logging.DEBUG if debug else logging.INFO)
 
     flask.cli.show_server_banner = lambda *args, **kwargs: None
 
+    logger.info("Starting notification scheduler thread...")
     t = threading.Thread(target=notification_scheduler, args=(app,), daemon=True)
     t.start()
+    logger.info("Notification scheduler started")
 
-    app.logger.info("Starting ERP server on %s:%s", host, port)
-    app.run(host=host, port=port, debug=debug, use_reloader=False)
+    app.logger.info("Starting ERP server on %s:%s (debug=%s)", host, port, debug)
+    try:
+        app.run(host=host, port=port, debug=debug, use_reloader=False)
+    except Exception as e:
+        logger.error(f"Server crashed: {e}", exc_info=True)
+        sys.exit(1)
 
 
 if __name__ == '__main__':

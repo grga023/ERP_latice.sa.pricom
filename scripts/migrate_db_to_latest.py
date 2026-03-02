@@ -8,7 +8,15 @@ import sqlite3
 import os
 import sys
 import shutil
+import logging
 from datetime import datetime
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Get database path (check production location first)
 if os.path.exists('/usb/ERP_data/data/erp.db'):
@@ -26,11 +34,17 @@ os.makedirs(BACKUP_DIR, exist_ok=True)
 
 def backup_database():
     """Create backup before migration"""
+    logger.info("Creating database backup...")
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     backup_file = os.path.join(BACKUP_DIR, f'erp_backup_migration_{timestamp}.db')
-    shutil.copy2(DB_FILE, backup_file)
-    print(f"✓ Backup created: {backup_file}")
-    return backup_file
+    try:
+        shutil.copy2(DB_FILE, backup_file)
+        logger.info(f"Backup created successfully: {backup_file}")
+        print(f"✓ Backup created: {backup_file}")
+        return backup_file
+    except Exception as e:
+        logger.error(f"Failed to create backup: {e}", exc_info=True)
+        raise
 
 
 def column_exists(cursor, table_name, column_name):
@@ -42,26 +56,32 @@ def column_exists(cursor, table_name, column_name):
 
 def migrate_users_table(conn):
     """Add password_change_required field to users table if missing"""
+    logger.info("Migrating 'users' table...")
     print("\n▶ Migrating 'users' table...")
     cursor = conn.cursor()
     
     try:
         if not column_exists(cursor, 'users', 'password_change_required'):
+            logger.info("Adding 'password_change_required' column...")
             print("  → Adding 'password_change_required' column...")
             cursor.execute("ALTER TABLE users ADD COLUMN password_change_required BOOLEAN DEFAULT 0")
             conn.commit()
+            logger.info("'password_change_required' column added successfully")
             print("  ✓ Added 'password_change_required' column")
         else:
+            logger.debug("Users table already up to date")
             print("  ✓ Users table already up to date")
             
     except Exception as e:
         conn.rollback()
+        logger.error(f"Error migrating users table: {e}", exc_info=True)
         print(f"  ✗ Error migrating users table: {e}")
         raise
 
 
 def migrate_orders_table(conn):
     """Migrate orders table: Serbian → English field names"""
+    logger.info("Migrating 'orders' table...")
     print("\n▶ Migrating 'orders' table...")
     cursor = conn.cursor()
     
@@ -71,9 +91,11 @@ def migrate_orders_table(conn):
         columns = [row[1] for row in cursor.fetchall()]
         
         if 'naziv' not in columns:
+            logger.debug("Orders table already migrated (English columns detected)")
             print("  ✓ Orders table already migrated (English columns detected)")
             return
         
+        logger.info("Converting Serbian to English columns...")
         print("  → Converting Serbian to English columns...")
         
         # Create new table with English column names
@@ -106,20 +128,24 @@ def migrate_orders_table(conn):
         row_count = cursor.rowcount
         
         # Drop old table and rename new one
+        logger.debug("Dropping old orders table and renaming new one...")
         cursor.execute("DROP TABLE orders")
         cursor.execute("ALTER TABLE orders_new RENAME TO orders")
         
         conn.commit()
+        logger.info(f"Orders table migrated successfully: {row_count} records")
         print(f"  ✓ Orders table migrated successfully ({row_count} records)")
         
     except Exception as e:
         conn.rollback()
+        logger.error(f"Error migrating orders table: {e}", exc_info=True)
         print(f"  ✗ Error migrating orders table: {e}")
         raise
 
 
 def migrate_lager_table(conn):
     """Migrate lager table: Serbian → English field names"""
+    logger.info("Migrating 'lager' table...")
     print("\n▶ Migrating 'lager' table...")
     cursor = conn.cursor()
     
@@ -129,9 +155,11 @@ def migrate_lager_table(conn):
         columns = [row[1] for row in cursor.fetchall()]
         
         if 'naziv' not in columns:
+            logger.debug("Lager table already migrated (English columns detected)")
             print("  ✓ Lager table already migrated (English columns detected)")
             return
         
+        logger.info("Converting Serbian to English columns...")
         print("  → Converting Serbian to English columns...")
         
         # Create new table with English column names
@@ -158,20 +186,24 @@ def migrate_lager_table(conn):
         row_count = cursor.rowcount
         
         # Drop old table and rename new one
+        logger.debug("Dropping old lager table and renaming new one...")
         cursor.execute("DROP TABLE lager")
         cursor.execute("ALTER TABLE lager_new RENAME TO lager")
         
         conn.commit()
+        logger.info(f"Lager table migrated successfully: {row_count} records")
         print(f"  ✓ Lager table migrated successfully ({row_count} records)")
         
     except Exception as e:
         conn.rollback()
+        logger.error(f"Error migrating lager table: {e}", exc_info=True)
         print(f"  ✗ Error migrating lager table: {e}")
         raise
 
 
 def verify_migration(conn):
     """Verify that migration was successful"""
+    logger.info("Verifying migration...")
     print("\n▶ Verifying migration...")
     cursor = conn.cursor()
     
@@ -192,34 +224,42 @@ def verify_migration(conn):
             
             missing = set(expected_columns) - set(actual_columns)
             if missing:
+                logger.error(f"Table '{table_name}' missing columns: {missing}")
                 print(f"  ✗ Table '{table_name}' missing columns: {missing}")
                 all_good = False
             else:
                 cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
                 count = cursor.fetchone()[0]
+                logger.info(f"Table '{table_name}' verified: {count} records, all columns present")
                 print(f"  ✓ Table '{table_name}': {count} records, all columns present")
                 
         except Exception as e:
+            logger.warning(f"Could not verify table '{table_name}': {e}")
             print(f"  ⚠ Could not verify table '{table_name}': {e}")
     
+    logger.info(f"Migration verification {'passed' if all_good else 'failed'}")
     return all_good
 
 
 def main():
+    logger.info("Starting database migration...")
     print("=" * 70)
     print("ERP DATABASE MIGRATION: Commit 585d193 → Latest")
     print("Serbian field names → English field names + New features")
     print("=" * 70)
     
     if not os.path.exists(DB_FILE):
+        logger.error(f"Database not found: {DB_FILE}")
         print(f"\n✗ Database not found: {DB_FILE}")
         print("   Please ensure the database exists before running migration.")
         sys.exit(1)
     
+    logger.info(f"Database file: {DB_FILE}")
     print(f"\n📁 Database file: {DB_FILE}")
     
     # Show file size
     db_size = os.path.getsize(DB_FILE)
+    logger.info(f"Database size: {db_size} bytes")
     print(f"📊 Database size: {db_size:,} bytes ({db_size / 1024:.2f} KB)")
     
     # Confirm before proceeding
@@ -232,8 +272,11 @@ def main():
     
     response = input("\n❓ Continue with migration? (yes/no): ").strip().lower()
     if response not in ['yes', 'y']:
+        logger.info("Migration cancelled by user")
         print("Migration cancelled.")
         sys.exit(0)
+    
+    logger.info("User confirmed migration, proceeding...")
     
     # Step 1: Backup
     print("\n" + "─" * 70)
@@ -243,20 +286,25 @@ def main():
     # Step 2: Connect
     print("\n" + "─" * 70)
     print("[2/4] Connecting to database...")
+    logger.info(f"Connecting to database: {DB_FILE}")
     conn = sqlite3.connect(DB_FILE)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode=WAL")
+    logger.info("Database connection established with WAL mode")
     print("  ✓ Connected successfully")
     
     # Step 3: Migrate
     print("\n" + "─" * 70)
     print("[3/4] Running migrations...")
+    logger.info("Starting migration process...")
     
     try:
         migrate_users_table(conn)
         migrate_orders_table(conn)
         migrate_lager_table(conn)
+        logger.info("All migrations completed successfully")
     except Exception as e:
+        logger.error(f"MIGRATION FAILED: {e}", exc_info=True)
         print(f"\n✗✗✗ MIGRATION FAILED: {e}")
         print(f"    Your data is safe in the backup: {backup_file}")
         conn.close()
@@ -268,6 +316,7 @@ def main():
     
     if verify_migration(conn):
         conn.close()
+        logger.info("Migration completed successfully")
         print("\n" + "=" * 70)
         print("✅ MIGRATION COMPLETED SUCCESSFULLY!")
         print("=" * 70)
@@ -277,6 +326,7 @@ def main():
         print("\n👉 You can now restart your ERP application.")
     else:
         conn.close()
+        logger.warning("Migration completed with warnings")
         print("\n" + "=" * 70)
         print("⚠️  MIGRATION COMPLETED WITH WARNINGS")
         print("=" * 70)

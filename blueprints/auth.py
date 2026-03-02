@@ -2,6 +2,7 @@
 Auth Blueprint - Autentifikacija korisnika
 """
 
+import logging
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from models import db, User
@@ -11,13 +12,16 @@ import string
 from blueprints.email_notify import get_email_config, send_email
 
 auth_bp = Blueprint('auth', __name__)
+logger = logging.getLogger(__name__)
 
 
 @auth_bp.route('/')
 def landing():
     """Landing page - prikazuje se ako korisnik nije ulogovan"""
     if current_user.is_authenticated:
+        logger.debug(f"Authenticated user {current_user.username} redirected to dashboard")
         return redirect(url_for('orders.dashboard'))
+    logger.debug("Displaying landing page for unauthenticated user")
     return render_template('landing.html')
 
 
@@ -27,25 +31,33 @@ def login():
     if current_user.is_authenticated:
         # Check if user needs to change password
         if current_user.password_change_required:
+            logger.info(f"User {current_user.username} needs password change")
             return redirect(url_for('auth.change_password_required'))
+        logger.debug(f"User {current_user.username} already authenticated, redirecting")
         return redirect(url_for('orders.index'))
     
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
+        logger.info(f"Login attempt for user: {username}")
+        
         user = User.query.filter_by(username=username).first()
         
         if user and user.check_password(password):
+            logger.info(f"User {username} logged in successfully")
             login_user(user, remember=True)
             
             # Check if password change is required
             if user.password_change_required:
+                logger.info(f"User {username} redirected to password change")
                 return redirect(url_for('auth.change_password_required'))
             
             next_page = request.args.get('next')
+            logger.debug(f"User {username} redirected to: {next_page or 'dashboard'}")
             return redirect(next_page if next_page else url_for('orders.dashboard'))
         else:
+            logger.warning(f"Failed login attempt for user: {username}")
             flash('Pogrešno korisničko ime ili lozinka!', 'error')
     
     return render_template('login.html')
@@ -55,6 +67,8 @@ def login():
 @login_required
 def logout():
     """Logout korisnika"""
+    username = current_user.username
+    logger.info(f"User {username} logged out")
     logout_user()
     return redirect(url_for('auth.landing'))
 
@@ -64,6 +78,7 @@ def logout():
 def register():
     """Registracija novog korisnika - samo admin može"""
     if not current_user.is_admin:
+        logger.warning(f"Non-admin user {current_user.username} attempted to register new user")
         flash('Samo administrator može kreirati nove korisnike!', 'error')
         return redirect(url_for('orders.dashboard'))
     
@@ -71,22 +86,28 @@ def register():
         username = request.form.get('username')
         email = request.form.get('email')
         
+        logger.info(f"Admin {current_user.username} attempting to register new user: {username}")
+        
         # Validacija
         if not username or not email:
+            logger.warning("Registration failed: missing username or email")
             flash('Korisničko ime i email su obavezni!', 'error')
             return render_template('register.html')
         
         # Provera da li korisnik već postoji
         if User.query.filter_by(username=username).first():
+            logger.warning(f"Registration failed: username {username} already exists")
             flash('Korisničko ime već postoji!', 'error')
             return render_template('register.html')
         
         if User.query.filter_by(email=email).first():
+            logger.warning(f"Registration failed: email {email} already exists")
             flash('Email već postoji!', 'error')
             return render_template('register.html')
         
         # Generiši random lozinku od 8 karaktera
         password = generate_random_password(8)
+        logger.debug(f"Generated temporary password for user: {username}")
         
         # Kreiraj novog korisnika
         user = User(
@@ -99,13 +120,16 @@ def register():
         
         db.session.add(user)
         db.session.commit()
+        logger.info(f"New user created: {username} by admin {current_user.username}")
         
         # Pošalji email novom korisniku sa pristupnim podacima
         email_sent = send_new_user_email(username, email, password)
         
         if email_sent:
+            logger.info(f"Welcome email sent to {email}")
             flash(f'Korisnik {username} kreiran! Email sa pristupnim podacima je poslat na {email}', 'success')
         else:
+            logger.warning(f"Welcome email failed for {email}, showing password in flash message")
             flash(f'Korisnik {username} kreiran! Privremena lozinka: {password} (Email nije poslat - proverite konfiguraciju)', 'warning')
         
         return redirect(url_for('auth.register'))
@@ -122,20 +146,26 @@ def change_password_required():
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
         
+        logger.info(f"Password change attempt for user: {current_user.username}")
+        
         # Validacija
         if not old_password or not new_password or not confirm_password:
+            logger.warning(f"Password change failed for {current_user.username}: missing fields")
             flash('Sva polja su obavezna!', 'error')
             return render_template('change_password_required.html')
         
         if not current_user.check_password(old_password):
+            logger.warning(f"Password change failed for {current_user.username}: incorrect old password")
             flash('Sadašnja lozinka je pogešna!', 'error')
             return render_template('change_password_required.html')
         
         if new_password != confirm_password:
+            logger.warning(f"Password change failed for {current_user.username}: passwords don't match")
             flash('Nove lozinke se ne podudaraju!', 'error')
             return render_template('change_password_required.html')
         
         if len(new_password) < 6:
+            logger.warning(f"Password change failed for {current_user.username}: password too short")
             flash('Nova lozinka mora imati najmanje 6 karaktera!', 'error')
             return render_template('change_password_required.html')
         
@@ -144,6 +174,7 @@ def change_password_required():
         current_user.password_change_required = False
         db.session.commit()
         
+        logger.info(f"Password changed successfully for user: {current_user.username}")
         flash('Lozinka uspešno promenjena! Sada možete nastaviti sa radom.', 'success')
         return redirect(url_for('orders.dashboard'))
     
@@ -158,10 +189,12 @@ def generate_random_password(length=8):
 
 def send_new_user_email(username, email, password):
     """Pošalji email novom korisniku sa pristupnim podacima"""
+    logger.info(f"Sending welcome email to new user: {username} ({email})")
     config = get_email_config()
     
     # Ako email nije omogućen ili nema konfiguracije, preskoči slanje
     if not config.enabled or not config.sender_email or not config.app_password:
+        logger.warning("Email not sent: email configuration not complete")
         return False
     
     subject = '🔐 Dobrodošli u Latice sa Pričom ERP - Pristupni podaci'
@@ -224,6 +257,11 @@ def send_new_user_email(username, email, password):
     # Vrati originalni receiver
     config.receiver_email = original_receiver
     
+    if success:
+        logger.info(f"Welcome email sent successfully to {email}")
+    else:
+        logger.error(f"Failed to send welcome email to {email}")
+    
     return success
 
 
@@ -231,4 +269,5 @@ def send_new_user_email(username, email, password):
 @login_required
 def user_profile():
     """API endpoint za user profile"""
+    logger.debug(f"User profile requested for: {current_user.username}")
     return jsonify(current_user.to_dict())

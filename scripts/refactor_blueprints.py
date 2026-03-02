@@ -5,11 +5,24 @@ Refactor all Serbian field names to English across all Python files
 
 import re
 import os
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 def refactor_file(filepath):
     """Replace Serbian field names with English equivalents"""
-    with open(filepath, 'r', encoding='utf-8') as f:
-        content = f.read()
+    logger.debug(f"Processing file: {filepath}")
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except Exception as e:
+        logger.error(f"Failed to read {filepath}: {e}", exc_info=True)
+        return False
     
     original = content
     
@@ -52,9 +65,15 @@ def refactor_file(filepath):
         content = content.replace(old, new)
     
     if content != original:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(content)
-        return True
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
+            logger.info(f"Refactored file: {filepath}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to write refactored content to {filepath}: {e}", exc_info=True)
+            return False
+    logger.debug(f"No changes needed for: {filepath}")
     return False
 
 # Files to refactor
@@ -65,15 +84,21 @@ files = [
 
 # Get parent directory (workspace root)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+logger.info(f"Base directory: {BASE_DIR}")
+logger.info("Starting blueprint refactoring...")
 
+refactored_count = 0
 for filepath in files:
     full_path = os.path.join(BASE_DIR, filepath)
     if os.path.exists(full_path):
         if refactor_file(full_path):
             print(f"✓ Refactored: {filepath}")
+            refactored_count += 1
         else:
             print(f"- No changes: {filepath}")
     else:
+        logger.warning(f"File not found: {filepath}")
         print(f"✗ File not found: {filepath}")
 
+logger.info(f"Refactoring complete. {refactored_count}/{len(files)} files changed")
 print("\n✅ Refactoring complete!")

@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 @orders_bp.route('/dashboard')
 @login_required
 def dashboard():
+    logger.debug(f"Dashboard accessed by user: {current_user.username if hasattr(current_user, 'username') else 'unknown'}")
     return render_template('dashboard.html')
 
 
@@ -101,28 +102,35 @@ def get_realized_orders():
 @orders_bp.route('/api/orders', methods=['POST'])
 @login_required
 def create_order():
+    logger.info("Creating new order")
     try:
         form_data = request.form
         file = request.files.get('image')
         filename = ''
         if file and file.filename:
             filename = f"{int(time.time())}_{file.filename}"
-            file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
+            filepath = os.path.join(current_app.config['IMAGES_DIR'], filename)
+            file.save(filepath)
+            logger.debug(f"Order image saved: {filename}")
 
         # Validate required fields
         if not form_data.get('name'):
+            logger.warning("Create order failed: missing name")
             return jsonify({'error': 'Naziv je obavezan'}), 400
         if not form_data.get('customer'):
+            logger.warning("Create order failed: missing customer")
             return jsonify({'error': 'Kupac je obavezan'}), 400
         
         try:
             price = float(form_data.get('price', 0))
         except (ValueError, TypeError):
+            logger.error(f"Invalid price value: {form_data.get('price')}")
             return jsonify({'error': 'Cena mora biti broj'}), 400
         
         try:
             quantity = int(form_data.get('quantity', 1))
         except (ValueError, TypeError):
+            logger.warning(f"Invalid quantity value: {form_data.get('quantity')}, using default")
             quantity = 1
 
         order = Order(
@@ -139,6 +147,7 @@ def create_order():
         )
         db.session.add(order)
         db.session.commit()
+        logger.info(f"Order created: {order.name} for {order.customer} (ID: {order.id}, Qty: {quantity}, Price: {price})")
         return jsonify({'ok': True})
     except Exception as e:
         db.session.rollback()
@@ -150,22 +159,33 @@ def create_order():
 @login_required
 def update_status():
     data = request.get_json()
-    order = db.session.get(Order, data['id'])
+    order_id = data.get('id')
+    logger.info(f"Updating order status: {order_id}")
+    
+    order = db.session.get(Order, order_id)
     if not order:
+        logger.warning(f"Update status failed: Order {order_id} not found")
         return jsonify({'error': 'Porudžbina nije pronađena'}), 404
 
+    old_status = order.status
     if 'paid' in data:
+        old_paid = order.paid
         order.paid = data['paid']
+        logger.debug(f"Order {order_id} paid status: {old_paid} -> {order.paid}")
+    
     order.status = data['status']
     db.session.commit()
+    logger.info(f"Order {order_id} ({order.name}) status updated: {old_status} -> {order.status}")
     return jsonify({'ok': True})
 
 
 @orders_bp.route('/api/order/<int:order_id>', methods=['GET'])
 @login_required
 def get_order(order_id):
+    logger.debug(f"Fetching order: {order_id}")
     order = db.session.get(Order, order_id)
     if not order:
+        logger.warning(f"Order {order_id} not found")
         return jsonify({'error': 'Porudžbina nije pronađena'}), 404
     return jsonify(order.to_dict())
 
@@ -173,21 +193,30 @@ def get_order(order_id):
 @orders_bp.route('/api/delete_order/<int:order_id>', methods=['DELETE'])
 @login_required
 def delete_order(order_id):
+    logger.info(f"Deleting order: {order_id}")
     order = db.session.get(Order, order_id)
     if not order:
+        logger.warning(f"Delete failed: Order {order_id} not found")
         return jsonify({'error': 'Porudžbina nije pronađena'}), 404
+    
+    order_name = order.name
     db.session.delete(order)
     db.session.commit()
+    logger.info(f"Order deleted: {order_name} (ID: {order_id})")
     return jsonify({'ok': True})
 
 @orders_bp.route('/api/update_order/<int:order_id>', methods=['POST'])
 @login_required
 def update_order(order_id):
+    logger.info(f"Updating order: {order_id}")
     order = db.session.get(Order, order_id)
     if not order:
+        logger.warning(f"Update failed: Order {order_id} not found")
         return jsonify({'error': 'Porudžbina nije pronađena'}), 404
 
     form_data = request.form
+    logger.debug(f"Updating order {order_id} with form data")
+    
     order.name = form_data.get('name', order.name)
     order.price = float(form_data.get('price', order.price))
     order.paid = form_data.get('paid') == 'true'
@@ -198,10 +227,13 @@ def update_order(order_id):
     if 'image' in request.files and request.files['image'].filename:
         file = request.files['image']
         filename = f"{int(time.time())}_{file.filename}"
-        file.save(os.path.join(current_app.config['IMAGES_DIR'], filename))
+        filepath = os.path.join(current_app.config['IMAGES_DIR'], filename)
+        file.save(filepath)
         order.image = filename
+        logger.debug(f"Order {order_id} image updated: {filename}")
 
     db.session.commit()
+    logger.info(f"Order updated: {order.name} (ID: {order_id})")
     return jsonify({'ok': True})
 
 
@@ -209,6 +241,8 @@ def update_order(order_id):
 @login_required
 def order_from_lager():
     data = request.get_json()
+    logger.info(f"Creating order from lager: lager_id={data.get('lager_id')}")
+    
     order_qty = int(data.get('quantity', 1))
     lager_id = int(data.get('lager_id', 0)) if data.get('lager_id') else None
     
@@ -220,14 +254,21 @@ def order_from_lager():
         item = db.session.get(LagerItem, int(lager_id))
         if item:
             available_stock = item.quantity or 0
+            logger.debug(f"Lager item {lager_id} ({item.name}): available={available_stock}, requested={order_qty}")
             
             # If requested quantity <= available stock and stock > 0, go to for_delivery
             # Otherwise (requested > available or stock <= 0), go to new orders
             if order_qty <= available_stock and available_stock > 0:
                 status = 'for_delivery'
                 # Subtract quantity from lager only if going to for_delivery
+                old_qty = item.quantity
                 item.quantity = max(0, item.quantity - order_qty)
+                logger.info(f"Lager {lager_id} quantity reduced: {old_qty} -> {item.quantity}")
+            else:
+                logger.info(f"Insufficient stock for lager {lager_id}, order goes to 'new' status")
             # If doesn't meet criteria, status remains 'new' and we don't subtract from lager
+        else:
+            logger.warning(f"Lager item {lager_id} not found")
 
     order = Order(
         name=data.get('name', ''),
@@ -244,28 +285,37 @@ def order_from_lager():
     )
     db.session.add(order)
     db.session.commit()
+    logger.info(f"Order from lager created: {order.name} (ID: {order.id}, Status: {status})")
     return jsonify({'ok': True, 'status': status})
 
 # return_to_lager
 @orders_bp.route('/api/return_to_lager/<int:order_id>', methods=['POST'])
 @login_required
 def return_to_lager(order_id):
+    logger.info(f"Returning order to lager: {order_id}")
     order = db.session.get(Order, order_id)
     if not order:
+        logger.warning(f"Return to lager failed: Order {order_id} not found")
         return jsonify({'error': 'Order not found'}), 404
     
     if not order.lager_id:
+        logger.warning(f"Return to lager failed: Order {order_id} has no lager_id")
         return jsonify({'error': 'Order has no lager_id'}), 404
     
     item = db.session.get(LagerItem, int(order.lager_id))
     if not item:
+        logger.error(f"Return to lager failed: Lager item {order.lager_id} not found")
         return jsonify({'error': 'Lager item not found'}), 404
     
     # Return the order quantity back to lager
+    old_qty = item.quantity
     item.quantity += order.quantity
+    logger.info(f"Lager {order.lager_id} quantity restored: {old_qty} -> {item.quantity}")
     
     # Delete the order after returning to lager
+    order_name = order.name
     db.session.delete(order)
     
     db.session.commit()
+    logger.info(f"Order {order_id} ({order_name}) returned to lager and deleted")
     return jsonify({'ok': True})

@@ -1,8 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+import logging
 
 db = SQLAlchemy()
+logger = logging.getLogger(__name__)
 
 
 class User(UserMixin, db.Model):
@@ -17,10 +19,17 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.String(50), default='')
 
     def set_password(self, password):
+        logger.debug(f"Setting password for user: {self.username}")
         self.password_hash = generate_password_hash(password)
+        logger.info(f"Password updated for user: {self.username}")
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        result = check_password_hash(self.password_hash, password)
+        if result:
+            logger.debug(f"Password check successful for user: {self.username}")
+        else:
+            logger.warning(f"Password check failed for user: {self.username}")
+        return result
 
     def to_dict(self):
         return {

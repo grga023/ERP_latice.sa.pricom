@@ -5,6 +5,14 @@ Complete refactoring: Serbian → English all across codebase
 
 import os
 import re
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 # Mapping of Serbian to English
 FIELD_MAP = {
@@ -31,10 +39,12 @@ FUNC_MAP = {
 
 def refactor_file(filepath):
     """Refactor file by replacing Serbian identifiers with English"""
+    logger.debug(f"Processing file: {filepath}")
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
-    except:
+    except Exception as e:
+        logger.error(f"Failed to read {filepath}: {e}", exc_info=True)
         return False
     
     original = content
@@ -78,13 +88,20 @@ def refactor_file(filepath):
     content = content.replace("o.get(", "form_data.get(")
     
     if content != original:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(content)
-        return True
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
+            logger.info(f"Refactored file: {filepath}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to write refactored content to {filepath}: {e}", exc_info=True)
+            return False
+    logger.debug(f"No changes needed for: {filepath}")
     return False
 
 # Get workspace root
 workspace_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+logger.info(f"Workspace root: {workspace_root}")
 
 # Files to refactor
 files_to_refactor = [
@@ -96,13 +113,20 @@ files_to_refactor = [
     'ERP_server.py',
 ]
 
+logger.info("Starting refactoring process...")
 print("🔄 Refactoring Python files...")
+refactored_count = 0
 for filepath in files_to_refactor:
     full_path = os.path.join(workspace_root, filepath)
     if os.path.exists(full_path):
         if refactor_file(full_path):
             print(f"  ✓ {filepath}")
+            refactored_count += 1
         else:
             print(f"  - {filepath}")
+    else:
+        logger.warning(f"File not found: {filepath}")
+        print(f"  ✗ Not found: {filepath}")
 
+logger.info(f"Refactoring complete. {refactored_count}/{len(files_to_refactor)} files changed")
 print("\n✅ Refactoring complete!")
