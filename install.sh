@@ -433,8 +433,9 @@ WorkingDirectory=$INSTALL_DIR
 ExecStart=$INSTALL_DIR/venv/bin/python $INSTALL_DIR/ERP_server.py --port $PORT
 Restart=on-failure
 RestartSec=5
-StandardOutput=append:$DATA_DIR/logs/erp.log
-StandardError=append:$DATA_DIR/logs/erp-error.log
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=erp.service
 
 [Install]
 WantedBy=multi-user.target

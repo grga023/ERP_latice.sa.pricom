@@ -4,11 +4,13 @@ Latice sa pričom ERP - Flask Application
 """
 
 import os
+import sys
 import logging
 import json
 import threading
 import sqlite3
 import argparse
+from logging.handlers import RotatingFileHandler
 from flask import Flask, jsonify, send_from_directory
 from flask_login import LoginManager
 from models import db, User
@@ -30,6 +32,34 @@ def load_erp_config():
                     key, value = line.strip().split('=', 1)
                     config[key] = value
     return config
+
+
+def configure_logging(app, level):
+    """Configure logging to journald (stdout/stderr) and to a file."""
+    log_dir = os.path.join(app.config.get('DATA_DIR', 'data'), 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, 'erp.log')
+
+    formatter = logging.Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s')
+
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(level)
+    stream_handler.setFormatter(formatter)
+
+    file_handler = RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=5)
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    for handler in list(root_logger.handlers):
+        root_logger.removeHandler(handler)
+    root_logger.addHandler(stream_handler)
+    root_logger.addHandler(file_handler)
+
+    app.logger.handlers = []
+    app.logger.propagate = True
+    logging.getLogger('werkzeug').setLevel(level)
 
 
 def create_app():
@@ -66,10 +96,6 @@ def create_app():
     app.config['IMAGES_DIR'] = IMAGES_DIR
     app.config['DATA_DIR'] = DATA_DIR
     app.config['SECRET_KEY'] = 'latice-sa-pricom-erp-secret'
-
-    # Enable console output for debugging
-    logging.basicConfig(level=logging.INFO)
-    app.logger.setLevel(logging.INFO)
 
     # ─── Initialize Extensions ─────────────────────────────────
     db.init_app(app)
@@ -155,6 +181,7 @@ def main():
     debug = args.debug or erp_config.get('DEBUG', 'false').lower() == 'true'
 
     app = create_app()
+    configure_logging(app, logging.DEBUG if debug else logging.INFO)
 
     t = threading.Thread(target=notification_scheduler, args=(app,), daemon=True)
     t.start()
