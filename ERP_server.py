@@ -112,27 +112,6 @@ def create_app():
     def serve_image(filename):
         return send_from_directory(IMAGES_DIR, filename)
 
-    @app.route('/api/config')
-    def get_config():
-        """Vraća frontend konfiguraciju"""
-        config_file = os.path.join(DATA_DIR, 'config.json')
-        if os.path.exists(config_file):
-            with open(config_file) as f:
-                return jsonify(json.load(f))
-        return jsonify({
-            'business': {'name': 'Simple ERP', 'shortName': 'ERP'},
-            'branding': {'primaryColor': '#4F46E5'}
-        })
-
-    @app.route('/api/config', methods=['POST'])
-    def save_config():
-        """Sačuvaj frontend konfiguraciju"""
-        config_file = os.path.join(DATA_DIR, 'config.json')
-        data = request.get_json()
-        with open(config_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        return jsonify({'status': 'ok'})
-
     # ─── Central Error Handlers ────────────────────────────────
     @app.errorhandler(400)
     def bad_request(e):

@@ -3,7 +3,7 @@ from flask_login import login_required
 import json
 import os
 
-config_bp = Blueprint('config', __name__, url_prefix='/config')
+config_bp = Blueprint('config', __name__)
 
 def get_config_path():
     return os.path.join(current_app.config.get('DATA_DIR', 'data'), 'config.json')
@@ -20,12 +20,7 @@ def save_config(data):
     with open(config_file, 'w') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-@config_bp.route('/')
-@login_required
-def config_page():
-    """Config stranica"""
-    config = load_config()
-    return render_template('settings.html', config=config)
+@config_bp.route('/config')
 
 @config_bp.route('/api/config', methods=['GET'])
 @login_required
