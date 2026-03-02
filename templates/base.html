@@ -19,7 +19,7 @@
 
 <!-- Edit Order Modal (Global) -->
 <div id="editOrderModal" class="modal-overlay">
-  <div class="card" style="max-width: 700px; margin: 60px auto; position: relative;">
+  <div class="card" style="max-width: 90%; width: 900px; margin: 60px auto; position: relative;">
     <span class="modal-close" onclick="closeEditModal()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: var(--gray); transition: color 0.2s;">&times;</span>
     
     <div class="card-header mb-3">
@@ -72,6 +72,15 @@
         <div class="form-group">
           <label class="form-label">Opis</label>
           <textarea id="editDescription" class="form-input" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Slika</label>
+          <div id="editImageUpload" class="image-upload" style="position: relative; cursor: pointer;">
+            <input type="file" id="editImageFile" name="image" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+            <p style="margin: 0; font-weight: 500; color: var(--gray);">📎 Kliknite da odaberete ili pritisnite CTRL+V</p>
+          </div>
+          <img id="editImagePreview" class="image-preview mt-3" alt="Preview slike" style="display: none; max-height: 200px; object-fit: cover; border-radius: var(--radius-md); border: 2px solid var(--glass-border);">
         </div>
         
         <div class="btn-group mt-4">
@@ -226,6 +235,18 @@ async function openEditModal(orderId, refreshFunction) {
             document.getElementById('editDate').value = htmlDate;
         }
         
+        // Show current image if exists
+        const preview = document.getElementById('editImagePreview');
+        if (order.image) {
+            preview.src = '/images/' + order.image;
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+        
+        // Reset file input
+        document.getElementById('editImageFile').value = '';
+        
         document.getElementById('editDate').focus();
     } catch (err) {
         console.error(err);
@@ -233,6 +254,47 @@ async function openEditModal(orderId, refreshFunction) {
         modal.classList.remove('active');
     }
 }
+
+// Handle image upload in edit modal
+document.addEventListener('DOMContentLoaded', function() {
+    const editImageUpload = document.getElementById('editImageUpload');
+    const editImageFile = document.getElementById('editImageFile');
+    const editImagePreview = document.getElementById('editImagePreview');
+    
+    if (!editImageUpload || !editImageFile) return;
+    
+    // File input change
+    editImageFile.addEventListener('change', function() {
+        if (editImageFile.files && editImageFile.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                editImagePreview.src = event.target.result;
+                editImagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(editImageFile.files[0]);
+        }
+    });
+    
+    // Paste image support
+    editImageUpload.addEventListener('paste', function(e) {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    editImagePreview.src = event.target.result;
+                    editImagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                editImageFile.files = dataTransfer.files;
+                break;
+            }
+        }
+    });
+});
 
 function closeEditModal() {
     const modal = document.getElementById('editOrderModal');
@@ -252,6 +314,12 @@ async function saveEditedOrder() {
     formData.append('quantity', document.getElementById('editQuantity').value);
     formData.append('color', document.getElementById('editColor').value);
     formData.append('description', document.getElementById('editDescription').value);
+    
+    // Add image if selected
+    const imageFile = document.getElementById('editImageFile');
+    if (imageFile && imageFile.files && imageFile.files[0]) {
+        formData.append('image', imageFile.files[0]);
+    }
     
     // Convert date from YYYY-MM-DD to DD.MM.YYYY
     let dateValue = document.getElementById('editDate').value;
