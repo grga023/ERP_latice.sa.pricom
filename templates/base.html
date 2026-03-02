@@ -2,14 +2,26 @@
 <html lang="sr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>{{ config.business.shortName if config and config.business else 'ERP' }} - {% block title %}{% endblock %}</title>
+
+<!-- PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="{{ config.business.shortName if config and config.business else 'ERP' }}">
+<meta name="theme-color" content="#667eea">
 
 <!-- Favicon -->
 {% if config and config.branding and config.branding.favicon %}
 <link rel="icon" type="image/x-icon" href="{{ config.branding.favicon }}">
 <link rel="shortcut icon" href="{{ config.branding.favicon }}">
+<link rel="apple-touch-icon" href="{{ config.branding.favicon }}">
+{% else %}
+<link rel="apple-touch-icon" href="/static/icon-192.png">
 {% endif %}
+
+<!-- Web App Manifest -->
+<link rel="manifest" href="/static/manifest.json">
 
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

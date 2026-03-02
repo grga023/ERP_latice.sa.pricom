@@ -2,8 +2,14 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{{ config.business.name if config and config.business else 'Latice sa Pričom' }} - ERP Sistem</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ config.business.shortName if config and config.business else 'Latice' }}">
+    <meta name="theme-color" content="#667eea">
     <style>
         * {
             margin: 0;
@@ -16,12 +22,16 @@
             line-height: 1.6;
             color: #333;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .navbar {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 1rem 5%;
+            padding-left: max(5%, env(safe-area-inset-left));
+            padding-right: max(5%, env(safe-area-inset-right));
             display: flex;
             justify-content: space-between;
             align-items: center;
