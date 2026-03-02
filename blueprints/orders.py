@@ -171,11 +171,11 @@ def update_status():
     if 'paid' in data:
         old_paid = order.paid
         order.paid = data['paid']
-        logger.debug(f"Order {order_id} paid status: {old_paid} -> {order.paid}")
+        logger.info(f"Order {order_id} payment status changed: {old_paid} -> {order.paid}")
     
     order.status = data['status']
     db.session.commit()
-    logger.debug(f"Order {order_id} ({order.name}) status updated: {old_status} -> {order.status}")
+    logger.info(f"Order status changed: {order.name} (ID: {order_id}): {old_status} -> {order.status}")
     return jsonify({'ok': True})
 
 
@@ -217,12 +217,30 @@ def update_order(order_id):
     form_data = request.form
     logger.debug(f"Updating order {order_id} with form data")
     
-    order.name = form_data.get('name', order.name)
-    order.price = float(form_data.get('price', order.price))
-    order.paid = form_data.get('paid') == 'true'
-    order.customer = form_data.get('customer', order.customer)
-    order.date = form_data.get('date', order.date)
-    order.description = form_data.get('description', order.description)
+    # Track changes
+    changes = {}
+    if form_data.get('name') and form_data.get('name') != order.name:
+        changes['name'] = f"{order.name} -> {form_data.get('name')}"
+        order.name = form_data.get('name', order.name)
+    if form_data.get('price'):
+        old_price = order.price
+        order.price = float(form_data.get('price', order.price))
+        if old_price != order.price:
+            changes['price'] = f"{old_price} -> {order.price}"
+    if form_data.get('paid'):
+        old_paid = order.paid
+        order.paid = form_data.get('paid') == 'true'
+        if old_paid != order.paid:
+            changes['paid'] = f"{old_paid} -> {order.paid}"
+    if form_data.get('customer') and form_data.get('customer') != order.customer:
+        changes['customer'] = f"{order.customer} -> {form_data.get('customer')}"
+        order.customer = form_data.get('customer', order.customer)
+    if form_data.get('date') and form_data.get('date') != order.date:
+        changes['date'] = f"{order.date} -> {form_data.get('date')}"
+        order.date = form_data.get('date', order.date)
+    if form_data.get('description') and form_data.get('description') != order.description:
+        changes['description'] = f"{order.description} -> {form_data.get('description')}"
+        order.description = form_data.get('description', order.description)
 
     if 'image' in request.files and request.files['image'].filename:
         file = request.files['image']
@@ -233,7 +251,11 @@ def update_order(order_id):
         logger.debug(f"Order {order_id} image updated: {filename}")
 
     db.session.commit()
-    logger.debug(f"Order updated: {order.name} (ID: {order_id})")
+    if changes:
+        changes_str = ', '.join([f"{k}: {v}" for k, v in changes.items()])
+        logger.info(f"Order updated (ID: {order_id}): {changes_str}")
+    else:
+        logger.debug(f"Order {order_id} updated (no significant changes)")
     return jsonify({'ok': True})
 
 
@@ -263,7 +285,7 @@ def order_from_lager():
                 # Subtract quantity from lager only if going to for_delivery
                 old_qty = item.quantity
                 item.quantity = max(0, item.quantity - order_qty)
-                logger.debug(f"Lager {lager_id} quantity reduced: {old_qty} -> {item.quantity}")
+                logger.info(f"Inventory quantity adjusted for {item.name} (Lager ID: {lager_id}): {old_qty} -> {item.quantity} (allocated to order)")
             else:
                 logger.debug(f"Insufficient stock for lager {lager_id}, order goes to 'new' status")
             # If doesn't meet criteria, status remains 'new' and we don't subtract from lager
@@ -310,7 +332,7 @@ def return_to_lager(order_id):
     # Return the order quantity back to lager
     old_qty = item.quantity
     item.quantity += order.quantity
-    logger.debug(f"Lager {order.lager_id} quantity restored: {old_qty} -> {item.quantity}")
+    logger.info(f"Inventory quantity restored for {item.name} (Lager ID: {order.lager_id}): {old_qty} -> {item.quantity} (order returned)")
     
     # Delete the order after returning to lager
     order_name = order.name
