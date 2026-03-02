@@ -25,6 +25,23 @@
     <tbody></tbody>
   </table>
 </div>
+
+<!-- Modern Modal za potvrdu plaćanja -->
+<div id="paymentModal" class="modal-overlay">
+  <div class="card" style="max-width: 500px; margin: 2rem; animation: slideInUp 0.3s ease;">
+    <div class="card-header">
+      <h2 class="card-title" style="margin: 0;">💳 Potvrda Plaćanja</h2>
+      <button onclick="closePaymentModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray);">&times;</button>
+    </div>
+    <div class="card-body">
+      <p style="color: var(--gray); margin-bottom: 1.5rem;">Ova porudžbina još nije plaćena. Da li je customer platio?</p>
+      <div class="btn-group">
+        <button id="btnPlaceno" class="btn btn-success btn-lg">✅ Da, plaćeno</button>
+        <button id="btnNijePlaceno" class="btn btn-danger btn-lg">❌ Ne, nije plaćeno</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -70,7 +87,7 @@ async function loadToBeShipped() {
                 <td data-label="Akcija">
                     <div class="btn-group">
                         <button class="btn btn-sm btn-secondary" onclick="editOrder(${order.id})">✏️ Izmeni</button>
-                        <button class="btn btn-sm btn-success" onclick="realized(${order.id})">✅ Realizovano</button>
+                        <button class="btn btn-sm btn-success" onclick="realized(${order.id}, ${order.paid})">✅ Realizovano</button>
                     </div>
                 </td>
             `;
@@ -78,12 +95,48 @@ async function loadToBeShipped() {
     });
 }
 
-async function realized(id) {
+async function realized(id, paid) {
+    if (!paid) {
+        // Show payment modal
+        const modal = document.getElementById('paymentModal');
+        modal.classList.add('active');
+
+        // Remove old listeners by cloning buttons
+        const btnDa = document.getElementById('btnPlaceno');
+        const btnNe = document.getElementById('btnNijePlaceno');
+        const newBtnDa = btnDa.cloneNode(true);
+        const newBtnNe = btnNe.cloneNode(true);
+        btnDa.parentNode.replaceChild(newBtnDa, btnDa);
+        btnNe.parentNode.replaceChild(newBtnNe, btnNe);
+
+        newBtnDa.addEventListener('click', async () => {
+            modal.classList.remove('active');
+            await sendRealized(id, true);
+        });
+        newBtnNe.addEventListener('click', async () => {
+            modal.classList.remove('active');
+            await sendRealized(id, false);
+        });
+
+        // Close on overlay click
+        modal.onclick = function(e) {
+            if (e.target === modal) modal.classList.remove('active');
+        };
+        return;
+    }
+    await sendRealized(id, paid);
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('active');
+}
+
+async function sendRealized(id, paid) {
     try {
         const res = await fetch('/api/update_status', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({id: id, status:'realized'})
+            body: JSON.stringify({id: id, status:'realized', paid: paid})
         });
         if(res.ok) loadToBeShipped();
         else alert('Greška pri ažuriranju statusa.');
