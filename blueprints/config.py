@@ -21,6 +21,7 @@ def save_config(data):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 @config_bp.route('/config')
+@config_bp.route('/config/')
 @login_required
 def config_page():
     """Config stranica"""
