@@ -118,5 +118,5 @@ def increase_quantity(item_id):
     old_quantity = item.quantity
     item.quantity += increase_by
     db.session.commit()
-        logger.debug(f"Inventory quantity increased for {item.name} (ID: {item_id}): {old_quantity} -> {item.quantity}")
+    logger.debug(f"Inventory quantity increased for {item.name} (ID: {item_id}): {old_quantity} -> {item.quantity}")
     return jsonify({'ok': True, 'new_quantity': item.quantity})
