@@ -418,6 +418,7 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
     const totalCena = (baseCena * quantity).toFixed(2);
     const color = document.getElementById('modalLagerBoja').value;
     const descriptionText = document.getElementById('modalOpis').value.trim();
+    const stock = parseInt(document.getElementById('modalLagerStock').value);
 
     // Build formatted description: "količina color\nDetalji: description"
     let formattedOpis = quantity + ' ' + (color || 'Razno') + '\r\n';
@@ -445,7 +446,20 @@ document.getElementById('orderFromLagerForm').addEventListener('submit', async f
             body: JSON.stringify(data)
         });
         if (res.ok) {
-            alert('Porudžbina je uspešno kreirana!');
+            const result = await res.json();
+            let message = 'Porudžbina je uspešno kreirana!';
+            
+            if (result.status === 'for_delivery') {
+                message += ' ✅ Ide direktno u "Za Dostavu" jer je dovoljno na lageru.';
+            } else if (result.status === 'new') {
+                if (quantity > stock) {
+                    message += ' ⚠️ Tražena količina je veća od dostupne. Porudžbina ide u "Nove Porudžbine".';
+                } else {
+                    message += ' ⚠️ Proizvod je nedostupan. Porudžbina ide u "Nove Porudžbine".';
+                }
+            }
+            
+            alert(message);
             closeOrderModal();
             loadLager();
         } else {

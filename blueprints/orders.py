@@ -209,12 +209,23 @@ def order_from_lager():
     data = request.get_json()
     order_qty = int(data.get('quantity', 1))
     lager_id = int(data.get('lager_id', 0)) if data.get('lager_id') else None
-
-    # Subtract quantity from lager (minimum 0)
+    
+    # Determine order status based on available stock
+    status = 'new'
+    available_stock = 0
+    
     if lager_id:
         item = db.session.get(LagerItem, int(lager_id))
         if item:
-            item.quantity = max(0, item.quantity - order_qty)
+            available_stock = item.quantity or 0
+            
+            # If requested quantity <= available stock and stock > 0, go to for_delivery
+            # Otherwise (requested > available or stock <= 0), go to new orders
+            if order_qty <= available_stock and available_stock > 0:
+                status = 'for_delivery'
+                # Subtract quantity from lager only if going to for_delivery
+                item.quantity = max(0, item.quantity - order_qty)
+            # If doesn't meet criteria, status remains 'new' and we don't subtract from lager
 
     order = Order(
         name=data.get('name', ''),
@@ -226,12 +237,12 @@ def order_from_lager():
         color=data.get('color', ''),
         description=data.get('description', ''),
         image=data.get('image', ''),
-        status='new',
+        status=status,
         lager_id=lager_id if lager_id else None
     )
     db.session.add(order)
     db.session.commit()
-    return jsonify({'ok': True})
+    return jsonify({'ok': True, 'status': status})
 
 # return_to_lager
 @orders_bp.route('/api/return_to_lager/<int:order_id>', methods=['POST'])
