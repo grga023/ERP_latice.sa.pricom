@@ -243,7 +243,8 @@ async function openEditModal(orderId, refreshFunction) {
         }
         flatpickr('#editDate', {
             dateFormat: 'Y-m-d',
-            locale: 'sr'
+            locale: 'sr',
+            clickOpens: true  // Only open on click, not on focus
         });
         
         // Show current image if exists
@@ -258,7 +259,11 @@ async function openEditModal(orderId, refreshFunction) {
         // Reset file input
         document.getElementById('editImageFile').value = '';
         
-        document.getElementById('editDate').focus();
+        // Scroll modal to top
+        const modalCard = modal.querySelector('.modal-card');
+        if (modalCard) {
+            modalCard.scrollTop = 0;
+        }
     } catch (err) {
         console.error(err);
         alert('Greška pri učitavanju porudžbine.');
