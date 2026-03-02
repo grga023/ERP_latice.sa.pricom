@@ -161,6 +161,12 @@ def migrate_lager_table(conn):
         
         logger.debug("Converting Serbian to English columns...")
         print("  → Converting Serbian to English columns...")
+
+        # Temporarily disable FK checks to allow table swap when orders.lager_id exists
+        cursor.execute("PRAGMA foreign_keys = OFF")
+
+        # Clean up a previous failed run if needed
+        cursor.execute("DROP TABLE IF EXISTS lager_new")
         
         # Create new table with English column names
         cursor.execute("""
@@ -191,11 +197,17 @@ def migrate_lager_table(conn):
         cursor.execute("ALTER TABLE lager_new RENAME TO lager")
         
         conn.commit()
+
+        cursor.execute("PRAGMA foreign_keys = ON")
         logger.debug(f"Lager table migrated successfully: {row_count} records")
         print(f"  ✓ Lager table migrated successfully ({row_count} records)")
         
     except Exception as e:
         conn.rollback()
+        try:
+            cursor.execute("PRAGMA foreign_keys = ON")
+        except Exception:
+            pass
         logger.error(f"Error migrating lager table: {e}", exc_info=True)
         print(f"  ✗ Error migrating lager table: {e}")
         raise
