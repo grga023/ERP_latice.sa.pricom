@@ -365,6 +365,58 @@ tee "$DATA_DIR/config.json" > /dev/null << EOF
 EOF
 
 # ═══════════════════════════════════════════════
+# Kreiranje admin korisnika
+# ═══════════════════════════════════════════════
+ADMIN_USERNAME="admin"
+ADMIN_PASSWORD=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 8)
+RESET_USERS="false"
+
+if [ -f "$DATA_DIR/erp.db" ]; then
+    read -p "Obrisati sve korisnike iz postojece baze? [y/N]: " RESET_USERS_INPUT
+    if [[ "$RESET_USERS_INPUT" =~ ^[Yy]$ ]]; then
+        RESET_USERS="true"
+    fi
+fi
+
+export ADMIN_USERNAME ADMIN_PASSWORD RESET_USERS
+
+"$INSTALL_DIR/venv/bin/python" - << 'EOF'
+import os
+from datetime import datetime
+from ERP_server import create_app
+from models import db, User
+
+app = create_app()
+with app.app_context():
+    if os.environ.get('RESET_USERS') == 'true':
+        User.query.delete()
+        db.session.commit()
+
+    username = os.environ.get('ADMIN_USERNAME', 'admin')
+    password = os.environ.get('ADMIN_PASSWORD', 'admin1234')
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        user = User(
+            username=username,
+            email='admin@local',
+            is_admin=True,
+            password_change_required=True,
+            created_at=datetime.now().isoformat()
+        )
+        user.set_password(password)
+        db.session.add(user)
+    else:
+        user.is_admin = True
+        user.password_change_required = True
+        if not user.email:
+            user.email = 'admin@local'
+        user.set_password(password)
+
+    db.session.commit()
+EOF
+
+# ═══════════════════════════════════════════════
 # Kreiranje systemd servisa
 # ═══════════════════════════════════════════════
 echo -e "${GREEN}[9/10]${NC} Kreiranje systemd servisa..."
@@ -459,6 +511,11 @@ echo "  Logo:         $IMG_DIR/branding/logo.png"
 echo "  Mali logo:    $IMG_DIR/branding/logo-small.png"
 echo "  Favicon:      $IMG_DIR/branding/favicon.ico"
 echo "  Ili koristi:  http://localhost:$PORT/config"
+echo ""
+echo -e "${YELLOW}Admin korisnik:${NC}"
+echo "  Username: $ADMIN_USERNAME"
+echo "  Password: $ADMIN_PASSWORD"
+echo "  (Lozinka mora biti promenjena pri prvoj prijavi)"
 echo ""
 echo -e "${YELLOW}Komande:${NC}"
 echo "  erp start         - Pokreni servis"

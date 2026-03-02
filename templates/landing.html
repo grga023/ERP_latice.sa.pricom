@@ -260,7 +260,6 @@
         </a>
         <div class="nav-buttons">
             <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Prijavi se</a>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Registruj se</a>
         </div>
     </nav>
 
@@ -269,7 +268,7 @@
         <h1>Upravljajte svojim poslom lakše nego ikad</h1>
         <p>Kompletan ERP sistem za upravljanje narudžbinama, skladištem i klijentima. Sve na jednom mestu, jednostavno i efikasno.</p>
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Počni besplatno</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Prijavi se</a>
             <a href="#features" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">Saznaj više</a>
         </div>
     </section>
@@ -383,8 +382,8 @@
     <!-- CTA Section -->
     <section class="cta">
         <h2>Spremni da počnete?</h2>
-        <p>Registrujte se danas i počnite da upravljate svojim poslovanjem profesionalnije</p>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;">Kreiraj nalog besplatno</a>
+        <p>Prijavite se i počnite da upravljate svojim poslovanjem profesionalnije</p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;">Prijavi se</a>
     </section>
 
     <!-- Footer -->

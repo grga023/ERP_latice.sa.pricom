@@ -6,6 +6,14 @@
 <div class="container">
 <h1>⚙ Podešavanja</h1>
 
+<div class="settings-card" style="margin-top: 20px;">
+    <h2>👤 Korisnici</h2>
+    <p class="settings-desc">Kreiraj nove korisnike (samo admin). Korisnik dobija privremenu lozinku i mora je promeniti pri prvoj prijavi.</p>
+    <div class="settings-buttons">
+        <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for('auth.register') }}'">➕ Novi korisnik</button>
+    </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════
      EMAIL NOTIFIKACIJE (tvoj originalni deo)
      ═══════════════════════════════════════════════ -->
